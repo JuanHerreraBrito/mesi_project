@@ -1,0 +1,342 @@
+/* 
+ * V2 Sell.Kichink
+ * Orders
+ */
+
+function togglePending(e) {
+    $('#pending-orders').parent().toggle();
+
+    if ($("#eye").hasClass("fa-eye-slash")) {
+        $("#eye").removeClass("fa-eye-slash");
+        $("#eye").addClass("fa-eye");
+    } else {
+        $("#eye").addClass("fa-eye-slash");
+        $("#eye").removeClass("fa-eye");
+    }
+}
+
+$(document).ready(function() {
+    
+    $('#download-report').on('click', function(){
+        $("#preloader").data().Preloader.methods.setText("Cargando Reporte...");
+        $("#preloader").data().Preloader.methods.draw([]);
+        $("#preloader").data().Preloader.methods.show();
+        call_api('/api/orders/get_report', 'post', {store: store_id}, function(result) {
+            try
+            {
+                result = $.parseJSON(result);
+                if(result !== null){
+                    $("#preloader").data().Preloader.methods.hide();
+                    var data = result.data;
+                    if(typeof data.name != 'undefined')
+                    {
+                        var f               = document.getElementById('download-file');
+                        f.content.value     = data.content;
+                        f.extension.value   = data.extension;
+                        f.type.value        = data.type;
+                        f.name.value        = data.name;
+                        f.submit();
+                    }
+                    else{
+                       throw "Error al generar el reporte, favor de notificarlo...";
+                    }
+                }
+                else{
+                    throw "Error al generar el reporte, favor de notificarlo...";
+                }
+            }
+            catch(err){
+                if(typeof err != "undefined") alert(err);
+                $("#preloader").data().Preloader.methods.hide();
+            }
+        });
+    });
+
+    $("#new-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "bFilter": false,
+         "bInfo": false,
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }]
+    });
+
+    $("#previous-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "bFilter": false,
+         "bInfo": false,
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }],
+    });
+
+
+    $("#open-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "bFilter": false,
+         "bInfo": false,
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }]
+    });
+
+    $("#pending-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }],
+    });
+
+
+    function get_orders(status, page, limit, currency, substatus) {
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: (substatus!=undefined)?substatus:status, page: page, limit: limit}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", ((currency == "USD") ? "total_price_USD" : "total_price"), "currency", "time_ago"];
+            
+            
+            if (obj.data.length > 0) {
+                $("#" + status + "-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#" + status + "-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#" + status + "-orders").data().DinamicTable.methods.drawTable();
+                var total_pages = Math.ceil(obj.data[0].total_count / limit);
+
+                var select = document.createElement("select");
+                $(select).attr("id", "offset-" + status);
+                $(select).append('<option value="10" '+((parseInt(limit)==10)?"selected":"")+'>10</option>');
+                if (obj.data[0].total_count > 25)
+                    $(select).append('<option value="25" '+((parseInt(limit)==25)?"selected":"")+'>25</option>');
+                if (obj.data[0].total_count > 50)
+                    $(select).append('<option value="50" '+((parseInt(limit)==50)?"selected":"")+'>50</option>');
+                if (obj.data[0].total_count > 100)
+                    $(select).append('<option value="100" '+((parseInt(limit)==100)?"selected":"")+'>100</option>');
+                $(".total-"+status).html("$"+((currency == "USD")?number_format(obj.data[0].amount_gral_USD,2,".",",")+" USD":number_format(obj.data[0].amount_gral,2,".",",")));
+
+                $(select).on("change", function() {
+                    get_orders(status, 1, $(this).val(), currency, substatus);
+                });
+
+                var div = document.createElement("div");
+                $(div).addClass("info");
+                $(div).append(kontrol_lang["orders_mostrando"] + "&nbsp;");
+                $(div).append(select);
+                $(div).append("&nbsp;" + kontrol_lang["orders_resultados"] + "&nbsp;");
+                $(div).append("<b>" + obj.data[0].total_count + "&nbsp;"+kontrol_lang["orders_orders"]+"</b>&nbsp;");
+                $(div).append("<select class='status-order "+ status + "-o'><option value='"+status+"' "+((!substatus)?"selected":"")+">" + kontrol_lang["orders_show_" + status] + "</option></select>");
+                
+                if(status=="open"){
+                    $(div).find("select.status-order").append("<option value='delivered' "+((substatus=="delivered")?"selected":"")+">"+kontrol_lang["o_delivered"]+"</option>");
+                    $(div).find("select.status-order").append("<option value='confirmed' "+((substatus=="confirmed")?"selected":"")+">"+kontrol_lang["o_confirmed"]+"</option>");
+                    $(div).find("select.status-order").append("<option value='en_ruta' "+((substatus=="en_ruta")?"selected":"")+">"+kontrol_lang["o_en_ruta"]+"</option>");
+                }
+                else if(status=="previous"){
+                    $(div).find("select.status-order").append("<option value='closed' "+((substatus=="closed")?"selected":"")+">"+kontrol_lang["o_closed"]+"</option>");
+                    $(div).find("select.status-order").append("<option value='cancelled' "+((substatus=="cancelled")?"selected":"")+">"+kontrol_lang["o_cancelada"]+"</option>");
+                }
+                $(div).find("select.status-order."+status+"-o").change(function(){
+                    get_orders(status, 1, 10, currency, $(this).val());
+                });
+                
+                
+                $(div).append("&nbsp;" + kontrol_lang["k_in"] + "&nbsp;");
+                var select2 = document.createElement("select");
+                $(select2).append('<option value="USD" ' + ((currency == "USD") ? "selected" : "") + '>USD</option>');
+                $(select2).append('<option value="MXN" ' + ((currency != "USD") ? "selected" : "") + '>MXN</option>');
+
+                $(select2).on("change", function() {
+                    get_orders(status, 1, limit, $(this).val(), substatus);
+                });
+
+
+                $(div).append(select2);
+
+                $(".pagination-" + status).html("");
+
+                $("#" + status + "-orders").prepend(div);
+
+                if (page <= 0)
+                    page = 1;
+
+                if (page > total_pages)
+                    page = 1;
+
+                var from = 0, to = 5;
+                if (page <= 3) {
+                    from = 1;
+                }
+                else if (page > 3) {
+                    from = page - 2;
+                }
+
+                if ((page + 2) >= total_pages)
+                    from = total_pages - 5;
+
+                if (from < 0)
+                    from = 1;
+                to = from + 5;
+                if (to > total_pages)
+                    to = total_pages;
+
+                
+                var pagination = document.createElement('ul');
+                $(pagination).addClass("pagination");
+                $(pagination).html('<li class="' + ((page != 1) ? "" : 'disabled') + '"><a class="prev">&laquo;</a></li>');
+
+
+                for (var i = from; i <= to; i++) {
+                    var li = document.createElement("li");
+                    var a = document.createElement("a");
+
+                    $(a).html(i);
+                    $(a).attr("data-index", i);
+
+                    if (page == i) {
+                        $(li).addClass("active");
+                    } else {
+                        $(a).click(function() {
+                            get_orders(status, $(this).data().index, limit, currency, substatus);
+                        });
+                    }
+                    $(li).html(a);
+                    $(pagination).append(li);
+                }
+                $(pagination).append('<li class="' + ((page != total_pages) ? "" : 'disabled') + '"><a class="next">&raquo;</a></li>');
+
+                if (total_pages > 1) {
+                    var input = document.createElement("input");
+                    var form = document.createElement("form");
+                    $(input).attr("type", "text");
+                    $(input).val(page);
+                    $(input).attr("class", "form-control");
+                    $(input).keypress(function(evt) {
+                        var charCode = (evt.which) ? evt.which : event.keyCode
+                        if (charCode > 31 && (charCode < 48 || charCode > 57))
+                            return false;
+                        return true;
+                    });
+                    $(form).addClass("input-group");
+                    $(form).css("float", "left");
+                    $(form).addClass("gotoPage");
+                    $(form).html(input);
+                    $(form).attr("method", "post");
+                    $(form).append('<span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>');
+                    $(form).on("submit", function() {
+                        var p = parseInt($(this).find("input").val());
+                        p = (p > total_pages) ? page : p;
+                        get_orders(status, p, limit, currency, substatus);
+                        $(this).val(p);
+                        return false;
+                    });
+                    $(".pagination-" + status).html(form);
+
+                    $(pagination).find("li[class!=disabled] a.next").click(function() {
+                        get_orders(status, page + 1, limit, currency, substatus);
+                    });
+                    $(pagination).find("li[class!=disabled] a.prev").click(function() {
+                        get_orders(status, page - 1, limit, currency, substatus);
+                    });
+
+                    $(".pagination-" + status).append(pagination);
+                    $(div).append($(".pagination-" + status).clone(true));
+                    $(div).find(".pagination-" + status).prepend("<br/>");
+
+                }
+
+                $("#" + status + "-orders").prepend(div);
+                var t = 0;
+                $("#" + status + "-orders table").find("td.col-total_price").each(function(i, e) {
+                    t += parseFloat($(e).html().replace(/[,]/g, ""));
+                });
+                $("#" + status + "-orders").append("<div class='t-total "+((total_pages>1)?"pull-right":"")+"' align='right'><small style='margin-top:8px;color: #999;'>Total en este bloque: <span class='total-" + status + "'>$" + number_format(t, 2, ".", ",") + "</span></small></div>");
+
+                setTooltip($("#" + status + "-orders").find('.label.status'));
+            } else {
+                $(".total-"+status).html("$0.00"+((currency == "USD")?" USD":""));
+                $("#" + status + "-orders").find(".info b").html("0"+ "&nbsp;"+kontrol_lang["orders_orders"]);
+                $("#" + status + "-orders").find(".t-total").remove();
+                $("#" + status + "-orders").find("table").remove();
+                $("#" + status + "-orders").append("<span class='no'>" + kontrol_lang['orders_no_orders'] + "</span>");
+            }
+        });
+    }
+
+    get_orders("new", 1, 10, "MXN");
+    get_orders("open", 1, 10, "MXN");
+    get_orders("pending", 1, 10, "MXN");
+    get_orders("previous", 1, 10, "MXN");
+
+
+});

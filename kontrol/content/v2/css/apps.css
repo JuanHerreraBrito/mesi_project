@@ -1,0 +1,37 @@
+.app {
+    background-color: #FFFFFF;
+    display: inline-block;
+    border: 1px solid #ccc;
+    padding: 20px 15px;
+    height: 250px;
+    width: 220px;
+    text-align: center;
+    border-radius: 5px;
+    margin: 10px;
+    float:left;
+}
+
+.app.empty{
+    border: 2px dashed #e2e2e2;
+    display: none;
+    color:#999;
+}
+.app .title{
+    font-weight: bold;
+    display:block;
+    font-size:18px;
+    margin:10px 0;
+}
+.app .desc{
+    font-weight: light;
+    height:65px;
+}
+.app span{
+    height:60px;
+    font-size: 56px;
+}
+.appset {
+    display: inline-block;
+    clear: both;
+    width: 100%;
+}
