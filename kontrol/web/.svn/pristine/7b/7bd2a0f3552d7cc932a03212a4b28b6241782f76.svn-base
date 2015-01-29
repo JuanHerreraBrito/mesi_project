@@ -1,0 +1,68 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Importante extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 */
+	public function index()
+	{	
+		$this->load->view('v2/importante/index');
+	}
+
+	public function view(){
+		if( $this->session->userdata('admin_client_stores') ){
+			$this->load->view('terminos/index_view');
+		}else{
+			redirect('/stores');
+		}
+	}
+
+		private function get_stores_total(){
+
+			$this->db->select('COUNT(*) as total, store_id');
+			$this->db->where('user_id', $this->session->userdata('user_id'));
+			$this->db->where('( owner = 1 OR admin = 1 )');
+			$q = $this->db->get('user_perm');
+			$r = $q->result();
+
+			if( $r[0]->total == 1 ){
+				return $r[0]->store_id;
+			}else{
+				return false;
+			}
+
+		}
+	
+	public function acepto_contrato(){
+
+		if($this->session->userdata('user_id') AND $this->input->post('acepto') == 'acepto' AND !$this->session->userdata('sell_terms')){
+
+			$this->db->update('users', array('sell_terms' => 1), array('id' => $this->session->userdata('user_id')));
+			$this->session->set_userdata('sell_terms', 1);
+
+			if($stores_id = $this->get_stores_total()){
+				$redirect = '/stores/id/'.$stores_id;
+			}else{
+				$redirect = '/stores';
+			}
+			echo json_encode(array('msg' => 'success', 'stores' => $redirect));
+
+		}else{
+			echo json_encode(array('msg' => 'Por favor acepta nuestros términos', 'stores' => '/stores'));
+		}
+
+	}
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

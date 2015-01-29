@@ -1,0 +1,34 @@
+/* 
+ * V2 Sell.Kichink
+ * Apps
+ */
+$(document).ready(function() {
+
+$(".btn-buy").each(function(i, e) {
+        $(e).click(function() {
+            if ($(this).hasClass("btn-info")) {
+                $(this).removeClass("btn-info");
+                $(this).addClass("btn-success");
+                $(this).animate({width:120});
+                $(this).html("Are you Sure?");
+            } else {
+                
+                $("#preloader").data().Preloader.methods.draw({issue: "Se instalará una aplicación"});
+                $("#preloader").data().Preloader.methods.show();
+                
+                
+                $(this).html("Installed");
+                $(this).removeClass("btn-success");
+                $(this).removeClass("btn-buy");
+                $(this).addClass("disabled");
+                $(this).addClass("btn-default");
+                var d = $(this).closest(".app").clone();
+                $(this).closest(".app").remove();
+                $(".appset#installed").append(d);
+                $("#preloader").data().Preloader.methods.hide();
+
+
+            }
+        });
+    });
+});

@@ -1,0 +1,551 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Inventarios extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	
+
+	public function id(){
+
+		// Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 4,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+		if($this->input->post('store_id')){
+			$data['import_csv'] = $this->process_csv();
+		}
+
+		$data['inventarios'] = $this->get_inventarios($store_id);
+
+		$this->load->view('inventarios/index_view', $data);
+
+	}
+
+	public function update_table(){
+
+		if($store_id = $this->input->post('store_id') AND $items = $this->input->post('items') AND is_array($items = json_decode($items))){
+
+			// Validar que los items recibidos sean de la tienda
+			if(!$this->check_permisos_store($store_id)){
+				echo json_encode(array( 'msg' => 'No tienes permiso para actualizar inventarios en tienda'));
+			}elseif(!$this->validar_items($items, $store_id)){
+				echo json_encode(array( 'msg' => 'No tienes permiso para actualizar inventarios en cierto(s) articulo(s)'));
+			}elseif(!$this->validar_items_format($items, $store_id)){
+				echo json_encode(array( 'msg' => 'Formato de artículos es incorrecto'));
+			}else{
+
+				$rows_updated = 0;
+
+				foreach($items as $item){
+
+					if(!$item->purchase_opts){
+
+						$this->db->where('id', $item->id);
+						$this->db->update('items', array('units_availible' => $item->units));
+						$rows_updated += $this->db->affected_rows();
+
+					}else{
+						
+						$q = $this->db->get_where('item_purchase_options', array('item_id'=>$item->id));
+
+						if($r = $q->result()){
+
+							$opts_decoded = json_decode($r[0]->options);
+							$units = 0;
+							foreach($opts_decoded as $opts) {
+								if($key = $this->search_in($item->purchase_opts, $opts->label)){
+									$opts->units = $item->purchase_opts[$key-1]->units;
+									$units += $opts->units;
+								}
+							}
+
+							$this->db->where('item_id', $item->id);
+							$this->db->update('item_purchase_options', array('options' => json_encode($opts_decoded)));
+
+							$this->db->where('id', $item->id);
+							$this->db->update('items', array('units_availible' => $units));
+							$rows_updated += $this->db->affected_rows();
+
+						}
+
+					}
+
+				}
+
+				echo json_encode(array( 'msg' => 'Artículos actualizados: '.$rows_updated));
+
+			}
+
+		}else{
+			echo json_encode(array( 'msg' =>  'No se recibieron datos correctos'));
+		}
+
+	}	
+
+		private function validar_items($items, $store_id, $from = false){
+
+			$items_array = array();
+
+			foreach ($items as $item) {
+				if($from == 'csv'){
+					$items_array[] = $item['id'];
+				}else{
+					$items_array[] = $item->id;
+				}
+			}
+
+			$this->db->where('store_id !=', $store_id);
+			$this->db->where_in('id', $items_array);
+			$q = $this->db->get('items');
+
+			//echo $this->db->last_query();
+			if($r = $q->result()){
+				return false;
+			}else{
+				return true;
+			}
+
+		}
+
+		private function validar_items_format($items){
+
+			foreach($items as $item) {
+
+				if(!$item->purchase_opts){
+					
+					if(!isset($item->units)){ return false; break; }
+					if(!is_int($item->units)){ return false; break; }
+					if($item->units < 0){ return false; break; }
+
+				}else{
+
+					if(is_array($item->purchase_opts)){
+					
+						foreach($item->purchase_opts as $opts) {
+							if(!isset($opts->units) || !isset($opts->label)){ return false; break; }
+							if(!is_int($opts->units)){ return false; break; }
+							if($opts->units < 0){ return false; break; }
+						}
+
+					}else{
+						return false;
+						break;
+					}
+				}
+
+			}
+
+			return true;
+
+		}
+
+		private function search_in($purchase_opts, $needle){
+
+		   	for($i=0;$i<=$purchase_opts;$i++){
+			   	if($purchase_opts[$i]->label == $needle){
+			   		return $i+1;
+			   		break;
+			   	}
+		   	}
+		   	return false;
+
+		}
+
+		private function get_inventarios($store_id){
+
+			$this->db->select('items.id, items.live, items.name, items.sku, items.name_eng, items.units_availible, item_purchase_options.options, item_purchase_options.group_name');
+			$this->db->join('item_purchase_options', 'item_purchase_options.item_id = items.id', 'left');
+			$this->db->where('items.store_id', $store_id);
+			$this->db->where('items.inventories', 1);
+			$this->db->where('items.deleted', 0);
+			$q = $this->db->get('items');
+
+			if($r = $q->result()){
+				return $r;
+			}else{
+				return false;
+			}
+
+		}
+
+		private function check_permisos_store($store_id){
+
+			if(!$this->session->userdata('admin_client_stores')){
+
+				$this->db->join('user_perm', 'user_perm.store_id = stores.id');
+				$this->db->where('stores.id', $store_id);
+				$this->db->where('stores.admin_inventarios', 1);
+				$this->db->where('user_perm.user_id', $this->session->userdata('user_id'));
+				$this->db->where('(owner = 1 OR admin = 1)');
+				$q = $this->db->get('stores');
+
+				if($r = $q->result()){
+					return true;
+				}else{
+					return false;
+				}
+
+			}else{
+
+				$q = $this->db->get_where('stores', array('admin_inventarios' => 1, 'id' => $store_id));
+
+				if($r = $q->result()){
+					return true;
+				}else{
+					return false;
+				}
+
+			}
+
+		}
+
+	public function generate_csv(){
+
+		$store_id = $this->uri->segment(3);
+
+		if(!$this->check_permisos_store($store_id)){
+			redirect(base_url().'stores');
+		}
+
+		// get store_name for file
+		$this->db->select('name');
+		$this->db->where('id', $store_id);
+		$s = $this->db->get('stores');
+		$store = $s->result();
+		$store_name = Slug($store[0]->name);
+
+		$this->db->select('items.id,items.name,items.name_eng,items.sku,items.units_availible as total_inventarios, item_purchase_options.options');
+		$this->db->from('items');
+		$this->db->join('item_purchase_options', 'item_purchase_options.item_id = items.id', 'left');
+		$this->db->where('items.store_id', $store_id);
+		$this->db->where('items.deleted', 0);
+		$this->db->where('items.inventories', 1);
+		$q = $this->db->get();
+
+		if($r = $q->result()){
+
+			// output headers so that the file is downloaded rather than displayed
+			header('Content-Type: text/csv; charset=utf-8');
+			header('Content-Disposition: attachment; filename=inventarios-'.$store_name.'-'.date('Y-m-d-H-i-s').'.csv');
+
+			// create a file pointer connected to the output stream
+			$output = fopen('php://output', 'w');
+			
+			// output the column headings
+			$keys = array();
+
+			foreach($r[0] as $key => $value){
+				if( $key == 'options' ){
+					$keys['label'] = 'inventarios_label';
+					$keys['units'] = 'inventarios_units';
+				}else{
+					$keys[] = $key;
+				}
+			}
+
+			fputcsv($output, $keys, ';', '"');
+			// fetch the data
+			
+			// loop over the rows, outputting them
+			foreach($r as $row){
+
+				if( $row->options ){
+					// with purchsae options
+					$options_json = json_decode($row->options);
+
+					foreach( $options_json as $options ){
+
+						$row_array = array();
+						
+						foreach($row as $key => $value){
+
+							if( $key == 'options' ){
+								$row_array['label'] = $options->label;
+								$row_array['units'] = $options->units;
+							}else{
+								$row_array[$key] = $value;
+							}
+							
+						}
+
+						fputcsv($output, $row_array, ';', '"');
+
+					}
+
+				}else{
+
+					// no purchase options
+					$row_array = array();
+
+					foreach($row as $key => $value){
+
+						if( $key == 'options' ){
+
+							$row_array['label'] = '';
+							$row_array['units'] = '';
+
+						}else{
+							$row_array[$key] = $value;
+						}
+					}
+
+					fputcsv($output, $row_array, ';', '"');
+
+				}
+				
+			}
+
+
+		}else{
+
+			// output headers so that the file is downloaded rather than displayed
+			header('Content-Type: text/csv; charset=utf-8');
+			header('Content-Disposition: attachment; filename=inventarios_'.$store_name.'_'.date('Y-m-d-H-i-s').'.csv');
+			
+			// create a file pointer connected to the output stream
+			$output = fopen('php://output', 'w');
+
+			fputcsv($output, 'Sin_datos');
+
+		}
+
+	
+	}
+
+
+		private function process_csv(){
+
+			if($_FILES['image']['error'] === UPLOAD_ERR_OK){
+
+				$file = $_FILES['image']['tmp_name'];
+				$extension  = $_FILES['image']['type'];
+				$extension 	= substr($extension, 5);
+
+				if($extension != 'csv'){
+					return 'Formato de archivo no válido. Necesario csv';
+				}else{
+
+					$items = $this->parse_file($file);
+					
+					if($items AND is_array($items)){
+
+						$store_id = $this->input->post('store_id');
+
+						// Validar que los items recibidos sean de la tienda
+						if(!$this->check_permisos_store($store_id)){
+							return 'No tienes permiso para actualizar inventarios en tienda';
+						}elseif($validacion = $this->validar_csv_before_import($items)){
+							return $validacion;
+						}elseif(!$this->validar_items($items, $store_id, 'csv')){
+							return 'No tienes permiso para actualizar inventarios en cierto(s) articulo(s)';
+						}else{
+
+							$result_items = 0;
+							$result_item_purchase = 0;
+							$row_data = array();
+
+							// Recorro todo el array del csv para crear un registro por item
+
+							foreach($items as $item){
+
+								$options = array();
+
+								if( $item['inventarios_label'] ){
+
+									$options['label'] = $item['inventarios_label'];
+									$options['units'] = $item['inventarios_units'];
+
+								}
+
+								if( array_key_exists($item['id'], $row_data) ){
+									
+									if( $row_data[$item['id']]['options'] AND $options ){
+										array_push($row_data[$item['id']]['options'], $options);
+									}
+									
+									$row_data[$item['id']]['units_availible'] = $item['total_inventarios'];
+
+								}else{
+
+									$row_data[$item['id']] = array(	'id' => $item['id'],
+																	'item_id' => $item['id'],
+																	'units_availible' => $item['total_inventarios'],
+																	'options' => ($options ? array($options) : '')
+																	);
+
+								}
+
+							}
+
+							// Array for update items
+							$update_items = array();
+							$k_update_items = 0;
+							$update_items_fields = array('id','units_availible');
+
+							foreach($row_data as $row){
+
+								foreach ($row as $update_items_k => $update_items_v) {
+
+									if(in_array($update_items_k, $update_items_fields)){
+										$update_items[$k_update_items][$update_items_k] = $update_items_v;
+									}
+
+								}
+								
+								$k_update_items++;
+							}
+
+							// Array for update item_purchase_options
+							$update_purchase_opts = array();
+							$k_update_purchase_opts = 0;
+							$update_purchase_opts_fields = array('item_id','options');
+
+							foreach($row_data as $row){
+
+								foreach ($row as $update_purchase_opts_k => $update_purchase_opts_v) {
+
+									if(in_array($update_purchase_opts_k, $update_purchase_opts_fields)){
+										
+										if($update_purchase_opts_k == 'options' AND $update_purchase_opts_v AND is_array($update_purchase_opts_v)){
+											$update_purchase_opts_v = json_encode($update_purchase_opts_v);
+										}
+										$update_purchase_opts[$k_update_purchase_opts][$update_purchase_opts_k] = $update_purchase_opts_v;
+									}
+
+								}
+								
+								$k_update_purchase_opts++;
+							}
+
+							// Actualizo tablas
+							if($update_items){
+								$this->db->update_batch('items', $update_items, 'id'); 
+								$result_items = $this->db->affected_rows();
+							}
+
+							if($update_purchase_opts){
+								$this->db->update_batch('item_purchase_options', $update_purchase_opts, 'item_id'); 
+								$result_item_purchase = $this->db->affected_rows();
+							}
+
+							return 'Proceso realizado. Registros actualizados: '.$result_items;
+						}
+					}else{
+						return 'Error al procesar archivo';
+					}
+					
+				}
+				unlink($file);
+
+			}else{
+				return $this->file_upload_error_message($_FILES['image']['error']); 
+			}
+
+		}	
+
+
+			private function validar_csv_before_import($items){
+
+				$valido = false;
+
+				// Recorro todo el array del csv para validar c/ registro
+				foreach($items as $item){
+
+					if(!$item['total_inventarios'] || !$item['id']){ return 'Faltan datos en csv para procesar información'; break; }
+					if(!ctype_digit($item['total_inventarios'])){ return 'Formato inválido en total inventarios'; break; }
+					if($item['inventarios_label'] AND !ctype_digit($item['inventarios_units'])){ return 'Formato inválido en inventarios'; break; }
+					
+				}
+
+				return $valido;
+
+			}	
+
+			private function parse_file($p_Filepath, $p_NamedFields = true) {
+
+				$fields = '';           /** columns names retrieved after parsing */ 
+		    	$separator = ';';    	/** separator used to explode each line */
+		    	$enclosure = '"';    	/** enclosure used to decorate each field */
+				$max_row_size = 4096;   /** maximum row size to be used for decoding */
+
+		        $content = false;
+		        $file = fopen($p_Filepath, 'r');
+		        if($p_NamedFields) {
+		            $fields = fgetcsv($file, $max_row_size, $separator, $enclosure);
+		        }
+		        while( ($row = fgetcsv($file, $max_row_size, $separator, $enclosure)) !== false ) { 
+		            if( $row[0] != null ) { // skip empty lines
+		                if( !$content ) {
+		                    $content = array();
+		                }
+		                if( $p_NamedFields ) {
+		                    $items = array();
+		                    
+		                    // I prefer to fill the array with values of defined fields
+		                    foreach( $fields as $id => $field ) {
+		                        if( isset($row[$id]) ) {
+		                            $items[$field] = $row[$id];    
+		                        }
+		                    }
+		                    $content[] = $items;
+		                } else {
+		                    $content[] = $row;
+		                }
+		            }
+		        }
+		        fclose($file);
+		        return $content;
+		    }
+
+			private function file_upload_error_message($error_code){
+
+				switch ($error_code) {
+					case UPLOAD_ERR_INI_SIZE:
+						return 'Image is too big';
+						break;
+					case UPLOAD_ERR_FORM_SIZE:
+						return 'Image is too big';
+						break;
+					case UPLOAD_ERR_PARTIAL:
+						return 'The uploaded file was only partially uploaded';
+						break;
+					case UPLOAD_ERR_NO_FILE:
+						return 'No file was uploaded';
+						break;
+					case UPLOAD_ERR_NO_TMP_DIR:
+						return 'Missing a temporary folder';
+						break;
+					case UPLOAD_ERR_CANT_WRITE:
+						return 'Failed to write file to disk';
+						break;
+					case UPLOAD_ERR_EXTENSION:
+						return 'File upload stopped by extension';
+						break;
+					default:
+						return 'Unknown upload error';
+						break;
+				}
+
+			} 
+
+	
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

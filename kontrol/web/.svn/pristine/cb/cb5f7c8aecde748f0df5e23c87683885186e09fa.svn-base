@@ -1,0 +1,64 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<!-------------------container starts here---------------------->
+<div class="col-lg-9 col-md-8 col-sm-8 ">
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div class="item-container">
+            <h4>Drag and Drop to Reorganize Items</h4>
+            <div class="options-itemlist">
+                <div class="viewtoggle pull-left">
+                    <div class="btn-group" data-toggle="buttons">
+                        <button class="btn btn-default grid-view active" data-set-toggle="itemBox">
+                            <span class="glyphicon glyphicon-th-large active"></span>
+                            <input type="radio" name="options" id="option1"> Grid view
+                        </button>
+                        <button class="btn btn-default list-view" data-set-toggle="itemList">
+                            <span class="glyphicon glyphicon-list"></span>
+                            <input type="radio" name="options" id="option2"> List view
+                        </button>
+                    </div>
+                </div>
+                <div class="actions-menu pull-right">
+                    <button id="checkall" data-checked-text="Check all" data-unchecked-text="Uncheck all" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Check All</button> 
+                    <button id="delete-items" class="btn btn-warning"><span class="glyphicon glyphicon-trash"></span> Delete Items</button> 
+
+                    <button class="btn btn-primary" id="btn-add-categories">Add Categories <span class="caret"></span></button>
+                        <div class="floatcategories">
+                            <div class="piquito"></div>
+                            <h4>These are your Categories:</h4>
+                            <div id="jstree_categories">
+                                <ul>
+                                    <li>All
+                                        <ul id="maincats">
+
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div style="padding:10px 10px 0;text-align: right; color:#999">
+                                <small>
+                                    <b>3 items</b> will be tagged
+                                </small>
+                            </div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="items">
+                <ul id="sortable_items">
+                </ul>
+                <div class="itemBox">
+                    <img src="/bootstrap3/img/image-icon.png" alt="" class="img-responsive"/>
+                    <button onclick="window.location = '/items/add_item/<?= $store->id ?>'" class="btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add Item</button>
+                </div>		
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

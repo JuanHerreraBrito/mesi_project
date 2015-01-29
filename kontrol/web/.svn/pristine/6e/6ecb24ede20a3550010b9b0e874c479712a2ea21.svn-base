@@ -1,0 +1,336 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class MediaAv extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * A test for image cropping 
+	 */
+	 
+	public function index(){
+		redirect('/stores');
+	}
+	
+	public function saveAviary(){
+		
+		$this->load->library('s3');
+		$bucketName = 'kichink';
+		
+		// POST DATA
+		$filename = $_POST['url'];
+		$postData = explode('&', $_POST['postdata']);
+		$media_id = $postData[0];
+		$type = $postData[1]; // logo, header or item
+		$object_name = $postData[2];
+		
+		if($media_id!='' AND $type!='' AND $object_name!=''){
+
+			// PERMISSIONS
+			//$uri_segment = array('media_id' => $media_id);
+			//checkForPermission($this->session->userdata('user_id'), $uri_segment,'media');
+			//  END OF PERMISSIONS
+
+			// PREPARING IMAGE
+			list($width, $height) = getimagesize($filename);
+
+			$extensionFile = explode('.', strrev($filename));
+			$extensionFile = strrev($extensionFile[0]);
+			
+			switch($type){
+				case 'logo' :
+					$callTo = $this->saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $object_name, $role = 'logo', $widthRequired = 160, $heightRequired = 160);
+					break;
+				case 'header' :
+					$callTo = $this->saveHeaderImage($media_id, $width, $height, $extensionFile, $filename, $object_name, $role = 'header', $widthRequired = 980);
+					break;
+				case 'items' :
+					$callTo = $this->saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $object_name, $role ='', $widthRequired = 700, $heightRequired = 500); // means items
+					break;
+			}
+
+		}
+		
+	}
+	
+	private function saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $object_name, $role, $widthRequired, $heightRequired){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			$bucketName = 'kichink';
+			
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($filename);
+       			break;
+				case 'jpeg': // for aviary is png
+            		$src = imagecreatefrompng($filename); 
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($filename); 
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($filename); 
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+			
+			if($width > $widthRequired OR $height > $heightRequired){
+				if($width > $height){
+					$type = 'landscape';
+					$newWidth = $widthRequired;
+					$newHeight = $this->resize_by_width($newWidth, $width, $height);
+					$borders = ($heightRequired - $newHeight) / 2;
+				}
+				if($width < $height){
+					$type = 'portrait';
+					$newHeight = $heightRequired;
+					$newWidth = $this->resize_by_height($newHeight, $width, $height);
+					$borders = ($widthRequired - $newWidth) / 2;
+				}
+				if($width == $height AND $role=='logo'){
+					$type = 'square';
+					$newHeight = $heightRequired;
+					$newWidth = $widthRequired;
+					$borders = 0;
+				}
+				if($width == $height AND $role==''){
+					$type = 'items_square';
+					$newHeight = $heightRequired;
+					$newWidth = $heightRequired;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+				}
+			}else{
+				if($width > $height){
+					$type = 'small_landscape';
+					$newWidth = $width;
+					$newHeight = $height;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+					$borders_TopBottom = ($heightRequired - $newHeight) / 2;
+				}
+				if($width < $height){
+					$type = 'small_portrait';
+					$newWidth = $width;
+					$newHeight = $height;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+					$borders_TopBottom = ($heightRequired - $newHeight) / 2;
+				}
+				if($width == $height){
+					$type = 'small_square';
+					$newWidth = $width;
+					$newHeight = $height;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+					$borders_TopBottom = ($heightRequired - $newHeight) / 2;
+				}
+			}
+			
+			// Preparing new image
+			
+			$finalWidth = $widthRequired;
+			$finalHeight = $heightRequired;
+			
+			$tmp = imagecreatetruecolor($finalWidth, $finalHeight);
+			$border_color = imagecolorallocate($tmp, 255, 255, 255);
+			
+			switch($type){
+				case 'landscape':
+					imagefilledrectangle($tmp,0,0,$finalWidth,$borders,$border_color); // top
+					imagefilledrectangle($tmp, 0, $finalHeight - $borders -1, $finalWidth, $finalHeight - 1, $border_color); // bottom
+					imagecopyresampled($tmp,$src,0,$borders,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'portrait' :
+					imagefilledrectangle($tmp, 0, 0, $borders - 1, $finalHeight - 1, $border_color); // left 
+					imagefilledrectangle($tmp, $finalHeight - $borders, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+					imagecopyresampled($tmp,$src,$borders,0,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'square' :
+					imagefilledrectangle($tmp, 0, 0, $finalWidth, $finalHeight, $border_color); 
+					imagecopyresampled($tmp,$src,$borders,$borders,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'items_square' :
+					imagefilledrectangle($tmp, 0, 0, $borders_LeftRight - 1, $finalHeight - 1, $border_color); // left 
+					imagefilledrectangle($tmp, $finalHeight - $borders_LeftRight, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+					imagecopyresampled($tmp,$src,$borders_LeftRight,0,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'small_square' :
+				case 'small_landscape' :
+				case 'small_portrait' :
+					imagefilledrectangle($tmp, 0, 0,$finalWidth,$borders_TopBottom,$border_color); // top
+					imagefilledrectangle($tmp, 0, $finalHeight - $borders_TopBottom -1, $finalWidth, $finalHeight - 1, $border_color); // bottom
+					imagefilledrectangle($tmp, 0, 0, $borders_LeftRight - 1, $finalHeight - 1, $border_color); // left 
+					imagefilledrectangle($tmp, $finalHeight - $borders_LeftRight, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+					imagecopyresampled($tmp,$src,$borders_LeftRight,$borders_TopBottom,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+					
+			}
+
+			$tempFileOriginal = tempnam('/tmp', 'FO1');
+			imagejpeg($tmp, $tempFileOriginal,100);
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileOriginal, $bucketName, $object_name.'_b'.'.jpg', S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_bordered', $extension = 'jpg', $w = $finalWidth, $h = $finalHeight, $role);
+				if($role == 'logo' OR $role==''){
+					
+					$widthRequired = ($role == 'logo' ? 50 : 200);
+					$heightRequired = ($role == 'logo' ? 50 : 150);
+					
+					if($callTo = $this->saveThumbImage($media_id, $width = $finalWidth, $height = $finalHeight, $tempFileOriginal, $object_name, $role, $widthRequired, $heightRequired)){
+						return true;
+					}else{
+						return false;	
+					}
+					
+				}else{
+					
+					return true;
+					
+				}
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmp);
+			imagedestroy($src);
+			unlink($tempFileOriginal);
+		
+	}
+	
+	private function saveHeaderImage($media_id, $width, $height, $extensionFile, $filename, $object_name, $role, $widthRequired){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			$bucketName = 'kichink';
+
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($filename);
+       			break;
+				case 'jpeg': // for aviary is png
+            		$src = imagecreatefrompng($filename); 
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($filename); 
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($filename); 
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+			
+			$exception = false;
+			
+			if($width >= $widthRequired){
+				$newWidth = 980;
+				$newHeight = $this->resize_by_width($newWidth, $width, $height);
+				$borders = 0;
+			}else{
+				$newWidth = $width;
+				$newHeight = $this->resize_by_width($newWidth, $width, $height);
+				$borders = ($widthRequired - $newWidth) / 2;
+			}
+			if($newHeight < 250){
+				$exception = true;
+				$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+				$borders_TopBottom = (250 - $newHeight) / 2;
+			}
+						
+			// Preparing new image
+					
+			$finalWidth = $widthRequired;
+			$finalHeight = ($exception==true ? 250 : $newHeight);
+			
+			$tmp = imagecreatetruecolor($finalWidth, $finalHeight);
+			$border_color = imagecolorallocate($tmp, 255, 255, 255);
+			
+			if($exception){
+				imagefilledrectangle($tmp, 0, 0,$finalWidth,$borders_TopBottom,$border_color); // top
+				imagefilledrectangle($tmp, 0, $finalHeight - $borders_TopBottom -1, $finalWidth, $finalHeight - 1, $border_color); // bottom
+				imagefilledrectangle($tmp, 0, 0, $borders_LeftRight - 1, $finalHeight - 1, $border_color); // left 
+				imagefilledrectangle($tmp, $finalHeight - $borders_LeftRight, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+				imagecopyresampled($tmp,$src,$borders_LeftRight,$borders_TopBottom,0,0,$newWidth,$newHeight,$width,$height);
+			}else{
+				//imagefilledrectangle($tmp, 0, 0, $borders - 1, $finalHeight - 1, $border_color); // left 
+				//imagefilledrectangle($tmp, $finalHeight - $borders, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+				imagecopyresampled($tmp,$src,$borders,0,0,0,$newWidth,$newHeight,$width,$height);
+			}
+
+			$tempFileOriginal = tempnam('/tmp', 'FO1');
+			imagejpeg($tmp, $tempFileOriginal,75);
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileOriginal, $bucketName, $object_name.'_b'.'.jpg', S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_bordered', $extension = 'jpg', $w = $finalWidth, $h = $finalHeight, $role);
+				return true;
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmp);
+			imagedestroy($src);
+			unlink($tempFileOriginal);
+		
+	}
+	
+	private function saveThumbImage($media_id, $width, $height, $tempFileOriginal, $object_name, $role, $widthRequired, $heightRequired){
+		
+		$this->load->library('s3');
+		$this->load->model('sell_model');
+
+		$bucketName = 'kichink';
+		$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+		
+		$src = imagecreatefromjpeg($tempFileOriginal);
+		//$subFilename = substr($filename, 0, -6);
+		
+		//Creando thumb
+		$tmpThumb = imagecreatetruecolor($widthRequired, $heightRequired);
+		imagecopyresampled($tmpThumb, $src, 0,0,0,0,$widthRequired,$heightRequired,$width,$height); 
+		$tempFileThumb = tempnam('/tmp', 'FOO');
+		imagejpeg($tmpThumb, $tempFileThumb,100);
+		
+		$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+		
+		if ($this->s3->putObjectFile($tempFileThumb, $bucketName, urldecode($object_name.'_thumb'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+			$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_thumb', $extension = 'jpg', $w = $widthRequired, $h = $heightRequired, $role);
+			return true;
+		}else{
+			return false;
+		}
+		
+		imagedestroy($tmpThumb);
+		imagedestroy($src);
+		unlink($tempFileThumb);
+		
+	}	
+
+	private function resize_by_height($newHeight, $width, $height)  
+	{  
+		$ratio = $width / $height;  
+		$newWidth = $newHeight * $ratio;  
+		return $newWidth;  
+	}  
+	  
+	private function resize_by_width($newWidth, $width, $height)  
+	{  
+		$ratio = $height / $width;  
+		$newHeight = $newWidth * $ratio;  
+		return $newHeight;  
+	}  
+
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

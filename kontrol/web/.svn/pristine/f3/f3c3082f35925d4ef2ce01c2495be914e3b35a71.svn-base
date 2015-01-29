@@ -1,0 +1,1255 @@
+{
+    "version": "1.0",
+    "log": true,
+    "description": "Api Tool Dev",
+    "ident":
+    [
+        {
+            "methods":
+            [
+                {
+                    "name": "get_user_stores",
+                    "return": {
+                      "size": "",
+                      "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                          "name": "search",
+                          "size": "",
+                          "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_user_data",
+                    "return": {
+                      "size": "",
+                      "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                          "name": "store_id",
+                          "size": 10,
+                          "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_user_data",
+                    "return": {
+                      "size": "",
+                      "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                          "name": "password",
+                          "size": "",
+                          "type": "string"
+                        },
+                        {
+                          "name": "store_id",
+                          "size": 10,
+                          "type": "int"
+                        },
+                        {
+                          "name": "current_password",
+                          "size": "",
+                          "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_user_admin",
+                    "return": {
+                      "size": "",
+                      "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                          "name": "email",
+                          "size": "",
+                          "type": "string"
+                        },
+                        {
+                          "name": "store_id",
+                          "size": "",
+                          "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "delete_user_admin",
+                    "return": {
+                      "size": "",
+                      "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                          "name": "id",
+                          "size": "",
+                          "type": "int"
+                        },
+                        {
+                          "name": "store_id",
+                          "size": "",
+                          "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_user_perm",
+                    "return": {
+                      "size": "",
+                      "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                          "name": "id",
+                          "size": "",
+                          "type": "int"
+                        },
+                        {
+                          "name": "store_id",
+                          "size": "",
+                          "type": "int"
+                        },
+                        {
+                          "name": "level",
+                          "size": "",
+                          "type": "int"
+                        }
+                    ]
+                }
+            ],
+            "name": "users",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods":
+            [
+                {
+                    "name": "get_notifications",
+                    "return": {
+                      "size": "",
+                      "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "status",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "notification_read",
+                    "return": {
+                      "size": "",
+                      "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "notification_id",
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_notification",
+                    "return": {
+                      "size": "",
+                      "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "notification_id",
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "notifications_important",
+                    "return": {
+                      "size": "",
+                      "type": "array"
+                    },
+                    "params":
+                    [
+                    ]
+                }
+            ],
+            "name": "notifications",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods": [
+
+            ],
+            "name": "inventory",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods": [
+                {
+                    "name": "add_item",
+                    "return": {
+                        "size": "",
+                        "type": "int"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_items_order",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_images_order",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "item_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "newOrder[]",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_items_properties",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "json",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_item",
+                    "return": {
+                        "size": "",
+                        "type": "int"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_categories",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_item_to_category",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "json",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_item_to_category_masive",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "json",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "remove_item_from_category",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "json",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_category",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "name",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "order",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "parent_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "edit_category",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "cat_id",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "name",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "order",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "parent_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "delete_category",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "cat_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_item_details",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "item_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_item_categories",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "item_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_shipping_options",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "item_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_discounts",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "item_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "delete_discount",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "discount_id",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_discount",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "item_id",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "discount_amount",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "discount_type",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "discount_start",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "discount_expiration",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "discount_existencias",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "coupon_code",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_item_shipmentOptions",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "item_id",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "shipment_id",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "location_id[]",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "location_id[]",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "location_id[]",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "availible_item",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "ava_days",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "ava_date",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                }
+            ],
+            "name": "items",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods": [
+                {
+                    "name": "get_pagos_sell",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                          "name": "store_id",
+                          "size": 10,
+                          "type": "int"
+                        },
+                        {
+                          "name": "status",
+                          "size": 10,
+                          "type": "string"
+                        },
+                        {
+                          "name": "limit",
+                          "size": 10,
+                          "type": "int"
+                        },
+                        {
+                          "name": "page",
+                          "size": 10,
+                          "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_payment_order_details",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                          "name": "type",
+                          "size": "",
+                          "type": "string"
+                        },
+                        {
+                          "name": "store_id",
+                          "size": 10,
+                          "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "solicitar_deposito",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                          "name": "store_id",
+                          "size": 10,
+                          "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "confirmar_solicitud_deposito",
+                    "return": {
+                        "size": "",
+                        "type": "int"
+                    },
+                    "params": [
+                        {
+                          "name": "store_id",
+                          "size": 10,
+                          "type": "int"
+                        }
+                    ]
+                }
+            ],
+            "name": "pagos",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods":
+            [
+                {
+                    "name": "get_order_sell",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "order_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_messages",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "order_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "limit",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_message",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "order_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "message",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "programar_recoleccion",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "order_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "date",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_orders_sell",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "status",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "limit",
+                            "size": "",
+                            "type": "int"
+                        },
+                        {
+                            "name": "page",
+                            "size": "",
+                            "type": "int"
+                        }
+                    ]
+                }
+            ],
+            "name": "orders",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods": [
+                {
+                    "name": "get_store_sales_overview",
+                    "return":
+                    {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                }
+            ],
+            "name": "stats",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        },
+        {
+            "methods":
+            [
+                {
+                    "name": "get_store_stats",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "frecuency",
+                            "size": 10,
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_store_detail",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_store_details",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_store_info",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_store_info",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params":
+                    [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "name",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "description",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "description_eng",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "about",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "about_eng",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "inventories",
+                            "size": "",
+                            "type": "bool"
+                        },
+                        {
+                            "name": "physical",
+                            "size": "",
+                            "type": "bool"
+                        },
+                        {
+                            "name": "facturacion",
+                            "size": "",
+                            "type": "bool"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_store_items",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "cat_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "remove_store_address",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "address_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_datos_tienda_recoleccion",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_store_data_payment",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "get_store_users",
+                    "return": {
+                        "size": "",
+                        "type": "array"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "add_store",
+                    "return": {
+                        "size": "",
+                        "type": "int"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "solicitud_publicacion",
+                    "return": {
+                        "size": "",
+                        "type": "int"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "lugar_publicacion",
+                    "return": {
+                        "size": "",
+                        "type": "int"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_store_settings",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "seccion",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "name": "update_design",
+                    "return": {
+                        "size": "",
+                        "type": "bool"
+                    },
+                    "params": [
+                        {
+                            "name": "store_id",
+                            "size": 10,
+                            "type": "int"
+                        },
+                        {
+                            "name": "text_color",
+                            "size": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "font_color",
+                            "size": "",
+                            "type": "string"
+                        }
+                    ]
+                }
+            ],
+            "name": "stores",
+            "data_connect": {
+                "host": "http://sell3.kichink.nb9.mx",
+                "url_api": "/api",
+                "url_login": "/login/doLogin"
+            }
+        }
+    ],
+    "timeout": 30
+}

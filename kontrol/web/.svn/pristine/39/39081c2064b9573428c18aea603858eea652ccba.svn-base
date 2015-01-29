@@ -1,0 +1,335 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Orders extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+		date_default_timezone_set('America/Mexico_City');
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function index()
+	{
+		if($this->session->userdata('admin_client_stores')){
+			redirect('/orders/store/22');
+			return false;
+		}
+
+		$this->load->model('sell_model');
+		$user_id 	= $this->session->userdata('user_id');
+
+		$data['stores'] = $this->sell_model->get_all_user_stores();
+
+		if($data['stores']['stores']){
+
+			$store_id = $data['stores']['stores'][0]->id;
+			redirect('/orders/store/'.$store_id );
+
+		}else{
+
+			$data['stores'] = false;
+			$this->load->view('orders/index_view', $data);
+		}
+
+	}
+	
+	// This function checks delivered orders without a deposit process and generates a payment order 
+	public function deposit_request()
+	{
+		
+		if($this->input->post('store_id') AND $this->input->post('orders_id')){
+
+			$store_id = $this->input->post('store_id');
+		
+			//PERMISSIONS
+			foreach ($this->input->post('orders_id') as $value) {
+				$uri_segment = array('order_id' => $value, 'store_id' => $store_id);
+				checkForPermission($this->session->userdata('user_id'), $uri_segment, 'orders');
+			}
+			//END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+			$store_data = $CI->shared_model->get_info_store($store_id);
+			
+			if($store_data->bank_account!=''){
+				$orders = $this->input->post('orders_id');
+				$data['confirmation'] = $this->sell_model->confirming_deposit($orders, $store_data->currency); 
+				$data['store'] = $store_id;
+				$data['store_currency'] = $store_data->currency;
+			}else{
+				$data['flashMessage'] = 'You don&rsquo;t have a bank account registered, please go to your store settings and let us know where to deposit your money';
+				$data['store'] = $store_id;
+				$data['store_currency'] = $store_data->currency;
+
+			}
+			
+			//print_r($data['confirmation']);
+			$this->load->view('orders/deposit_request_view', $data);
+
+		}else{
+
+			redirect(base_url().'orders');
+
+		}
+		
+	}
+	
+	public function generate_order()
+	{
+
+		$orders = $this->input->post('orders_id');
+		$store = $this->input->post('store_id');
+
+		//PERMISSIONS
+			foreach ($orders as $value) {
+				$uri_segment = array('order_id' => $value, 'store_id' => $store);
+				checkForPermission($this->session->userdata('user_id'), $uri_segment, 'orders');
+			}
+		//END OF PERMISSIONS
+		
+		$this->load->model('sell_model');
+		$CI =& get_instance();
+        $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+		$store_data = $CI->shared_model->get_info_store($store);
+
+		$checkAmount = $this->sell_model->confirming_deposit($orders, $store_data->currency);
+		$totalAmount = 0;
+		foreach ($checkAmount as $item) {
+			$totalAmount = $totalAmount + $item->total_sale_price;
+		}
+		
+		if(number_format($totalAmount, 2) == number_format($this->input->post('amount'), 2)){
+			$data['payment_order'] =  $this->sell_model->generate_payment_order($orders, $store, $totalAmount, $store_data->currency);
+		}else{
+			redirect(base_url().'orders');
+		}
+		//print_r($data['payment_order']);
+		$this->load->view('orders/deposit_confirmation_view', $data);
+		
+	}
+	
+	/**
+	 * ID Page for this controller.
+	 *
+	 * Shows a specific store determined by its ID
+	 */
+	public function id()
+	{
+
+		if(!$this->uri->segment(3) OR !$this->uri->segment(4)){
+
+			page_not_found();
+
+		}else{
+			//PERMISSIONS
+			$uri_segment = array('order_id' => $this->uri->segment(3), 'store_id' => $this->uri->segment(4));
+			checkForPermission($this->session->userdata('user_id'), $uri_segment, 'orders');
+			//END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+			
+			$order_id = $this->uri->segment(3);
+			$store_id = $this->uri->segment(4);
+			$data['store'] 		= $CI->shared_model->get_store($store_id, $filter_live=FALSE, $this->sitio);
+			$data['contactos_tienda'] = $CI->shared_model->get_contactos_tienda($store_id);
+			$data['order'] 		= $CI->shared_model->get_order_byUserId($order_id, $this->session->userdata('user_id'));
+			$data['messages']	= $CI->shared_model->get_messages($order_id, $this->sitio);
+			$data['sitio'] 		= $this->sitio;
+			$data['datos_facturacion'] = $CI->shared_model->get_info_factura_byOrder($order_id);
+
+			$this->load->view('../../../../shared_resources/views/orders/id_view', $data);
+
+		}
+
+	}
+	
+	
+	
+	
+	
+	/**
+	 * Store functions.
+	 *
+	 * Specific functions for stores
+	 */
+	public function store(){
+	
+		if(!$store_id = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+
+			$user_id = $this->session->userdata('user_id');
+
+			//PERMISSIONS
+			$uri_segment = array('store_id' => $store_id);
+			checkForPermission($user_id , $uri_segment, 'stores');
+			//END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+
+			$q = $this->db->get_where('stores', array('tienda_pruebas' => 0, 'id' => $store_id));
+			$r = $q->result();
+
+			if(!$r){
+				redirect('/stores');
+			}else{
+
+				$data['stores'] = $this->sell_model->get_all_user_stores();
+
+				$status_array = array( 	 'incomplete', 
+										 'new', 
+										 'waiting_for_payment', 
+										 'sin_fondos', 
+										 'pending', 
+										 'en_ruta', 
+										 'delivered',
+										 'cancelled',
+										 'to_be_canceled',
+										 'confirmed',
+									 	 'cancelled',
+										 'closed'
+									 );
+
+				foreach ($status_array as $status) {
+					if($get_orders = $this->sell_model->get_store_orders($user_id, $store_id, $status)){
+						$data['orders'][$status] = $get_orders;
+					}
+				}
+
+				$data['tuto'] = $this->sell_model->get_tuto('orders');
+				
+				$this->load->view('orders/index_view', $data);
+
+			}
+			
+		}
+	
+	}
+	 
+	public function cancel_order()
+	{
+		// Validate -> Process -> Store
+		
+		// Redirect
+	}
+	
+	public function update_order()
+	{
+		// Validate -> Process -> Store
+		
+		// Redirect
+	}
+	
+	public function addMessage()
+	{
+
+		$order_id = $this->input->post('order_id');
+		$store_id = $this->input->post('store_id');
+		$msg = $this->input->post('contact_text');
+
+		if(!$msg){
+
+			redirect('orders/id/'.$order_id.'/'.$store_id);
+
+		}else{
+
+			//PERMISSIONS
+			$uri_segment = array('order_id' => $order_id, 'store_id' => $store_id);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment, 'orders');
+			//END OF PERMISSIONS
+
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+			$CI->shared_model->add_message($order_id, $store_id, $this->input->post('contact_text'), $group='sell'); //sell = store
+			redirect('orders/id/'.$order_id.'/'.$store_id);
+
+		}
+		
+	}
+	
+	public function program_delivery_pickup()
+	{
+
+		//PERMISSIONS--PENDING
+		
+		//END OF PERMISSIONS
+
+		$hour_from 	= '08:00';
+		$hour_to 	=  '18:00';
+		$date 		= $this->input->post('date');
+		$dateFrom 	= $date.' '.$hour_from.':00';
+		$dateTo 	= $date.' '.$hour_to.':00';
+		$now 		= time();
+
+
+		$diff = strtotime($dateTo) - strtotime($dateFrom);
+		$hrsDiff = floor($diff/60/60);
+		
+		if(!$date){
+			//no date
+			echo $this->lang->line('shared_order_view_pickup_error_selectDay');
+		
+		}elseif(strtotime($dateFrom) > strtotime($dateTo)){
+			// error
+			echo $this->lang->line('shared_order_view_pickup_error_incorrectRange');
+
+		}elseif($hrsDiff<5){
+			//another error
+			echo $this->lang->line('shared_order_view_pickup_error_5hoursRange');
+			
+		}else{
+
+			$this->load->model('sell_model');
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+			
+			$response 			= false;
+
+			// Actualizo orden
+			if($this->sell_model->update_order_status($this->input->post('order_id'), $status='confirmed', $dateFrom, $dateTo)){
+				$response = true;
+			}
+
+			$order_info 		= $CI->shared_model->get_order_byUserId($this->input->post('order_id'), $this->session->userdata('user_id'));
+			$store 				= $CI->shared_model->get_info_store($order_info['partidas'][0]->store_id);
+			$destinatario_data 	= $this->sell_model->get_destinatario($order_info['info'][0]->id);
+			$customer 	  		= $this->sell_model->get_user_info($order_info['info'][0]->buyer_email, $id = false);
+
+			// Envio correos
+			if($this->sell_model->send_confirmation_mails($order_info, $destinatario_data, $store, $customer)){
+				$response = true;
+			}
+
+			if($response){
+				echo 'success';
+			}else{
+				echo 'Error: '.$this->lang->line('shared_order_view_pickup_error_sendingMail');
+			}
+			
+		}
+		
+	}
+	
+	
+}
+
+/* End of file orders.php */
+/* Location: ./application/controllers/orders.php */

@@ -1,0 +1,61 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Payments extends CI_Controller {
+
+    var $sitio = 'SELL';
+
+    function __construct() {
+        parent::__construct();
+        checkForSession();
+        geoIP();
+        date_default_timezone_set('America/Mexico_City');
+    }
+
+    /*
+     * Index Page for this controller.
+     */
+    public function index() {
+        $this->db->where('user_id', $this->session->userdata('user_id'));
+        $this->db->where('(user_perm.owner = 1 OR user_perm.admin = 1) AND (stores.tienda_pruebas != 1)');
+        $this->db->join('stores', 'stores.id = user_perm.store_id');
+        $q = $this->db->get('user_perm');
+
+        if($r = $q->result()){
+            redirect('payments/id/'.$r[0]->store_id);
+        }else{
+            page_not_found();
+            return false;
+        }
+    }
+
+    public function store() {
+
+        // Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 4,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+        if ($payment_id = $this->uri->segment(4)) {
+            $data["store"] = new stdClass();
+            $data["store"]->id = $store_id;
+            $data["payment"]->id = $payment_id;
+            $this->load->view('v2/payments/details_view', $data);
+        }else{
+            $data["store"] = new stdClass();
+            $data["store"]->id = $store_id;
+            $this->load->view('v2/payments/payments_store_view', $data);
+        }
+
+    }
+
+   
+
+}
+
+/* End of file orders.php */
+/* Location: ./application/controllers/orders.php */

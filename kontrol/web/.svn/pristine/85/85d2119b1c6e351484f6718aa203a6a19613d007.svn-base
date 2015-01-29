@@ -1,0 +1,73 @@
+ul#settings-menu{
+    margin:15px 0;
+}
+ul#settings-menu li{
+    border:none;
+}
+ul#settings-menu li a{
+    color:#3dc5f5;
+}
+ul#settings-menu li.active a{
+    color:#CCC;
+}
+ul#settings-menu li.disabled a{
+    color:#BBB;
+}
+#settings{
+    color:#666;
+}
+#settings textarea{
+    resize: none;
+    height:90px;
+    margin-bottom:15px;
+}
+input.error{
+    border:1px solid #C88;
+    background-color: #EBCCCC;
+}
+#settings label{
+    margin: 10px 0 15px 0;
+}
+
+#settings h3.title{
+    margin:25px 0;
+}
+
+#settings .step{
+    padding-bottom:15px;
+}
+
+#settings .step .options p{
+    color:#AAA;
+    font-size: 12px;
+}
+
+.panel,.options{
+    margin-top:25px;
+    margin-bottom: 25px;
+}
+
+h4.semi-title{
+    border-bottom:1px solid #DDDDDD;
+    margin-bottom:15px;
+}
+.treecontainer{
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #d5d5d5;
+}
+
+/*Permisos*/
+
+#my-users{
+    margin-top: 20px;
+}
+
+.col-items,
+.col-settings,
+.col-orders,
+.col-payments,
+.col-emails{
+    text-align: center;
+}
+/*END Permisos*/

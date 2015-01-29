@@ -1,0 +1,29 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<!-------------------container starts here---------------------->
+<script>
+  var payment_id= '<?=@$payment->id?>';
+</script>
+<script type="text/javascript" src="/v2/js/notifications.js"></script>
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8 ">
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div class="item-container">
+            <div class="title">
+                <h3>Mis notificaciones</h3>
+            </div>
+              
+            <div class="panel-group" id="accordion-notifications">
+
+            </div>          
+        </div>
+    </div>
+</div>
+<?
+$this->load->view('v2/layout/footer');
+?>
+

@@ -1,0 +1,88 @@
+<script type="text/javascript">
+    var store_id = '<?= $store->id ?>';
+</script>
+<script type="text/javascript" src="/js/stores.js"></script>
+<link href="/css/stores.css" rel="stylesheet"/>
+<nav class="navbar navbar-inverse header-bottom" role="navigation">       
+    <ul class="nav navbar-nav pull-left" id="menu-store">
+        <li class="dropdown allstores active">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="currname"></span>&nbsp;
+                <b class="caret"></b>
+            </a>
+            <div class="search">
+                <input type="text" class="form-control" placeholder="Search">
+                <span class="glyphicon glyphicon-search"></span>
+            </div>
+            <ul class="dropdown-menu" id="my-stores"></ul>
+        </li>
+        <li <?= (($this->uri->segment(1) == "stores") && ($this->uri->segment(2) == "id")) ? "class='active'" : "" ?>>
+            <a class="items" href="/stores/id/<?= $this->uri->segment(3) ?>" >Items
+                <span class="badge">0</span>
+            </a>						
+        </li>
+        <li <?= ($this->uri->segment(1) == "orders") ? "class='active'" : "" ?>>
+            <a class="orders" href="/orders/store/<?= $this->uri->segment(3) ?>">Orders
+                <span class="badge">0</span>
+            </a>						
+        </li>
+        <li <?= ($this->uri->segment(1) == "payments") ? "class='active'" : "" ?>>
+            <a href="/stores/payments/<?= $this->uri->segment(3) ?>">Payments</a>						
+        </li>
+        <li <?= ($this->uri->segment(2) == "settings") ? "class='active'" : "" ?>>
+            <a href="/stores/settings/<?= $this->uri->segment(3) ?>">Settings</a>
+        </li>
+        <li <?= ($this->uri->segment(2) == "apps") ? "class='active'" : "" ?>>
+            <a href="/stores/apps/<?= $this->uri->segment(3) ?>">Apps</a>
+        </li>
+    </ul>
+    <ul class="nav navbar-nav pull-right" id="menu-store-status"></ul>
+</nav>
+<!-----------///header bottom close here----------------->
+<? if (true or ($store->live_store == 1 && $store->tienda_pruebas == 0)) { ?>
+
+    <div class="modal fade" id="websiteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button data-dismiss="modal" class="close">×</button>
+                    <h3 class="modal-title">C&oacute;digo website</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Copia y pega el siguiente c&oacute;digo en tu website para instalar tu tienda Kichink</p>
+                    <pre style="height:250px;overflow:auto">
+                        &lt;html&gt;
+                        &lt;head&gt;
+                        &lt;!-- Agregar nombre de la tienda --&gt;
+                        &lt;title&gt;Nombre de tu tienda&lt;/title&gt;
+                        &lt;!-- Agregar descripcion con palabras clave --&gt;
+                        &lt;meta name="description" content="Nombre de tu tienda | Tienda en l&iacute;nea" /&gt;
+                        &lt;style&gt;
+                        body{
+                        margin:0px; padding:0px;
+                        font-family:Arial, Helvetica, sans-serif; 
+                        }
+                        &lt;/style&gt;
+                        &lt;/head&gt;
+                        &lt;body&gt;
+                        &lt;div style="width:100%; height:100%; position:absolute; top:0px; left:0px;"&gt;
+                        &lt;!-- Agregar ID de tienda --&gt;
+                        &lt;iframe src="https://www.kichink.com/stores/id/<?= $store->id ?>" width="100%" height="100%"  frameborder="0"&gt;
+                        &lt;div style="width:300px; margin:40% auto; font-size:20px;"&gt;
+                        Tu navegador no permite mostrar la tienda en esta ventana. 
+                        &lt;!-- Agregar ID de tienda --&gt;
+                        &lt;a href="https://www.kichink.com/stores/id/<?= $store->id ?>"&gt;Haz clic para abrir a en una nueva ventana.&lt;/a&gt;
+                        &lt;/div&gt;
+                        &lt;/iframe&gt;
+                        &lt;/div&gt;
+                        &lt;/body&gt;
+                        &lt;/html&gt;
+                    </pre>
+                </div>      
+                <div class="modal-footer">
+                    <a class="btn btn-primary" data-dismiss="modal" href="#">Cerrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+<? } ?>

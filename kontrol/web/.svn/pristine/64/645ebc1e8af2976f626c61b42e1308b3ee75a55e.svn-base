@@ -1,0 +1,125 @@
+$(document).ready(function(){
+    
+    var thumbnailsImages = new Array();
+    // Instantiate the widget
+    var featherEditor = new Aviary.Feather({
+        apiKey: '6282e2a3c',
+        apiVersion: 2,
+        language : 'en',
+        tools: ['crop', 'resize', 'enhance','effects','stickers','orientation','brightness','contrast','saturation','sharpness','draw','text','redeye','whiten','blemish'],
+        //initTool : 'crop',
+        onSave: function() {
+            //alert(newURL);
+            location.reload();
+        },
+        postUrl: base_url + 'mediaAv/saveAviary'
+    });
+    
+    
+    function createPageImage(index, element){        
+         //Add images to pager
+         return '<li><a href="#"><img class="img-responsive" src="'+thumbnailsImages[index]+'" /></a></li>';
+    }
+    
+    $('#editPicture').bind('click', function(){
+        var id = $(this).data('id');
+        var src = $(this).data('src');
+        
+        featherEditor.launch({
+            image: id,
+            url: src,
+            postData : id,
+            cropPresets : ['700x500']
+        });
+        return false;
+    });
+    
+    function onAfter() {
+        var getId = $('.slide').children('img:visible').attr('id');
+        var getAlt =  $('.slide').children('img:visible').attr('alt');
+
+        var get_objectName = $('.slide').children('img:visible').attr('alt');
+        get_objectName = get_objectName.split('-');
+
+        var id = getId.split('&');
+
+        var origExt = $('.slide').children('img:visible').attr('class').split(' ');
+
+        $('#image_id').attr('value', id[0]);
+        $('#object_name').attr('value',get_objectName[1]);
+        $('#counter_span').html(get_objectName[0]);
+
+        var itemURL = $('.slide').children('img:visible').attr('src');
+        var launchId = getId;
+        var launchSrc = itemURL.substr( 0, itemURL.length-6) + '_b.' + origExt[1];
+        //var launchSrc = itemURL.substr( 0, itemURL.length-6) + '.' + origExt[1];
+
+        //$('a#editPicture').attr("onclick", "return launchEditor('"+launchId+"','"+launchSrc+"');");
+        $('a#editPicture').data('id', launchId);
+        $('a#editPicture').data('src', launchSrc);
+    }
+    
+    /* Manejo del arbol */
+    call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+        cats = jQuery.parseJSON(cats.toString());
+        if (addSubCat($("#jstree_categories_items #maincats"), cats.data)) {
+            doTree('#jstree_categories_items', ["wholerow", "state", "types", "checkbox", "sort"]);
+        }
+    });
+    /* END Manejo del arbol */
+    
+    call_api('/api/items/get_item_details', 'post', {store_id: store_id, item_id: item_id}, function(resp){
+        resp = jQuery.parseJSON(resp);
+        var alt = '';
+        var id = '';
+        
+        if(resp !== null){
+            // Existen imagenes
+            if(resp.data.imagenes.length > 0){
+                
+                // Carga de datos
+                $('#item_name').val(resp.data.name);
+                $('#description').val(resp.data.description);
+                $('#item_name_eng').val(resp.data.name_eng);
+                $('#description_eng').val(resp.data.description_eng);
+                
+                $('#price').val(resp.data.precio.MXN);
+                $('#priceUSD').val(resp.data.precio.USD);
+                
+                // Carga las imagenes
+                $.each(resp.data.imagenes, function(indice, data){
+                    if(indice == 0){
+                        $('.slide, #nav').html('');
+                        $('#nav-slider').show();
+                    }
+                    
+                    alt = (indice+1)+'-'+data.object_name;
+                    id = data.id+'&amp;'+'items&amp;'+ data.object_name;
+                    if(data.extension == 'jpeg') data.extension = 'jpg';
+                    
+                    // Carga las imagenes
+                    $('.slide').append('<img class="img-responsive '+data.extension+'" src="'+data.bordered+'" alt="'+alt+'" id="'+id+'" />');
+                    thumbnailsImages.push(data.thumbnail);
+                });
+                
+                $('.slide').cycle({
+                    fx:     'fade',
+                    speed:  'fast',
+                    timeout: 0,
+                    pager:  '#nav-slider',
+                    after:   onAfter,
+                    height:  'auto',
+                    pagerAnchorBuilder: createPageImage,
+                });
+                
+            }
+            else{
+                // Deshabilita botones
+                $('#editPicture, #deletePicture').hide();
+            }
+        }
+        else{
+            // Mensaje de error
+        }
+    });
+});

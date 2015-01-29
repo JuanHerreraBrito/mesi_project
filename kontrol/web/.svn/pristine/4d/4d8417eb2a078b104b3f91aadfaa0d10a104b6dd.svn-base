@@ -1,0 +1,656 @@
+<style>
+    ul#settings-menu{
+        margin:15px 0;
+    }
+    ul#settings-menu li{
+        border:none;
+    }
+    ul#settings-menu li a{
+        color:#3dc5f5;
+    }
+    ul#settings-menu li.active a{
+        color:#CCC;
+    }
+    ul#settings-menu li.disabled a{
+        color:#BBB;
+    }
+    #settings{
+        color:#666;
+    }
+    #settings textarea{
+        resize: none;
+        height:90px;
+        margin-bottom:15px;
+    }
+    input.error{
+        border:1px solid #C88;
+        background-color: #EBCCCC;
+    }
+    #settings label{
+        margin: 10px 0 15px 0;
+    }
+
+    #settings h3.title{
+        margin:25px 0;
+    }
+
+    #settings .step{
+        padding-bottom:15px;
+    }
+
+    #settings .step .options p{
+        color:#AAA;
+        font-size: 12px;
+    }
+
+    .panel,.options{
+        margin-top:25px;
+        margin-bottom: 25px;
+    }
+
+    h4.semi-title{
+        border-bottom:1px solid #DDDDDD;
+        margin-bottom:15px;
+    }
+    .treecontainer{
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid #d5d5d5;
+    }
+
+</style>
+<script type="text/javascript">
+    function demo_create() {
+        var ref = $('#jstree_demo').jstree(true),
+                sel = ref.get_selected();
+        if (!sel.length) {
+            return false;
+        }
+        sel = sel[0];
+        sel = ref.create_node(sel, {"type": "default"});
+        if (sel) {
+            ref.edit(sel);
+        }
+    }
+
+    function demo_rename() {
+        var ref = $('#jstree_demo').jstree(true),
+                sel = ref.get_selected();
+        if (!sel.length) {
+            return false;
+        }
+        sel = sel[0];
+        ref.edit(sel);
+    }
+
+    function demo_delete() {
+        var ref = $('#jstree_demo').jstree(true),
+                sel = ref.get_selected();
+        if (!sel.length) {
+            return false;
+        }
+        ref.delete_node(sel);
+    }
+
+    function updateOrderTable() {
+
+        if ($("#my-addr").find("tbody tr[class!=noaddr]").length > 0)
+            $(".noaddr").hide();
+        else
+            $(".noaddr").show();
+        $("#my-addr").find("tbody tr[class!=noaddr]").each(function(i, e) {
+            $(this).find("td:first-child").html(i + 1);
+        });
+
+        $(".delete-pos").unbind("click");
+        $(".delete-pos").click(function() {
+            $(this).closest("tr").fadeOut("slow", function() {
+                $(this).closest("tr").remove();
+                call_api('/api/stores/remove_store_users/', 'post', {"store_id": store_id, "address_id": $(this).closest("tr").data().id}, function(data) {
+                    updateOrderTable();
+                });
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        var to = false;
+        updateOrderTable();
+        $('#demo_q').keyup(function() {
+            if (to) {
+                clearTimeout(to);
+            }
+            to = setTimeout(function() {
+                var v = $('#demo_q').val();
+                $('#jstree_demo').jstree(true).search(v);
+            }, 250);
+        });
+
+        $("#addUser").submit(function() {
+            call_api('/api/stores/add_store_users/', 'post', {"store_id": store_id, "email": $("#addUser").find("input[name=emailAdmin]").val()}, function(data) {
+                $("#addUser").find("input[name=emailAdmin]").val("");
+                alert("El correo ha sido enviado satisfactoriamente");
+            });
+            return false;
+        });
+        
+        $("#addCategories").on("submit", function() {
+        var ref = $('#jstree_demo').jstree(true),
+                        sel = ref.get_selected();
+        $.ajax({
+            url: "/api/stores/add_category",
+            type: "post",
+            data: {store_id:store_id,parent_id:$("#"+sel).data().id,name:$("#addCategories").find("input[type=text]").val(),order:1},
+            beforeSend: function() {
+
+                
+
+                if (!sel.length) {
+                    var sid = (ref._model.data["#"].children[0]);
+                    ref.select_node(ref._model.data[sid]);
+                    sel = ref.get_selected();
+                    //return false;
+                }
+                
+               
+                
+                // sel = sel[0];
+
+                sel2 = ref.create_node(sel[0], {"text": $("#addCategories").find("input[type=text]").val(), "type": "default"});
+                if (sel2) {
+                    ref.open_node(sel);
+                    ref.select_node(sel);
+                }
+
+                $("#addCategories").find("input[type=text]").val('');
+
+            },
+            success: function(data) {
+
+            }
+        });
+        return false;
+    });
+
+        $("#settings-menu").find("li a").each(function(i, e) {
+            $(e).click(function() {
+                v = window.location.pathname.split("/");
+                formatter = "/" + v[1] + "/" + v[2] + "/" + v[3] + "/";
+                if (!$(e).parent().hasClass("disabled")) {
+                    var s = $(e).attr("href").replace("#", "");
+                    window.history.replaceState({}, '', formatter + s);
+                }
+            });
+        });
+
+        // Details
+        $('#submit_details').click(function(event) {
+
+            var inputs = $('#details_store').serializeArray();
+            inputs.push({'name': 'store_id', 'value': store_id});
+            inputs.push({'name': 'seccion', 'value': 'info'});
+
+            if ($("input[name='facturacion']:checked").length == 0)
+                inputs.push({'name': 'facturacion', 'value': '0'});
+            if ($("input[name='inventories']:checked").length == 0)
+                inputs.push({'name': 'inventories', 'value': '0'});
+            if ($("input[name='physical']:checked").length == 0)
+                inputs.push({'name': 'physical', 'value': '0'});
+
+            call_api('/api/stores/update_store_settings/', 'post', $.param(inputs), function(data) {
+                data = jQuery.parseJSON(data.toString());
+                if (data.data) {
+
+                }
+                else
+                    alert('Error al actualizar, intente de nuevo');
+            });
+            event.preventDefault()
+        });
+
+        // Address
+        $('#submit_pos').click(function(event) {
+            var inputs = $('#step1_pos').serializeArray();
+            inputs.push({'name': 'store_id', 'value': store_id});
+            inputs.push({'name': 'seccion', 'value': 'add_address'});
+
+            call_api('/api/stores/update_store_settings/', 'post', $.param(inputs), function(data) {
+                data = jQuery.parseJSON(data.toString());
+                if($("#step1_pos").data().validationK.methods.validate() && data.data) {
+                    var addr = [];
+                    var cntc = [];
+                    for (var i in inputs) {
+                        if (inputs[i].name.indexOf("_contacto") != -1) {
+                            cntc.push(inputs[i].value);
+                        } else {
+                            addr.push(inputs[i].value);
+                        }
+                    }
+
+                    var tr = document.createElement("tr");
+                    $(tr).append("<td></td>");
+                    $(tr).append("<td>" + addr.join(" ") + "</td>");
+                    $(tr).append("<td>" + cntc.join("<br/>") + "</td>");
+                    $(tr).append('<td><a class="btn btn-default delete-pos"> <span class="glyphicon glyphicon-trash"></span> Borrar</a></td>');
+
+                    $("#my-addr").append(tr);
+                    updateOrderTable();
+                    $("#step1_pos").find("input[type=text]").val("");
+                }
+                
+            });
+            event.preventDefault();
+        });
+
+        // Carga la información de la tienda
+        call_api('/api/stores/get_store_info', 'post', {'store_id': store_id}, function(data) {
+            data = jQuery.parseJSON(data.toString());
+            $.each(data.data, function(campo, value) {
+
+                if (campo == 'name')
+                    $('#' + campo).val(value);
+                else if (campo == 'facturacion') {
+                    if (value == '1')
+                        $('#' + campo).attr('checked', 'checked');
+                }
+                else if (campo == 'inventories') {
+                    if (value == '1')
+                        $('#' + campo).attr('checked', 'checked');
+                }
+                else if (campo == 'physical') {
+                    if (value == '1')
+                        $('#' + campo).attr('checked', 'checked');
+                }
+                else
+                    $('#' + campo).html(value);
+            });
+
+        });
+
+        call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+                cats = jQuery.parseJSON(cats.toString());
+                if(addSubCat($("#jstree_demo #cats"), cats.data)){
+                    doTree('#jstree_demo',["wholerow", "state", "types", "sort","dnd"]);
+                }
+        });
+
+        $("#step1_pos").validationK();
+
+    });
+</script>
+<div class="col-lg-8 col-md-7 col-sm-7">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+
+        <div id="settings">
+            <ul class="nav nav-tabs nav-justified" id="settings-menu">
+                <li <?= ($option == "details" or $option == "") ? 'class="active"' : "" ?>><a href="#details" data-toggle="tab">Details</a></li>
+                <li <?= ($option == "categories") ? 'class="active"' : "" ?>><a href="#categories" data-toggle="tab">Categories</a></li>
+                <li <?= ($option == "users") ? 'class="active"' : "" ?>><a href="#users" data-toggle="tab">Users</a></li>
+                <li <?= ($option == "address") ? 'class="active"' : "" ?>><a href="#address" data-toggle="tab">Address Collection</a></li>
+                <li <?= ($option == "payments") ? 'class="active"' : "" ?>><a href="#payments" data-toggle="tab">Payments</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">                
+                <div id="details" class="tab-pane <?= ($option == "details" or $option == "") ? 'fade in active' : 'fade' ?>  settings_tab">
+
+                    <!--div class="alert alert-warning alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <span class="glyphicon glyphicon-list"></span>
+                        <strong>Inventory, Inventory, Inventory.</strong> Remember, all of a sudden people can be interested in a specific product, so always keep this in mind and make sure you have enough products in your inventory in order to have happy customers.
+                    </div-->
+
+                    <? if (isset($details['flashMessage'])) { ?>
+                        <div class="alert-message warning span11">
+                            <a class="close" href="#">×</a>
+                            <?= $details['flashMessage'] ?>
+                        </div>
+                    <? } ?>
+
+                    <h3 class="title">Detalles de tu tienda</h3>
+
+                    <form id="details_store" method="post" role="form">
+
+                        <fieldset>
+                            <div id="step1_details" class="step">
+                                <label for="name"> <?= $this->lang->line('stores_settings_detailsTab_name_text') ?> </label>
+                                <input class="form-control" type="text" id="name" name="name" value="" />
+                            </div>
+                            <div id="step2_details" class="step">
+
+                                <label for="description"> <?= $this->lang->line('stores_settings_detailsTab_description_text') ?> </label>
+                                <textarea class="form-control" name="description" id="description" class="form-control"></textarea>  
+
+                                <label for="description_eng"> <?= $this->lang->line('stores_settings_detailsTab_descriptionEng_text') ?> </label>
+                                <textarea class="form-control" name="description_eng" id="description_eng" class="form-control"></textarea>  
+
+
+                                <label for="about"> <?= $this->lang->line('stores_settings_detailsTab_aboutUs_text') ?> </label>
+                                <textarea class="form-control" name="about" id="about" class="form-control"></textarea>  
+
+                                <label for="about_eng"> <?= $this->lang->line('stores_settings_detailsTab_aboutUsEng_text') ?> </label>
+                                <textarea class="form-control" name="about_eng" id="about_eng" class="form-control"></textarea>  
+                            </div>
+                            <div id="step3_details" class="step">
+                                <h3 class="title"><?= $this->lang->line('stores_settings_detailsTab_options_text') ?></h3>
+                                <div class="row options">
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="checkbox" name="inventories" id="inventories" value="1" />
+                                            </span>
+                                            <input type="text" disabled="disabled" style="cursor: default;" value="<?= $this->lang->line('stores_settings_detailsTab_Inventories_text_1') ?>" class="form-control">
+                                        </div>
+                                        <p><?= $this->lang->line('stores_settings_detailsTab_Inventories_text_1.1') ?></p>                                   
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="checkbox" name="physical" id="physical" value="1" />
+                                            </span>
+                                            <input type="text" disabled="disabled" style="cursor: default;" value="<?= $this->lang->line('stores_settings_detailsTab_deliverables_text_1') ?>" class="form-control">
+                                        </div>
+                                        <p><?= $this->lang->line('stores_settings_detailsTab_deliverables_text_1.1') ?></p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4">     
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="checkbox" name="facturacion" id="facturacion" value="1" />
+                                            </span>
+                                            <input type="text" disabled="disabled" style="cursor: default;" value="Facturación" class="form-control">
+                                        </div>
+                                        <p >Habilita esta opci&oacute;n si deseas expedir facturas a tus consumidores</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="submit" id="submit_details" name="submit_details" class="btn btn-primary btn-large pull-right"><?= $this->lang->line('stores_settings_detailsTab_save_button_text') ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div id="categories" class="tab-pane <?= ($option == "categories") ? 'fade in active' : 'fade' ?> settings_tab">
+
+                    <div class="categories">
+                        <h3 class="title">Categories</h3>
+                        <div class="row" style="height:50px">
+                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                <form id="addCategories" method="POST" onsubmit="return false;">
+                                    <div class="input-group">
+                                        <input type="text" autocomplete="off" class="form-control"  name="category" id="add_category_input" placeholder="Add category"/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary" type="submit">Add</button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4" align="right">
+                                <button type="button" class="btn btn-default" onclick="demo_rename();"><i class="glyphicon glyphicon-pencil"></i> Rename</button>
+                                <button type="button" class="btn btn-default" onclick="demo_delete();" id="delete_category"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                            </div>
+                        </div>
+                        <div class="treecontainer">
+                            <div id="jstree_demo">
+                                    <ul>
+                                        <li data-jstree='{"opened":true}' class="jstree-open">All
+                                            <ul id="cats">
+
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="users" class="tab-pane <?= ($option == "users") ? 'fade in active' : 'fade' ?> settings_tab">
+
+                    <h3 class="title">Agregar Administrador</h3>
+
+                    <form id="addUser" method="post" role="form">
+                        <fieldset>
+                            <div class="input-group" id="step1_administrators">
+                                <input type="text" name="emailAdmin" class="form-control" autocomplete="off"
+                                       placeholder="<?= $this->lang->line('stores_settings_administratorsTab_email_space_text') ?>" />
+                                <span class="input-group-btn">
+                                    <input type="submit" name="submit_add_admin" class="btn btn-primary btn-large"
+                                           value="<?= $this->lang->line('stores_settings_administratorsTab_addadmin_button_text') ?>" />
+                                </span>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                    <div class="panel panel-default">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">Lista de administradores</div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th><?= $this->lang->line('stores_settings_administratorsTab_name') ?></th>
+                                    <th><?= $this->lang->line('stores_settings_administratorsTab_user') ?></th>
+                                    <th>Manage Items</th>
+                                    <th>Change Settings</th>
+                                    <th>Manage Orders</th>
+                                    <th>Manage Payments</th>
+                                    <th>Receive Email</th>                               
+                                    <th><?= $this->lang->line('stores_settings_administratorsTab_action') ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?
+                                $i = 1;
+                                foreach ($admins as $item) {
+                                    ?>
+                                    <tr>
+                                        <td style="font-weight:700;height:20px"><?= $i ?></td>
+                                        <td><?= $item->name ?></td>
+                                        <td><?= $item->email . ($item->userId == $this->session->userdata('user_id') ? ' (you)' : '') ?></td>
+                                        <td align="center"><input type="checkbox" <?= ($item->stores_create) ? "checked" : "" ?>/></td>
+                                        <td align="center"><input type="checkbox" <?= ($item->store_settings_change) ? "checked" : "" ?>/></td>
+                                        <td align="center"><input type="checkbox" <?= ($item->orders_accept) ? "checked" : "" ?>/></td>
+                                        <td align="center"><input type="checkbox" <?= ($item->orders_request_deposit) ? "checked" : "" ?>/></td>
+                                        <td align="center"><input type="checkbox" <?= ($item->emails) ? "checked" : "" ?>/></td>
+                                        <td style="text-align:center">
+                                            <? if ($item->userId != $this->session->userdata('user_id')) { ?>
+                                                <a href="javascript:if(confirm('<?= $this->lang->line('stores_settings_administratorsTab_deleteUser_confirm_1') ?><?= $item->email ?><?= $this->lang->line('stores_settings_administratorsTab_deleteUser_confirm_2') ?>')){ location.href = '/stores/deleteUser/<?= $store->id ?>/<?= $item->userId ?>';};" alt="<?= $this->lang->line('stores_settings_administratorsTab_deleteUser') ?>">
+                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                </a>
+                                            <? } ?>
+                                        </td>
+                                    </tr>
+                                    <?
+                                    $i++;
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div><!--End of administrators-->
+
+                <div id="address" class="tab-pane <?= ($option == "address") ? 'fade in active' : 'fade' ?> settings_tab">
+                    <h3 class="title">Agrega una nueva direcci&oacute;n de recolecci&oacute;n</h3>
+
+                    <form method="post" role="form" id="step1_pos">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <h4 class="semi-title">Direcci&oacute;n</h4>
+
+                                    <div class="col-lg-12">
+                                        <label for="direccion_calle">Calle</label>
+                                        <input data-content="Debe ingresar el nombre de la calle" type="text" id="direccion_calle" name="calle" class="form-control address-validation" value="" />
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="direccion_numero">N&uacute;mero</label>
+                                        <input data-content="Debe ingresar un n&uacute;mero. Solo d&iacute;gitos." type="text" id="direccion_numero" name="numero" class="form-control numericorempty-validation" value="" />
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="direccion_interior">Interior</label>
+                                        <input data-content="Debe ingresar un n&uacute;mero interior. Solo d&iacute;gitos." type="text" id="direccion_interior" name="interior" class="form-control numericorempty-validation" value="" />
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="direccion_colonia">Colonia</label>
+                                        <input data-content="Proporcione un nombre de colonia" type="text" id="direccion_colonia" name="colonia" class="form-control address-validation" value="" />
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="direccion_cp">CP</label>
+                                        <input data-content="Formato de CP no válido" type="text" MAXLENGTH="6" id="direccion_cp" name="cp" class="form-control numericonly-validation" value="" />
+                                    </div>
+
+                                    <div  class="col-lg-8">
+                                        <label for="direccion_ciudad">Ciudad</label>
+                                        <input data-content="Debe ingresar un nombre de ciudad v&aacute;lido" type="text" id="direccion_ciudad" name="ciudad" class="form-control text-validation" value=""/>
+                                    </div>
+
+                                    <div  class="col-lg-6">
+                                        <label for="direccion_pais">Pa&iacute;s</label>
+                                        <select id="direccion_pais" name="pais" class="form-control" onChange="javascript:getStates();">
+                                            <option value="112" selected>Mexico</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="direccion_estado">Estado</label>
+                                        <? if (isset($pos['post']['direccion_estado']) AND isset($pos['post']['direccion_pais']) AND $pos['post']['direccion_pais'] != 112) { ?>
+
+                                            <input type="text" class="form-control" id="direccion_estado" name="estado" value="<?= $pos['post']['direccion_estado'] ?>" />
+
+                                        <? } else { ?>
+
+                                            <select id="direccion_estado" name="estado" class="form-control">
+                                                <? foreach ($states_pos as $state) { ?>
+                                                    <option value="<?= $state->id ?>" <?= isset($pos['post']['direccion_estado']) ? ($pos['post']['direccion_estado'] == $state->id ? "selected" : '' ) : '' ?>>
+                                                        <?= $state->state_name ?>
+                                                    </option>
+                                                <? } ?>
+                                            </select>
+                                        <? } ?>
+                                        <img src="/img/creating_store.gif" width="20" height="20" id="loading_states" style="display:none;margin: 2px 0 0 70px" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <h4 class="semi-title">Contacto</h4>
+                                    <label for="nombre_contacto">Nombre</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> <span class="glyphicon glyphicon-user"></span></span>
+                                        <input data-content="Formato de Nombre incorrecto" type="text" id="nombre_contacto" name="nombre_contacto"  class="form-control text-validation" value="" />
+                                    </div>
+                                    <label for="email_contacto">Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> <span class="glyphicon glyphicon-envelope"></span></span>
+                                        <input data-content="Formato de email incorrecto" type="text" id="email_contacto" name="email_contacto" class="form-control email-validation" value="" />
+                                    </div>
+                                    <label for="telefono_contacto">Tel&eacute;fono</label>
+                                    <div class="input-group"> 
+                                        <span class="input-group-addon"> <span class="glyphicon glyphicon-earphone"></span></span>
+                                        <input data-content="Formato de tel&eacute;fono incorrecto" MAXLENGTH="12" type="text" id="telefono_contacto" name="telefono_contacto" class="form-control phone-validation" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div style="margin-top:15px;">
+                            <div class="col-lg-12">
+                                <button class="btn btn-primary btn-large" type="submit" id="submit_pos" name="submit_pos">Agregar punto de venta</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Mis direcciones de recolección</div>
+                        <table class="table" id="my-addr">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Direcci&oacute;n</th>
+                                    <th>Contacto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?
+                                if (!empty($store_pos)) {
+                                    $iS = 1;
+                                    foreach ($store_pos as $point) {
+                                        ?>
+                                        <tr data-id="<?= $point->id ?>">
+                                            <td style="font-weight:700;height:20px"><?= $iS ?></td>
+                                            <td>
+                                                <?= $point->calle . ' ' . $point->numero . ' ' . $point->interior ?><br/>
+                                                <?= $point->cp . ' ' . $point->colonia . ' ' . $point->ciudad ?><br/>
+                                                <?= $point->estado_nombre . ' ' . $point->pais_nombre ?><br/>
+                                            </td>
+                                            <td>
+                                                <?= $point->contacto ?><br/>
+                                                <?= $point->email ?><br/>
+                                                <?= $point->telefono ?>
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-default delete-pos"> <span class="glyphicon glyphicon-trash"></span> Borrar</a>
+                                            </td>
+                                        </tr>
+                                        <?
+                                        $iS++;
+                                    }
+                                    ?>
+                                <? } ?> 
+
+                                <tr class="noaddr">
+                                    <td colspan="4" style="text-align:center">No tienes direcciones de recolecci&oacute;n agregadas actualmente</td>
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div><!--End of POS-->
+
+                <div id="payments" class="tab-pane <?= ($option == "payments") ? 'fade in active' : 'fade' ?>  settings_tab">
+
+                    <? if (isset($payments['flashMessage'])) { ?>
+                        <div class="alert-message warning span11">
+                            <a class="close" href="#">×</a>
+                            <?= $payments['flashMessage'] ?>
+                        </div>
+                    <? } ?>
+
+                    <h3 class="title">Payments</h3>
+                    <form method="post" id="step1_payments" action="<?= base_url() ?>stores/settings/<?= $store->id ?>" role="form">
+
+                        <fieldset>
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <label for="bank_account_titular"> Titular de la cuenta</label>
+                                <input type="text" id="bank_account_titular" name="bank_account_titular" placeholder="Titular de la cuenta" class="form-control" value="<?= ( isset($payments['bank_account_titular']) ? $payments['bank_account_titular'] : (isset($store->bank_account_titular) ? $store->bank_account_titular : '') ) ?>" />
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="bank_account"> <?= $this->lang->line('stores_settings_paymentsTab_account') ?> (CLABE)</label>
+                                <input type="text" id="bank_account" name="bank_account"  class="form-control" placeholder="Cuenta CLABE" value="<?= ( isset($payments['bank_account_post']) ? $payments['bank_account_post'] : (isset($store->bank_account) ? $store->bank_account : '') ) ?>" />
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="bank_accounts"> <?= $this->lang->line('stores_settings_paymentsTab_bank') ?> </label>
+                                <select class="form-control" id="bank_accounts" name="bank_accounts">
+                                    <option value="0" <?= (isset($store->bank_id) ? '' : 'selected="selected"') ?>><?= $this->lang->line('stores_settings_paymentsTab_bank') ?></option>
+                                    <? foreach ($banks as $value) { ?>
+                                        <option value="<?= $value->id ?>" <?= (isset($store->bank_id) ? ($store->bank_id == $value->id ? 'selected="selected"' : '') : '') ?>><?= $value->bank_name ?></option>
+                                    <? } ?> 
+                                </select>
+                            </div>
+
+                        </fieldset>
+                        <br/>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="submit" name="submit_payments" class="btn btn-primary btn-large pull-right" ><?= $this->lang->line('stores_settings_paymentsTab_button') ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div><!--End of payments-->
+            </div>
+        </div>
+    </div>
+</div>

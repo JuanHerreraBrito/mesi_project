@@ -1,0 +1,154 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Facebook_config extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function index()
+	{
+		echo "<h1>Welcome to Kichink</h1>";
+		
+		if(isset($_POST['signed_request'])){
+			$signed_request = $this->parse_signed_request($_POST['signed_request']);	
+			$this->session->set_userdata(array('signed_request'=> json_encode($signed_request)));
+		} elseif($this->session->userdata('signed_request')){
+			$signed_request = json_decode($this->session->userdata('signed_request'));
+		}
+		
+		
+		echo "<pre>";
+			print_r($signed_request);
+		echo "</pre>";
+		
+		if(isset($signed_request['page'])){
+
+			// If post login info register session
+			if($this->input->post('username') AND $this->input->post('password')){
+				if(!$this->auth()){
+					$this->load->view('facebook_config/login', array('error', 'login_error'));		
+				}
+			}
+			// If post config options save them
+
+			// If no sesson show login screen
+			if(!$this->session->userdata('user_id') OR !$this->session->userdata('admin_client_stores')){
+				// If session show config screen
+				$this->load->view('facebook_config/login');	
+			}else{
+				echo "<h1>Hola ".$this->session->userdata('name')."</h1>";
+			}
+			
+
+
+			// If facebook config options redirect to facebook store
+		} else {
+			echo "Show install on FB instructions";
+		}
+
+	}
+
+	function auth(){
+		$domain = $_SERVER['HTTP_HOST'];
+		if($this->input->post('username') AND $this->input->post('password') AND $domain){
+			
+			$r = $this->getUser();
+			//echo $this->db->last_query();
+			if(!$r){
+				return false;
+			} else {
+				$newdata = array(
+				                   'username'  				=> $this->input->post('username'),
+				                   'name'  					=> $r[0]->name,
+				                   'domain'  				=> $domain,
+				                   'lang' 					=> $r[0]->usr_language,
+				                   'currency' 				=> $r[0]->usr_currency,
+				                   'admin_client_stores'  	=> FALSE,
+				                   'user_id'  				=> $r[0]->id,
+								   'settings_tab' 			=> 'details',
+				                   'logged_in' 				=> TRUE,
+				                   	'sell_terms' 			=> $r[0]->sell_terms
+				               );
+				
+				$this->session->set_userdata($newdata);
+
+				// Verificamos si el usuario que inicio sesion es admin_perm
+				$q_admin_client_stores = $this->db->get_where('admin_perm' , array('user_id' => $r[0]->id));
+
+				if($r_admin_client_stores = $q_admin_client_stores->result()){
+					// Si es admin y es admin de tiendas actualizar variable de sesion a true
+					if($r_admin_client_stores[0]->client_stores == 1){
+						$this->session->set_userdata('admin_client_stores', TRUE);
+					}
+
+				}
+				return true;
+			}
+		}else{
+			return false;
+		}
+		
+	}
+
+	function getUser(){
+		
+		$domain = $_SERVER['HTTP_HOST'];
+		$this->db->select('users.*');
+		$this->db->join('user_perm','user_perm.user_id = users.id');
+		$this->db->where(array('email'	=>	$this->input->post('username')));
+		$q = $this->db->get('users');
+		//echo $this->db->last_query();
+		if($r = $q->result()){
+			/*
+			if($r[0]->last_settings != ''){
+				$r[0]->last_settings = json_decode($r[0]->last_settings);
+			} else {
+				$json = '{"sources":"all","view":"grid"}';
+				$r[0]->last_settings = json_decode($json);
+				$this->db->update('users', array('last_settings'=>'{"sources":"all","view":"grid"}'), 'id_user = '.$r[0]->id_user);
+			}
+			*/
+			$this->load->library('encrypt');
+			if ($this->encrypt->decode($r[0]->password) == $this->input->post('password')){
+				return $r;
+			}else{
+				return false;
+			}
+			
+		}else{
+			return false;
+		}
+			
+	}
+
+	function parse_signed_request($signed_request) {
+	  list($encoded_sig, $payload) = explode('.', $signed_request, 2); 
+
+	  // decode the data
+	  $sig = $this->base64_url_decode($encoded_sig);
+	  $data = json_decode($this->base64_url_decode($payload), true);
+
+	  return $data;
+	}
+
+	function base64_url_decode($input) {
+	  return base64_decode(strtr($input, '-_', '+/'));
+	}
+	
+	
+
+	
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

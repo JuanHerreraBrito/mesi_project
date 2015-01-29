@@ -1,0 +1,393 @@
+<?php
+
+// Change version
+function change_version($version){
+	$self =& get_instance();
+ 	$output = "<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');";
+
+ 	if($self->session->userdata('version') == 'v2'){
+        $output.="\n \$route['default_controller'] = 'v2/stores';";         
+        $output.="\n \$route['api/(:any)'] = 'v2/api/route/$1';";                     
+        $output.="\n \$route['(:any)'] = 'v2/$1';";
+    }else{
+    	$output.="\n \$route['default_controller'] = 'stores';";         
+        $output.="\n \$route['api/(:any)'] = 'api/route/$1';";                     
+    }       
+    
+    $self->load->helper('file');
+    //write to the cache file
+    //write_file(APPPATH . "cache/routes.php", $output);
+    if ( !write_file(APPPATH . "cache/routes.php", $output)){
+	     echo 'Unable to write the file';
+	}else{
+	     echo 'File written!';
+	}
+}
+
+// Friendly urls
+function Slug($string, $slug = '-', $extra = null){
+	$slug = strtolower(trim(preg_replace('~[^0-9a-z' . preg_quote($extra, '~') . ']+~i', $slug, Unaccent($string)), $slug));
+  	return $slug;
+}
+
+	function Unaccent($string){
+	  return html_entity_decode(preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i', '$1', htmlentities($string, ENT_QUOTES, 'UTF-8')), ENT_QUOTES, 'UTF-8');
+	}
+	
+function checkForSession($permissions = false, $ajax = false){
+
+	$ajax_response = true;
+	
+	$self =& get_instance();
+	if(!$self->session->userdata('username') OR !$self->session->userdata('logged_in') OR !$self->session->userdata('domain') )	{
+		//echo "Session not here";
+		$self->session->sess_destroy();
+		$redirect =  'http://'.$_SERVER['HTTP_HOST'];
+
+		if($ajax){
+			$ajax_response = false;
+		}else{
+			redirect($redirect.'/login');
+		}
+		
+	}
+	if($permissions AND $self->session->userdata('permissions') != $permissions){
+		$self->session->sess_destroy();
+		$redirect =  'http://'.$_SERVER['HTTP_HOST'];
+
+		if($ajax){
+			$ajax_response = false;
+		}else{
+			redirect($redirect.'/login');
+		}
+	}
+
+	if($ajax){
+		return $ajax_response;
+	}
+
+	if(!$self->session->userdata('sell_terms') AND $self->uri->segment(1) != 'terminos'){
+		redirect('terminos');
+	}
+}
+
+function byPassLogin($where){
+	$self =& get_instance();
+	if($self->session->userdata('username') AND $self->session->userdata('logged_in'))	{
+		
+		redirect($where);
+		
+	}
+}
+
+function checkForPermission($user_id, $uri_segment, $controller, $ajax = false){
+
+	$ajax_response = true;
+	$self =& get_instance();
+	$self->load->database();
+
+	if(!$self->session->userdata('admin_client_stores')){
+		switch ($controller) {
+			case 'items':
+				
+				$q = $self->db->query("SELECT items.id, items.store_id FROM items 
+									   INNER JOIN user_perm ON user_perm.store_id=items.store_id 
+									   WHERE items.id=".$uri_segment['id_item']." AND user_perm.user_id=".$user_id);
+				if(!$r = $q->result()){
+					if($ajax){
+						$ajax_response = false;
+					}else{
+						redirect(base_url().'stores');
+					}
+				}
+				
+				break;
+
+			case 'stores':
+				
+				$q = $self->db->query("SELECT stores.id FROM stores 
+									   INNER JOIN user_perm ON user_perm.store_id=stores.id 
+									   WHERE stores.id=".$uri_segment['store_id']." AND user_perm.user_id=".$user_id);
+				if(!$r = $q->result()){
+					if($ajax){
+						$ajax_response = false;
+					}else{
+						redirect(base_url().'stores');
+					}
+				}
+				
+				break;
+
+			case 'orders':
+				
+				$q = $self->db->query("SELECT orders.id, order_items.store_id FROM orders
+									   INNER JOIN order_items ON order_items.order_id = orders.id
+									   INNER JOIN user_perm ON user_perm.store_id = order_items.store_id
+									   WHERE user_perm.user_id=".$user_id. " AND orders.id=".$uri_segment['order_id']." AND order_items.store_id=".$uri_segment['store_id']);
+				if(!$r = $q->result()){
+					if($ajax){
+						$ajax_response = false;
+					}else{
+						redirect(base_url().'stores');
+					}
+				}
+				
+				break;
+
+			case 'media':
+
+				$q = $self->db->query(" SELECT * FROM media 
+										INNER JOIN items ON items.id = SUBSTRING_INDEX(SUBSTRING_INDEX(object_name , '_', 2 ), '_' , -1)
+										INNER JOIN stores ON stores.id = items.store_id
+										INNER JOIN user_perm ON user_perm.store_id = stores.id
+										WHERE media.table = 'items' AND media.id =". $uri_segment['media_id'] ." AND user_perm.user_id =".$user_id );
+				if(!$r = $q->result()){
+					if($ajax){
+						$ajax_response = false;
+					}else{
+						redirect(base_url().'stores');
+					}
+				}
+				
+				break;
+		}
+		
+	}
+
+	if($ajax){
+		return $ajax_response;
+	}
+	
+}
+
+function page_not_found(){
+	$self =& get_instance();
+	if(!$self->session->userdata('user_id')){
+		$data['header'] = 'header_noAuth';
+	}else{
+		$data['header'] = 'header';
+	}
+	header("HTTP/1.1 404 Not Found");
+	
+	$self->load->view('v2/error/error_view', $data);
+}
+
+function geoIP(){
+	
+	$self =& get_instance();
+	
+	if(!$self->session->userdata('user_id')){
+		
+		require_once(APPPATH.'libraries/geoip/geoip.inc');
+		$gi = geoip_open(APPPATH.'libraries/geoip/GeoIP.dat',GEOIP_STANDARD);
+		/// Rackspace Load Balancer settings
+		//$country = geoip_country_code_by_addr($gi, $_SERVER['REMOTE_ADDR']);
+		
+		/// AWS ELB settings
+		$country = geoip_country_code_by_addr($gi, @$_SERVER["HTTP_X_FORWARDED_FOR"]);
+		
+		if($country=='MX'){
+			$self->lang->load('es_sell_kichink', 'es');
+		}else{
+			$self->lang->load('en_sell_kichink', 'en');
+		}
+		geoip_close($gi);
+		
+	}else{
+		
+		$getUsrPref = getUsrPref($id_user = $self->session->userdata('user_id'));
+		
+		if($getUsrPref){
+			$self->lang->load($getUsrPref->usr_language.'_sell_kichink', $getUsrPref->usr_language);
+		}
+		
+	}
+	
+}
+
+
+function getLang(){
+	$self =& get_instance();
+	require_once(APPPATH.'libraries/geoip/geoip.inc');
+	$gi = geoip_open(APPPATH.'libraries/geoip/GeoIP.dat',GEOIP_STANDARD);
+	/// Rackspace Load Balancer settings
+	//$country = geoip_country_code_by_addr($gi, $_SERVER['REMOTE_ADDR']);
+		
+	/// AWS ELB settings
+	$country = geoip_country_code_by_addr($gi, $_SERVER["HTTP_X_FORWARDED_FOR"]);
+	if($country=='MX'){
+		return 'es';
+	}else{
+		return 'en';
+	}
+	geoip_close($gi);
+}
+
+function getUsrPref($id_user){
+	$self =& get_instance();
+	$self->load->database();
+        $q = $self->db->query("SELECT users.usr_language, users.usr_country FROM users WHERE id='{$id_user}'");
+	if($r = $q->result()){
+		return $r[0];
+	}else{
+		return false;
+	}
+}
+
+
+function timeago($tm,$rcs = 0) {
+   $self =& get_instance();
+   $tm = strtotime($tm);
+   $cur_tm = time(); $dif = $cur_tm-$tm;
+   $pds = array($self->lang->line('login_helper_timeago_second'),$self->lang->line('login_helper_timeago_minute'),$self->lang->line('login_helper_timeago_hour'),$self->lang->line('login_helper_timeago_day'),$self->lang->line('login_helper_timeago_week'),$self->lang->line('login_helper_timeago_month'),$self->lang->line('login_helper_timeago_year'),$self->lang->line('login_helper_timeago_decade'));
+   $lngh = array(1,60,3600,86400,604800,2630880,31570560,315705600);
+   for($v = sizeof($lngh)-1; ($v >= 0)&&(($no = $dif/$lngh[$v])<=1); $v--); if($v < 0) $v = 0; $_tm = $cur_tm-($dif%$lngh[$v]);
+
+   $no = floor($no); 
+   
+   if($no <> 1) $v==5 ? $pds[$v] .=$self->lang->line('login_helper_timeago_month_plural') : $pds[$v] .='s'; $x=sprintf("%d %s ",$no,$pds[$v]);
+   if(($rcs == 1)&&($v >= 1)&&(($cur_tm-$_tm) > 0)) $x .= time_ago($_tm);
+   return $x;
+}
+
+function timeleft($tm,$rcs = 0) {
+   $self =& get_instance();
+   $tm = strtotime($tm);
+   $cur_tm = time(); $dif = $tm-$cur_tm;
+   $pds = array($self->lang->line('login_helper_timeago_second'),$self->lang->line('login_helper_timeago_minute'),$self->lang->line('login_helper_timeago_hour'),$self->lang->line('login_helper_timeago_day'),$self->lang->line('login_helper_timeago_week'),$self->lang->line('login_helper_timeago_month'),$self->lang->line('login_helper_timeago_year'),$self->lang->line('login_helper_timeago_decade'));
+   $lngh = array(1,60,3600,86400,604800,2630880,31570560,315705600);
+   for($v = sizeof($lngh)-1; ($v >= 0)&&(($no = $dif/$lngh[$v])<=1); $v--); if($v < 0) $v = 0; $_tm = $cur_tm-($dif%$lngh[$v]);
+
+   $no = floor($no);
+
+   if($no <= 0) {
+   		$difNo = $no*-1; 
+   		for($v = sizeof($lngh)-1; ($v >= 0)&&(($no = $difNo/$lngh[$v])<=1); $v--){
+   			if($v < 0) $v = 0; $_tm = $cur_tm-($difNo%$lngh[$v]);
+   		}
+   	}
+
+   $no = floor($no);
+   
+   if($no <> 1) $v==5 ? $pds[$v] .=$self->lang->line('login_helper_timeago_month_plural') : $pds[$v] .='s'; $x=(isset($difNo)? '-' : '').sprintf("%d %s ",$no,$pds[$v]);
+   if(($rcs == 1)&&($v >= 1)&&(($cur_tm-$_tm) > 0)) $x .= time_ago($_tm);
+   return $x;
+}
+
+
+function resize($image, $maxW, $maxH=0, $constrainProportions = true){
+	$size = getimagesize($image);
+	$scaleX = $size[0]/$size[1];
+	$scaleY = $size[1]/$size[0];
+	$newSize = array();
+	
+	
+	$maxH = ($maxH == 0 ? $maxW : $maxH);
+	$newSize['width'] = $maxW;
+	$newSize['height'] = $maxH;
+	if ($constrainProportions) {
+		if($scaleX < $scaleY){
+			
+			$newSize['height'] = $scaleX*$newSize['height'];
+		} else {
+			$newSize['width'] = $scaleY*$newSize['width'];
+		}
+	}
+	
+	return $newSize;
+}
+
+function getPlusTime($value){
+	switch($value){
+		case '5to7_days':
+			return '7 days';
+			break;
+		case '2to3_days':
+			return '3 days';
+			break;
+		case 'next_day':
+			return '1 day';
+			break;
+		case '3_hour':
+			return '3 hours';
+			break;
+		case 'customer_pickup':
+			return '0 hour';
+			break;
+	}
+}
+function getValue($value){
+	$self =& get_instance();
+	switch($value){
+		case '5to7_days':
+			return $self->lang->line('login_helper_shipment_options_5to7');
+			break;
+		case '2to3_days':
+			return $self->lang->line('login_helper_shipment_options_2to3');
+			break;
+		case 'next_day':
+			return $self->lang->line('login_helper_shipment_options_nextDay');
+			break;
+		case '3_hour':
+			return $self->lang->line('login_helper_shipment_options_3Hour');
+			break;
+		case 'customer_pickup':
+			return $self->lang->line('login_helper_shipment_options_customer');
+			break;
+	}
+}
+
+function getImageType($type){
+	$self =& get_instance();
+	switch($type){
+		case 'img_original':
+			return '.';
+			break;
+		case 'img_bordered':
+			return '_b.';
+			break;
+		case 'img_cropped':
+			return '_cropped.';
+			break;
+		case 'img_thumb':
+			return '_thumb.';
+			break;
+		default:
+			return '_b.';
+			break;
+	}	
+}
+
+function isChecked($chkname,$value){
+	
+    if(!empty($chkname)) {
+        foreach($chkname as $chkval)
+        {
+            if($chkval == $value)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+    
+}
+
+// CURRENCY STUFF
+function getPriceFromSelectedCurrency($price, $selectedCurrency){
+	$self =& get_instance();
+	$self->load->database();
+
+	$q = $self->db->query("SELECT * FROM tipo_cambio");
+
+	if($r = $q->result()){
+		
+		if($selectedCurrency == 'USD'){
+			$convertedPrice = array('price' => round($price/$r[0]->price, 2), 'currency' => $selectedCurrency);
+		}else{
+			$convertedPrice = array('price' => $price, 'currency' => $selectedCurrency);
+		}
+		return $convertedPrice;
+
+	}
+}

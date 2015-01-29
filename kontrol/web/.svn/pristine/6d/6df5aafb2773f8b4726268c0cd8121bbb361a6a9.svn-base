@@ -1,0 +1,107 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<!-------------------container starts here---------------------->
+<script type="text/javascript" src="/v2/js/stores.js"></script>
+
+<div class="modal fade" id="message-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Borrar items</h4>
+      </div>
+      <div class="modal-body">
+        <p>¿Esta seguro de que desea borrar estos items?</p>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button id="btn-confirm" type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="col-lg-9 col-md-9 col-sm-9 ">
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div class="item-container">
+            <div class="items">
+                <div class="header-options">
+                    <div class="options-itemlist">
+                        <div class="viewtoggle pull-left">
+                            <div class="btn-group" data-toggle="buttons">
+                                <button class="btn btn-default grid-view active" data-set-toggle="itemBox">
+                                    <span class="glyphicon glyphicon-th-large active"></span>
+                                    <input type="radio" name="options" id="option1"> Grid view
+                                </button>
+                                <button class="btn btn-default list-view" data-set-toggle="itemList">
+                                    <span class="glyphicon glyphicon-list"></span>
+                                    <input type="radio" name="options" id="option2"> List view
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="actions-menu pull-right">
+                            <button id="checkall" data-checked-text="Check all" data-unchecked-text="Uncheck all" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Check All</button> 
+
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                    Actions <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#" id="btn-delete-items"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete Items</a></li>
+                                    <li><a href="#" id="btn-add-categories"><span class="glyphicon glyphicon-tags"></span>&nbsp;Assign Categories</a></li>
+                                </ul>
+                            </div>
+                            <div class="floatcategories">
+                                <div class="piquito"></div>
+                                <div style="padding:10px 10px 0;text-align: left; color:#999">
+                                    <small>
+                                        <b id="treetotalitems">0</b> <b>items</b> will be modified
+                                    </small>
+                                    <a href="#" type="button" class="closetree pull-right" aria-hidden="true">&times;</a>
+
+                                </div>
+                                <div id="jstree_categories" style="padding-bottom:15px;border-bottom: 1px solid #e2e2e2; margin-bottom: 10px;">
+                                    <ul>
+                                        <li data-jstree='{"opened":true}' class="jstree-open">All
+                                            <ul id="maincats">
+
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <button class="btn btn-primary" id="btn-save-categories">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        Showing <b id="totalitems">0</b> <b>items</b>, filtered by 
+                        
+                        <ol class="breadcrumb" id="breadcrumb">
+                            
+                            
+                          </ol>
+                        
+                        
+                    </div>
+                </div>
+                <h4>Drag and Drop to Reorganize Items <div id="edit-menu" style="display:none" class="pull-right">Editar:&nbsp;<select class="edit-attribute"><option value="precio">Precio</option><option value="live">LIVE</option></select></div></h4>
+                <div align="right"><button class="btn btn-default guardar"><?= $this->lang->line('userProfile_submit_value') ?></button></div>
+                <ul id="sortable_items">
+                </ul>
+                <div class="itemBox">
+                    <img src="/bootstrap3/img/image-icon.png" alt="" class="img-responsive"/>
+                    <button onclick="window.location = '/items/add_item/<?= $store->id ?>'" class="btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add Item</button>
+                </div>	
+                <button class="btn btn-default pull-right guardar"><?= $this->lang->line('userProfile_submit_value') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+<?
+$this->load->view('v2/layout/footer');
+?>
+
+

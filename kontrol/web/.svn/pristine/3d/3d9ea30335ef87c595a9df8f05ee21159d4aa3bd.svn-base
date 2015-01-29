@@ -1,0 +1,62 @@
+<? 
+$this->load->view('layout/header.php');
+?>
+
+<div class="container">
+
+      <div class="content">
+        <div class="page-header" style="background:#942984;padding:40px 0 40px 0; text-align:center;">
+          <img src="/img/logo_kichink_k.png" width="35" alt="Kichink" />
+          <h1 style="font-family: 'Rockwell', Helvetica, Arial, sans-serif; font-weight:normal; color:#FFF;">
+            Términos y condiciones del servicio tienda en línea
+          </h1>
+        </div>
+        <div class="row">
+          <div class="span16">
+          	<p style="border-bottom:1px solid #c3c3c3;padding-bottom:10px">Para continuar, es necesario que aceptes nuestros términos y condiciones aplicables al servicio de tienda en línea. Por favor cualquier duda o comentario no dudes en contactarnos.</p>
+            <iframe src="/login/contratoK" frameborder="0" width="920px" height="500px" style="padding:10px;border:1px solid #c3c3c3;">
+              <div style="width:300px; margin:40% auto; font-size:20px;">
+                Tu navegador no permite mostrar el contrato en esta ventana. 
+                <a href="/login/contratoK">Haz clic para abrirlo en una nueva ventana.</a>
+              </div>
+            </iframe>
+            <div style="margin: 10px 0 0 0;text-align:center;font-size:16px">
+                <input type="checkbox" name="acepto" id="acepto" value="acepto" style="margin-right:10px"/>Acepto los términos y condiciones del servicio de tienda en línea prestado por Kichink Servicios S.A. de C.V.<br/><br/>
+                <button class="btn success large" id="acepto_terminos" style="width:300px">Ir a mis tiendas</button>
+                <div id="msg_error" style="color:red"></div>
+            </div>
+            <div style="height:40px">&nbsp;</div>
+          </div>
+        </div>
+        
+      </div>
+
+<script type="text/javascript">
+  
+  $('#acepto_terminos').on('click', function(e){
+
+    e.preventdefault;
+    var acepto = $('#acepto');
+    var msg = $('#msg_error');
+    msg.html('');
+
+    if(acepto.prop('checked') != true){
+      msg.html('Por favor, acepta nuestros términos');
+    }else{
+      $.post('terminos/acepto_contrato', {acepto:acepto.val()}, function(data){
+        if(data.msg!='success'){
+          msg.html(data.msg);
+        }else{
+          window.location.href = data.stores;
+        }
+      },"json");
+    }
+
+  });
+
+</script>
+        
+</div>
+</div>
+
+<?=$this->load->view('layout/footer.php');?>

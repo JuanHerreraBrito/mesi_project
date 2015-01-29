@@ -1,0 +1,83 @@
+var evt = new Event(), m = new Magnifier(evt);
+
+$(document).ready(function() {
+    var v = window.location.pathname.split("/");
+
+
+    $("#items").find(".item").click(function() {
+        load_item($(this).data());
+    });
+
+    $("#login.card").click(function(event) {
+        event.stopPropagation();
+    });
+
+    $("button.close").click(function() {
+        v = window.location.pathname.split("/");
+        window.history.replaceState({}, '', "/stores/" + v[3]);
+
+
+        $("#item-container").animate({bottom: -1170}, 500, function() {
+            $(this).hide();
+        });
+        $("#items").slideDown();
+
+    });
+
+
+
+
+    function load_item(data) {
+        v = window.location.pathname.split("/");
+        var store_name = (v[1] == "buy") ? v[3] : v[2];
+        window.history.replaceState({}, '', "/buy/" + data.id + "/" + store_name + "/" + data.name);
+
+        $("#item-container").show();
+        $("#items").slideUp();
+        $("#item-container").animate({bottom: 0}, 500, function() {
+
+            $('#thumbs').carouFredSel({
+                responsive: true,
+                auto: false,
+                width: '95%',
+                prev: '#prev',
+                next: '#next',
+                scroll: {
+                    onBefore: function(data) {
+                        data.items.old.eq(1).removeClass('selected');
+                        data.items.visible.eq(1).addClass('selected');
+                    }
+                },
+                items: {
+                    width: 110,
+                    visible: {
+                        min: 2,
+                        max: 5
+                    }
+                }
+            });
+
+            $('#thumbs').find("img").each(function(i,e){
+                $(e).click(function(){
+                   $('#thumbs').find("img").removeClass("selected");
+                   $(this).addClass("selected");
+                   $("#preview").find("img").attr("src",$(this).attr("src"));
+                });
+            });
+
+            m.attach({
+                thumb: "#thumb",
+                large: $("#thumb").attr("src"),
+                mode: 'inside',
+                zoom: 2,
+                zoomable: false,
+                largeWrapper: 'preview'
+            });
+        });
+    }
+
+    if (v[1] == "buy") {
+        load_item({id: v[2]});
+    }
+
+});

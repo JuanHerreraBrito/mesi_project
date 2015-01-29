@@ -1,0 +1,173 @@
+@import url(http://fonts.googleapis.com/css?family=Rokkitt|Open+Sans:400,700);
+
+@media (max-width: 767px) {
+    .center-block {
+        text-align: center;
+    }
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Rokkitt', sans-serif;
+    font-weight: 400;
+}
+
+p {
+    font-family: 'Open Sans', sans-serif;
+}
+
+html {
+    background-color: #fff;
+}
+
+footer {
+    height: 90px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: #BBB;
+    padding-top: 60px;
+}
+
+/*.top {
+        background-color: #572361;
+}
+
+.top .navbar-brand {
+        height: 76px;
+        line-height: 76px;
+        text-align: center;
+        padding: 0 10px 0 0;
+        text-decoration: none;
+}
+
+.top .container {
+        padding: 0;
+}*/
+
+#hero {
+    background-color: #b098b5;
+    margin-top:50px;
+}
+
+#hero .container {
+    background-color: #b098b5;
+    padding: 0;
+}
+
+#hero .item {
+    position: relative;
+    background: #b098b5;
+    padding:0;
+    margin:0;
+}
+
+#hero .item img.base {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#hero .item img.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 100px;
+    margin: auto;
+    z-index: 10;
+}
+
+.owl-theme .owl-controls {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 6px;
+}
+
+.owl-theme .owl-controls .owl-page span {
+    background: #572361 !important;
+    opacity: 1 !important;
+}
+
+.owl-theme .owl-controls .owl-page.active span {
+    background: #fff !important;
+}
+
+.fence {
+    background-color: #572361;
+}
+
+.fence .container {
+    color: #fff;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.fence .container h2 {
+    font-size: 34pt;
+    margin: 0 0 20px;
+}
+
+.fence .container p {
+    font-size: 10pt;
+    margin: 0;
+}
+
+.articles .container {
+    padding: 50px 0 20px;
+}
+
+.articles .container h3 {
+    color: #572361;
+    font-size: 13pt;
+    margin-bottom: 30px;
+    margin-top: 20px;
+}
+
+.articles .container a {
+    color: #572361 !important;
+}
+
+.articles .container a:hover,
+.articles .container a:hover h3 {
+    color: #a30085 !important;
+    text-decoration: none !important;
+}
+
+.articles.guides .container article {
+    margin-bottom: 30px;
+}
+/*
+.navbar-nav li a {
+        color: #9a79a8;
+        font: 400 18pt/76px 'Rokkitt', sans-serif;
+        height: 76px;
+        padding: 0 20px;
+}
+
+.navbar-nav li a:hover {
+        color: #fff;
+        background-color: transparent;
+}
+*/
+.bottom {
+    background-color: #474747;
+}
+
+.bottom .container {
+    background-color: #373737;
+    min-height: 150px;
+}
+
+.bottom .container h3 {
+    color: #999;
+}
+
+.bottom .container p {
+    color: #666;
+}
+
+.navbar-nav {
+    margin: 0;
+}

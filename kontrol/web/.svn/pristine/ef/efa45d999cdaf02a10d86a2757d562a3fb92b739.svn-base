@@ -1,0 +1,4 @@
+<?=$this->load->view('v2/layout/header_new.php')?>
+      
+
+<?=$this->load->view('v2/layout/footer.php')?>

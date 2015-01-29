@@ -1,0 +1,58 @@
+<?= $this->load->view('v2/layout/header_new.php') ?>
+
+<div class="home" id="tutorial">
+    <div class="container">
+        <br/><br/>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="row">
+                <h3>Te presentamos Kontrol! El nuevo panel de administraci&oacute;n de tus tiendas Kichink!</h3>
+                <iframe width="100%" height="400" src="//www.youtube.com/embed/QqHFp0job9s" frameborder="0" allowfullscreen=""></iframe>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6" align="left" id="new_features">
+            <div class="signin-card" id="login">
+                <? if (isset($flashMessage)) { ?>
+                    <div class="alert alert-warning alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <strong><?= $this->lang->line('v3_login_message') ?>:</strong> <?= $flashMessage ?>
+                    </div>
+                <? } ?>
+                <div align="center" class="card">
+                    <h1><?= $this->lang->line('v3_login_title'); ?>!</h1>
+                    <div class="person img-circle"></div>
+                    <form method="post" action="/login/doLogin" class="form-stacked">
+                        <input type="text" class="form-control" name="username" placeholder="<?= str_replace(":", "", $this->lang->line('v3_login_email')) ?>" />
+                        <input type="password" class="form-control" name="password" placeholder="<?= str_replace(":", "", $this->lang->line('v3_login_password')) ?>" />
+                        <? if (isset($_SERVER['HTTP_REFERER'])) { ?> 
+                            <input type="hidden" name="refer" value="<?= $_SERVER['HTTP_REFERER'] ?>" />
+                        <? } ?>
+                        <button type="submit" class="btn btn-primary btn-lg"><?= $this->lang->line('v3_login_button'); ?></button>
+                        <div align="left">
+                            <a href="<?= base_url() ?>login/requestPass"><?= $this->lang->line('v3_login_forgot_password'); ?></a>
+                        </div>
+                    </form>
+                </div>
+                <div align="center">
+                    <a href="<?= base_url() ?>login/register"><?= $this->lang->line('v3_login_signup'); ?></a>
+                </div>
+            </div>	
+        </div>
+    </div>
+</div>
+<div id="networks">
+    <div class="container">
+         <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+            <a href="http://www.facebook.com/kichink" target="_blank"><h1 class="fa fa-facebook"></h1></a>
+        </div>
+        <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+            <a href="http://www.twitter.com/kichink" target="_blank"><h1 class="fa fa-twitter"></h1></a>
+        </div>
+        <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+            <a href="https://plus.google.com/u/1/+Kichink/posts" target="_blank"><h1 class="fa fa-google-plus-square"></h1></a>
+        </div>
+        <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+            <a href="http://www.pinterest.com/kichink" target="_blank"><h1 class="fa fa-pinterest"></h1></a>
+        </div>
+    </div>
+</div>
+<?= $this->load->view('v2/layout/footer.php', array('sreen_code' => 'S_2_0.2')) ?>

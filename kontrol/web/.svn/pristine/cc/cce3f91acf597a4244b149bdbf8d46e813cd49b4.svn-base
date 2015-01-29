@@ -1,0 +1,46 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class B2b extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function authorize_accounts()
+	{	
+
+		// Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 3,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+		$q = $this->db->get_where('b2b_access_request', array('store_id'=>$store_id,
+															  'status'=> NULL,
+															  'deleted !='=> 1));
+		$data['user_requests'] = $q->result();
+
+		$this->db->select('users.id, users.name, users.email, users.telefono, b2b_access.active');
+		$this->db->join('users', 'b2b_access.user_id = users.id');
+		$q = $this->db->get_where('b2b_access', array('store_id'=>$store_id));
+		$data['accepted_users'] = $q->result();
+		
+		$this->load->view('b2b/auth_view', $data);
+	    
+	}
+		
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

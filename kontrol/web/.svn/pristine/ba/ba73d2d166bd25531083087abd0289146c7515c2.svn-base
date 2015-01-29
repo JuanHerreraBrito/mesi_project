@@ -1,0 +1,157 @@
+<?php
+$page_title = "Secci&oacute;n de Tutoriales";
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+?>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+<link rel="stylesheet" href="/v2/css/tutorials.css">
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.css" type="text/css" media="screen">
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.theme.css" type="text/css" media="screen">
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.min.js"></script>
+<script type="text/javascript">
+    $(function() {
+        $('#hero .container').owlCarousel({
+            singleItem: true,
+            stopOnHover: true,
+            autoPlay: true,
+            paginationSpeed: 1000,
+            autoHeight: false,
+            transitionStyle: "fade"
+        });
+        
+        $(".show-guia").each(function(i,e){
+            $(e).click(function(evt){
+                evt.stopPropagation();
+                evt.preventDefault();
+                if($(this).data().type=="image"){
+                    $("#guiasModal").find(".modal-body").html("<img src='"+$(this).attr("href")+"' width='100%'/>");
+                }else{
+                    $("#guiasModal").find(".modal-body").html("<iframe src='"+$(this).attr("href")+"' frameborder='0' height='100%' width='100%'></iframe>");
+                }
+                $("#guiasModal").modal("show");
+            });
+        });
+        
+    });
+</script>
+<style>
+    .articles.guides .info-block{
+        margin-bottom: 40px;
+        min-height: 182px;
+    }
+</style>
+<!--<div id="hero">
+    <div class="container owl-carousel">
+        <div class="item">
+            <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/bienvenido_kontrol.jpg" alt="">
+        </div>
+        <div class="item">
+            <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/infografias_kontrol.jpg" alt="">
+        </div>
+        <div class="item">
+            <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/reglamentos_kontrol.jpg" alt="">
+        </div>
+    </div>
+</div>-->
+<div id="hero" style="margin-top:50px">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h1 style="font-size:55pt;text-align:center">Kichink Enterprise</h1>
+            <p style="text-align:center">!Toda la info actualizada que necesitamos considerar para el proceso de lanzamiento de una tienda corporativa!</p>
+        </div>
+    </div>
+</div>
+<div class="fence">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Plantillas</h2>
+            <p>Especificaciones de los templates que podemos ofrecer a las tiendas</p>
+        </div>
+    </div>
+</div>
+<div class="articles tutorials">
+    <div class="container">
+        <div align="center" class="col-sm-6 col-md-4 center-block">
+            <a href="http://kichink-tutoriales.s3.amazonaws.com/Enterprise1.pdf" target="_blank">
+                <i class="fa fa-file-code-o  fa-5x fa-border"></i>
+                <h3>Sombrerete (BC)</h3>
+            </a>
+        </div>
+        <div align="center" class="col-sm-6 col-md-4 center-block">
+            <a href="http://kichink-tutoriales.s3.amazonaws.com/Enterprise2.pdf" target="_blank">
+                <i class="fa fa-file-code-o  fa-5x fa-border"></i>
+                <h3>Napoles (Delfino)</h3>
+            </a>
+        </div>
+        <div class="clearfix visible-sm"></div>
+        <div align="center" class="col-sm-6 col-md-4 center-block">
+            <a href="http://kichink-tutoriales.s3.amazonaws.com/Enterprise3.pdf" target="_blank">
+                <i class="fa fa-file-code-o  fa-5x fa-border"></i>
+                <h3>Condesa (HQ)</h3>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="fence">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Carga de productos</h2>
+            <p>Archivos necesarios para realizar carga y/o actualización de productos en batch</p>
+        </div>
+    </div>
+</div>
+<div class="articles tutorials">
+    <div class="container">
+        <div align="center" class="col-sm-6 col-md-4 center-block">
+            <a href="#" target="_blank">
+                <i class="fa fa-file-excel-o fa-5x fa-border"></i>
+                <h3>Carga de productos</h3>
+            </a>
+        </div>
+        <!--<div align="center" class="col-sm-6 col-md-4 center-block">
+            <a href="#" target="_blank">
+                <i class="fa fa-file-code-o  fa-5x fa-border"></i>
+                <h3>Napoles (Delfino)</h3>
+            </a>
+        </div>
+        <div class="clearfix visible-sm"></div>
+        <div align="center" class="col-sm-6 col-md-4 center-block">
+            <a href="#" target="_blank">
+                <i class="fa fa-file-code-o  fa-5x fa-border"></i>
+                <h3>Condesa (HQ)</h3>
+            </a>
+        </div>-->
+    </div>
+</div>
+<!--<div class="fence">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Reglamentos</h2>
+            <p>No olvides consultar de manera regular las normas a seguir para el buen uso y mantenimiento de tu tienda en línea dentro de la plataforma</p>
+        </div>
+    </div>
+</div>
+<div class="articles rules">
+    <div class="container">
+        <div align="center" class="col-sm-6 col-md-6 center-block">
+            <a href="#"><img src="http://kichink-tutoriales.s3.amazonaws.com/botones_reglamentos-01.jpg" alt="Reglamento de almacen"></a>
+        </div>
+        <div align="center" class="col-sm-6 col-md-6 center-block">
+            <a href="#"><img src="http://kichink-tutoriales.s3.amazonaws.com/botones_reglamentos-02.jpg" alt="Reglamento de tiendas"></a>
+        </div>
+    </div>
+</div>
+<div class="modal modal-lg fade" id="guiasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 85%;height: 80%">
+        <div class="modal-content" style="min-height: 600px;">
+            <div class="modal-body" style="height: 100%;min-height: 480px;">
+            </div>
+
+        </div>
+    </div>
+</div>-->
+<?php
+$this->load->view('v2/layout/footer');
+?>
+

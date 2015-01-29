@@ -1,0 +1,1123 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Items extends CI_Controller {
+
+	var $sitio = 'SELL';
+
+	function __construct()
+	{
+		parent::__construct();	
+		geoIP();
+	}
+
+	
+	/**
+	 * ID Page for this controller.
+	 *
+	 * Shows a specific item determined by its ID
+	 */
+	public function id(){
+
+		checkForSession();
+		if(!$item_id = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $item_id);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+        	if($system_version = $this->get_system_version($item_id)){
+        
+        		//Llamada a funcion segun system version
+        		switch ($system_version) {
+        			case 1:
+        				$this->id_1($item_id);
+        				break;
+        			case 2:
+        				$this->id_2($item_id);
+        				break;
+        			default:
+        				$this->id_1($item_id);
+        				break;
+        		}
+        		
+        	}else{
+
+        		redirect('stores');
+
+        	}
+
+		}
+		
+	}
+
+	private function get_system_version($item_id){
+
+		$this->db->select('system_version');
+    	$this->db->from('stores');
+    	$this->db->join('items', 'items.store_id = stores.id');
+    	$this->db->where(array('items.id' => $item_id, 'items.deleted !=' => 1));
+    	$q = $this->db->get();
+
+    	if($r = $q->result()){
+    		return $r[0]->system_version;
+    	}else{
+    		return false;
+    	}
+
+	}
+
+	private function id_1($itemId){
+
+		$data['item_data'] 		= $this->sell_model->get_item_for_Edit($itemId);
+
+		if(!$data['item_data']){
+			redirect('stores');
+		}
+
+		$data['store_name'] 	= 'Editing item';
+		$data['x_rate'] 		= $this->sell_model->get_xRates();
+		$data['shipments'] 		= $this->sell_model->get_delivery_groups($data['item_data'][0]->store_id);
+		$data['delivery_times'] = $this->sell_model->get_delivery_times_text();
+
+		//print_r($data['shipments']);
+		if($this->input->post('submit_update')){
+
+			$update = $this->update_item();
+			if(!$update){
+				// Redirect
+				redirect('stores/id/'.$this->input->post('store_id'));
+			}else{
+				$data['flashMessage'] = $update;
+				$data['postValues'] = array('shipment_options' => $this->input->post('shipment_options'),
+											'name' => $this->input->post('name'),
+											'name_eng' => $this->input->post('name_eng'),
+											'price' => (!is_numeric($this->input->post('price')) ? 200.00 : $this->input->post('price')),
+											'description' => $this->input->post('description'),
+											'description_eng' => $this->input->post('description_eng'),
+											'live_item' => $this->input->post('live_item'),
+											'units_availible' => $this->input->post('units_availible'),
+											'inventories' => $this->input->post('inventories'),
+											'physical' => $this->input->post('physical'),
+											'sku' => $this->input->post('sku'),
+											'category_options' => $this->input->post('category_options'),
+											'purchase_option_item_id' => $this->input->post('purchase_option_item_id')
+											);
+			}
+		}
+		
+		
+		switch($data['item_data'][0]->type){
+			case 'ticket':
+				//$this->load->view('items/ticket_view', $data);
+				$this->load->view('items/id_view', $data);
+				break;	
+			default:
+				$this->load->view('items/id_view', $data);
+				break;	
+		}
+		
+		
+	}
+	
+
+	/**
+	 * ID Page for this controller.
+	 *
+	 * Shows a specific item determined by its ID
+	 */
+	public function edit_item()
+	{
+		checkForSession();
+
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+			$data['store_name'] = 'Editing item';
+			$data['item_data'] = $this->sell_model->get_item_for_Edit($itemId);
+
+			if(!$data['item_data']){
+				redirect('stores');
+			}
+			
+			$data['x_rate'] = $this->sell_model->get_xRates();
+			$data['shipments'] = $this->sell_model->get_delivery_groups($data['item_data'][0]->store_id);
+			$data['delivery_times'] = $CI->shared_model->get_delivery_times();
+
+			//print_r($data['shipments']);
+			if($this->input->post('submit_update')){
+
+				$update = $this->update_item();
+				if(!$update){
+					// Redirect
+					redirect('stores/id/'.$this->input->post('store_id'));
+				}else{
+					$data['flashMessage'] = $update;
+					$data['postValues'] = array('shipment_options' => $this->input->post('shipment_options'),
+												'name' => $this->input->post('name'),
+												'name_eng' => $this->input->post('name_eng'),
+												'price' => (!is_numeric($this->input->post('price')) ? 200.00 : $this->input->post('price')),
+												'description' => $this->input->post('description'),
+												'description_eng' => $this->input->post('description_eng'),
+												'live_item' => $this->input->post('live_item'),
+												'units_availible' => $this->input->post('units_availible'),
+												'inventories' => $this->input->post('inventories'),
+												'physical' => $this->input->post('physical'),
+												'sku' => $this->input->post('sku'),
+												'category_options' => $this->input->post('category_options'),
+												'purchase_option_item_id' => $this->input->post('purchase_option_item_id')
+												);
+				}
+			}
+			
+			$this->load->view('items/id_new_view', $data);
+			
+			
+
+		}
+		
+	}
+	
+	public function delete_discount(){
+
+		checkForSession();
+		checkForPermission($this->session->userdata('user_id'), $uri_segment = array('id_item' => $this->uri->segment(3) ),'items');
+
+		$system_version = $this->get_system_version($this->uri->segment(3));
+
+		// Segun system version
+		switch ($system_version) {
+			case 1:
+				$this->db->delete('discounts', array('id' => $this->uri->segment(4) ) );
+				break;
+			case 2:
+				$this->db->update('discounts', array('deleted' => 1), array('id' => $this->uri->segment(4)) );
+				break;
+			default:
+				$this->db->delete('discounts', array('id' => $this->uri->segment(4) ) );
+				break;
+		}
+		
+		redirect('/items/id/'.$this->uri->segment(3));
+
+	}
+	
+	public function generate_tickets(){
+
+		checkForSession();
+		
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+			
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			
+			$data['store_name'] = 'Editing item';
+			$data['item_data'] = $this->sell_model->get_item_for_Edit($itemId);
+			
+			if($data['item_data'][0]->type=='ticket'){
+				$random = sha1( uniqid('Arquine-Duetos'.time(), true) );
+				$this->gc_qrcode->size(250)
+		                ->data('http://tickets.kichink.com/acceso/'.$random)
+		                ->output_encoding('UTF-8')
+		                ->error_correction_level('L')
+		                ->margin(0);
+		        $codigo = $this->gc_qrcode->url();
+		        
+				 $boleto = imagecreatefrompng('img/Congreso_Cupon_vacio.png');
+				 $codigo = imagecreatefrompng($codigo);
+				 $im = imagecreate(100, 100);
+				 $grey = imagecolorallocate($im, 160, 160, 170);
+				 imagettftext($boleto, 18, 0, 710, 425, $grey, 'img/ArialRounded.ttf', substr($random,0,10));
+				 imagecopymerge($boleto, $codigo, 700, 490, 0, 0, 250, 250, 100);
+				
+				 # Save the image to a file
+				 imagepng($boleto, 'img/tickets/boleto_'.substr($random,0,10).'.png');
+				
+				 # Output straight to the browser.
+				 //header('Content-type: image/png');
+				 //imagepng($boleto);
+				 
+				 $this->db->insert( 'tickets', array( 'event_id' => $itemId,
+				 								      'token'	 => $random,
+				 								      'ticket_url'=>  'boleto_'.substr($random,0,10).'.png') );
+				 
+				 
+			}
+		}
+		$next = $this->uri->segment(4)+1;
+		if($next < 4000){
+			redirect('/items/generate_tickets/180/'.$next,'refresh');	
+		}
+		
+	}
+	
+	public function preview()
+	{
+
+		checkForSession();
+
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+			
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$CI =& get_instance();
+        	$CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+			$data['store_name'] = 'Kichink';
+			$data['item_data'] = $CI->shared_model->get_item($itemId, $filter_live=FALSE, $this->sitio);
+
+			if(!$data['item_data']){
+				page_not_found();
+				return false;
+			}
+			
+			$data['item_display_options'] = $this->sell_model->get_item_display_options( $data['item_data'][0] );
+			$data['store']	= $CI->shared_model->get_store($data['item_data'][0]->store_id, $filter_live=FALSE, $this->sitio);
+			$data['related_items'] = $this->sell_model->get_related_items($itemId);	
+			$data['discount'] = $this->sell_model->get_discount_v2( $data['item_data'][0] ); 
+
+			//print_r($data['item_data']);
+			$this->load->view('items/id_preview_view_2', $data);
+
+		}
+	}
+	
+	
+	
+	/**
+	 * Store functions.
+	 *
+	 * Specific functions for stores
+	 */
+	
+	public function add_item()
+	{
+
+		// Validate -> Process -> Store
+		checkForSession();
+
+		if($storeId = $this->uri->segment(3)){
+
+			// PERMISSIONS
+			$uri_segment = array('store_id' => $storeId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$item = $this->lang->line('stores_itempage_name_space_text');
+			$item_id = $this->sell_model->insert_item($storeId, $item);
+			// Redirect
+			redirect('items/id/'.$item_id);
+			
+		}else{
+			page_not_found();
+		}
+		
+	}
+	 
+	public function delete_item()
+	{
+		// Validate -> Process -> Store	
+		checkForSession();
+
+		$item_id = $this->input->post('item_id');
+		$store_id = $this->input->post('store_id');
+		
+		// PERMISSIONS
+		$uri_segment = array('id_item' => $item_id);
+		checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+		//  END OF PERMISSIONS
+
+		$this->load->model('sell_model');
+
+		if($item_id){
+			$this->sell_model->delete_item($item_id);	
+			redirect('stores/id/'.$store_id);
+		}
+
+	}
+	
+	public function update_item()
+	{
+
+		$item_id = $this->input->post('id');
+
+		// PERMISSIONS
+		checkForSession();
+		$uri_segment = array('id_item' => $item_id);
+		checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+		//  END OF PERMISSIONS
+
+		$this->load->model('sell_model');
+		
+		if($validate = $this->validateUpdate()){
+			
+			return $validate;
+			
+		}else{
+			
+			$this->sell_model->update_item($item = $item_id);
+			return false;
+			
+		}
+		
+				
+	}
+	
+	private function validateUpdate(){
+		
+		$error = false;
+		$shipment = $this->input->post('shipment_options');
+		$name = $this->input->post('name');
+		$name_eng = $this->input->post('name_eng');
+		$price = $this->input->post('price');
+		$description = $this->input->post('description') == '<br>' ? '' : $this->input->post('description');
+		$description_eng = $this->input->post('description_eng') == '<br>' ? '' : $this->input->post('description_eng');
+		$units = $this->input->post('units_availible');
+		$inventories = $this->input->post('inventories');
+		//$sizes_options = $this->input->post('sizes_options');
+		$sku = $this->input->post('sku');
+		
+		if(!$shipment AND !$price AND !$units){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields');
+		}
+		if(!$name AND (!$name_eng)){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields_name');
+		}
+		if(!$description AND !$description_eng){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields_description');
+		}
+		if(!is_numeric($units)){
+			$error = $this->lang->line('stores_itempage_flashMessages_formatUnits');
+		}
+		if($units <= 0){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredUnits');
+		}
+		if($price <= 0){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredPrice');
+		}
+		if(!is_numeric($price)){
+			$error = $this->lang->line('stores_itempage_flashMessages_formatPrice');
+		}
+		if($shipment == ''){
+			$error = $this->lang->line('stores_itempage_flashMessages_selectShipment');
+		}
+		if(count($shipment) > 1){
+			$error = $this->lang->line('stores_itempage_flashMessages_deliveryGroup');
+		}
+		if($inventories == 0 AND $units>1){
+			$error = $this->lang->line('stores_itempage_flashMessages_uniqueItem');
+		}
+
+		// Checo inventarios
+		if($this->input->post('purchase_option_item_id')){
+			$sumInventories = 0;
+			foreach($_POST as $key => $value){
+				if(strpos($key, ':purchace_options_inventarios') != ''){
+					$sumInventories = $sumInventories+$value;
+				}
+			}
+			if($sumInventories != $units){
+				$error = 'Unidades totales no coinciden con las unidades especificadas en tus opciones de compra';
+			}
+		}
+
+		if($error){
+			return $error;
+		}
+		
+	}
+
+	public function checkPurchaseOptions(){
+
+		checkForSession();
+
+		if($this->session->userdata('admin_client_stores')){
+
+			$this->db->select('items.*, item_purchase_options.*, items.id as items_id');
+			$this->db->from('item_purchase_options');
+			$this->db->join('items', 'items.id = item_purchase_options.item_id');
+			$this->db->where(array('items.deleted !=' => 1));
+
+			$q = $this->db->get();
+
+			foreach ($q->result() as $item) {
+
+				$totalItemsDecoded = json_decode($item->options);
+
+				$counter = 0;
+				foreach ($totalItemsDecoded as $value) {
+					$counter = $counter + $value->units;
+				}
+				$diff = false;
+				if($counter != $item->units_availible){
+					$diff = true;
+				}
+
+				echo 'ITEM ID : '.$item->items_id.' | UNITS : '.$item->units_availible.' | TOTAL_ITEM_PURCHASE_OPTS : '.$counter.($diff? 'DIFF DIFF DIFF DIFF': '');
+				echo '<br/>';
+				
+			}
+
+		}else{
+			page_not_found();
+		}
+		
+	}
+
+
+	/////////////
+	/// ID_V2 ///
+	// 01/2013 //
+	/////////////
+
+
+	private function id_2($itemId)
+	{
+
+	
+		$this->load->model('sell_model');
+    	$this->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+		
+		$data['store_name'] 				= 'Editing item';
+		$data['item_data'] 					= $this->sell_model->get_item_for_Edit_v2($itemId);
+
+		if(!$data['item_data']){
+			redirect('stores');
+		}
+
+		$data['x_rate'] 					= $this->sell_model->get_xRates();
+		$data['shipment_types'] 			= $this->sell_model->get_shipment_types($data['item_data'][0]->store_id);
+		//$data['store_pos']					= $this->sell_model->get_store_pos($data['item_data'][0]->store_id);
+		$data['item_shipment_options'] 		= $this->sell_model->get_item_shipment_options($data['item_data'][0]->id);
+		$data['tuto'] 						= $this->sell_model->get_tuto('item');
+
+		if($this->input->post('submit_update')){
+
+			$update = $this->update_item_v2();
+			if(!$update){
+				// Redirect
+				redirect('stores/id/'.$this->input->post('store_id'));
+			}else{
+
+				$data['flashMessage'] = $update;
+				
+				foreach($_POST as $key => $value){
+					if($key == 'price'){
+						$data['postValues'][$key] = (!is_numeric($value) ? 200.00 : $value);
+					}else{
+						$data['postValues'][$key] = $value;
+					}
+				}
+
+			}
+		}
+		
+		########## Opciones necesarios
+		$data['option'] = "articulo";
+		$data["store"]=new stdClass();
+		$data["store"]->id=$data['item_data'][0]->store_id;
+		$data["item_id"] = $itemId;
+		$data["usr_language"] = $this->session->userdata('lang');
+        ##########
+		
+		switch($data['item_data'][0]->type){
+			case 'ticket':
+				$this->load->view('/v2/items/ticket_view', $data);
+				break;
+			default:
+				$this->load->view('v2/layout/header_new', $data);
+				$this->load->view('v2/stores/menu_store', $data);
+				$this->load->view('v2/stores/sidebar_left', $data);
+				$this->load->view('v2/stores/item_id_view', $data);
+				break;	
+		}
+		
+	}
+
+	private function update_item_v2(){
+
+		$item_id = $this->input->post('id');
+
+		// PERMISSIONS
+		$uri_segment = array('id_item' => $item_id);
+		checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+		//  END OF PERMISSIONS
+
+		$this->load->model('sell_model');
+		
+		if($validate = $this->validateUpdate_v2()){
+			
+			return $validate;
+			
+		}else{
+			
+			$this->sell_model->update_item_v2($item = $item_id);
+			return false;
+			
+		}
+		
+	}
+
+	private function validateUpdate_v2(){
+
+		$this->load->model('sell_model');
+		
+		$error 					= false;
+		$shipment 				= $this->input->post('radio_shpmnt_options');
+		$disponibilidad			= $this->input->post('availible_item');
+		$name 					= $this->input->post('name');
+		$name_eng 				= $this->input->post('name_eng');
+		$price 					= $this->input->post('price');
+		$description 			= $this->input->post('description') == '<br>' ? '' : $this->input->post('description');
+		$description_eng 		= $this->input->post('description_eng') == '<br>' ? '' : $this->input->post('description_eng');
+		$units 					= $this->input->post('units_availible');
+		$inventories 			= $this->input->post('inventories');
+		$discount_amount		= $this->input->post('discount_amount');
+		$discount_type			= $this->input->post('discount_type');
+		$discount_start			= $this->input->post('discount_start');
+		$discount_expiration	= $this->input->post('discount_expiration');
+		$sku 					= $this->input->post('sku');
+		$managed_inv			= $this->input->post('managed_inv');
+		
+		if(!$shipment AND !$price){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields');
+		}
+		// Seccion Disponibilidad
+		if(!$disponibilidad){
+			$error = $this->lang->line('validateUpdate_v2_1');
+		}
+		if($disponibilidad != 'ava_days' AND $disponibilidad != 'ava_inme' AND $disponibilidad != 'ava_date'){
+			$error = $this->lang->line('validateUpdate_v2_2');
+		}
+		if($disponibilidad == 'ava_days' AND !is_numeric($this->input->post('input_ava_days'))){
+			$error = $this->lang->line('validateUpdate_v2_3');
+		}
+		if($disponibilidad == 'ava_date'){
+			if(date('d/m/Y', strtotime(str_replace("/", "-", $this->input->post('input_ava_date')))) != $this->input->post('input_ava_date')) {
+		       $error = $this->lang->line('validateUpdate_v2_4');
+		    }
+		}
+
+		// Seccion Descuentos
+		if($discount_amount){
+			if(!is_numeric($discount_amount)){
+				$error = $this->lang->line('validateUpdate_v2_5');
+			}else{
+
+				if($discount_type!='percentage' AND $discount_type!='money'){
+					$error = $this->lang->line('validateUpdate_v2_6');
+				}else{
+					if($discount_type == 'percentage' AND ($discount_amount < 1 OR $discount_amount > 99)){
+						$error = $this->lang->line('validateUpdate_v2_7');
+					}
+					if($discount_type == 'money' AND ($discount_amount < 1 OR $discount_amount > $price)){
+						$error = $this->lang->line('validateUpdate_v2_8');
+					}
+				}
+
+				if(date('d/m/Y', strtotime(str_replace("/", "-", $discount_start))) != $discount_start){
+					$error = $this->lang->line('validateUpdate_v2_9');
+				}
+
+				if($discount_expiration){
+					if( strtotime(str_replace("/", "-", $discount_expiration)) < strtotime(str_replace("/", "-", $discount_start)) ){
+						$error = $this->lang->line('validateUpdate_v2_10');
+					}
+					if(date('d/m/Y', strtotime(str_replace("/", "-", $discount_expiration))) != $discount_expiration){
+						$error = $this->lang->line('validateUpdate_v2_11');
+					}
+				}
+
+			}
+			if($this->input->post('coupon_code')){
+				if(strlen($this->input->post('coupon_code')) < 5){
+					$error = $this->lang->line('validateUpdate_v2_12');
+				}
+			}
+		}
+		/*
+		// Seccion Puntos de Venta
+		
+		// 1. Checo que si el valor de tipo de envio es fisico
+		$qS = $this->db->get_where('shipment_types', array('id' => $this->input->post('radio_shpmnt_options')));
+	
+		if($rS = $qS->result()){
+			
+			if($rS[0]->tipo_entrega == 'fisico'){
+				if(!$this->input->post('pos_options')){
+					$error = 'Debes seleccionar al menos un punto de venta para este art&iacute;culo.';
+				}				
+			}
+
+		}else{
+			$error = 'Tipo de envio no existe. No se puede actualizar el art&iacute;culo';
+		}
+		*/
+		// Generales
+		if(!$name AND (!$name_eng)){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields_name');
+		}
+		if(!$description AND !$description_eng){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields_description');
+		}
+		
+		//Unidades
+		if(!$managed_inv OR ($managed_inv AND $managed_inv != substr(md5($this->session->userdata('session_id')), 0, 10))){
+
+			if(!$units){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields');
+			}
+			if(!is_numeric($units)){
+				$error = $this->lang->line('stores_itempage_flashMessages_formatUnits');
+			}
+			if($units <= 0){
+				$error = $this->lang->line('stores_itempage_flashMessages_requiredUnits');
+			}
+			if($inventories == 0 AND $units>1){
+				$error = $this->lang->line('stores_itempage_flashMessages_uniqueItem');
+			}
+
+		}
+		
+		if($price <= 0){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredPrice');
+		}
+		if(!is_numeric($price)){
+			$error = $this->lang->line('stores_itempage_flashMessages_formatPrice');
+		}
+		if($shipment == ''){
+			$error = $this->lang->line('stores_itempage_flashMessages_selectShipment');
+		}
+		if(count($shipment) > 1){
+			$error = $this->lang->line('stores_itempage_flashMessages_deliveryGroup');
+		}
+		if($inventories == 0 AND $units>1){
+			$error = $this->lang->line('stores_itempage_flashMessages_uniqueItem');
+		}
+
+		//Verifico si el precio no es menor a algun descuento en dinero programado para este articulo
+		$descuentos_activos = $this->sell_model->get_item_discounts_v2($this->input->post('id'));
+
+		if($descuentos_activos){
+			foreach($descuentos_activos as $descuento) {
+				if(!empty($descuento->order_money) AND $descuento->order_money > $price){
+					$error = $this->lang->line('validateUpdate_v2_13');
+					break;
+				}
+			}
+		}
+
+		// Seccion inventarios
+		if($this->input->post('purchase_option_item_id')){
+			$sumInventories = 0;
+			foreach($_POST as $key => $value){
+				if(strpos($key, ':purchace_options_inventarios') != ''){
+					$sumInventories = $sumInventories+$value;
+				}
+			}
+			if($sumInventories != $units){
+				$error = $this->lang->line('validateUpdate_v2_14');
+			}
+		}
+
+		if($error){
+			return $error;
+		}
+		
+	}
+
+
+
+
+	// FUNCIONES RELACIONADAS CON NUEVOS ENVIOS
+	// V1 - 18/01/2013
+	// V2 - 24/01/2013 
+	//		- Agregue validacion de sesion y permisos.
+	//		- Cambio en estructura de tabla en get_shipment_locations() 
+
+	public function get_shipment_locations(){
+
+		$table = '';
+		if($item_id = $this->input->post('item_id')){
+
+			$uri_segment = array('id_item' => $item_id);
+			
+			if(!checkForSession(false, $ajax = true) OR !checkForPermission($this->session->userdata('user_id'), $uri_segment, 'items', $ajax = true)){
+				
+				echo 'dont';
+
+			}else{
+
+				$this->load->model('sell_model');
+
+				$shipment_options = $this->sell_model->get_item_shipment_options($item_id);
+
+				if(!empty($shipment_options) AND is_array($shipment_options) ){
+					$k = 0;
+					foreach($shipment_options as $location){ 
+						if($k==0){
+							$table .= '<tr><td colspan="4">'.$this->lang->line('get_shipment_locations_1').'<br/><br/></td></tr>';
+						}
+						$table .= "<tr>
+									<td class='td_center'>
+										<input id='shipment_mark_".$k."' onclick='javascript:updateLocations(".$k.");' name='location_opts[]' shipment_location=".$location->shipment_location_name." type='checkbox' action='".($location->enabled == 1 ? 'off' : 'on')."'".($location->enabled == 1 ? ' checked' : '')." />
+									</td>
+									<td>".ucfirst(str_replace('_', ' ', $location->shipment_location_label))."</td>								
+								   </tr>";
+						$k++;
+					}
+			 	}else{ 
+			 	 	$table = '<tr>
+								<td colspan="4">
+									<div class="alert-message block-message error">
+									<h5>'.$this->lang->line('stores_itempage_shipment_locations_msg').'</h5>'.$this->lang->line('stores_itempage_shipment_locations_msg_2').'
+									</div>
+								</td>
+							</tr>';
+			 	} 
+			}
+
+		}else{
+			$table = '<tr><td colspan="4"><p class="alert-message block-message error">'.$this->lang->line('get_shipment_locations_2').'</p></td></tr>';
+		}
+
+		echo $table;
+
+	}
+	
+	public function actualizar_status_location(){
+
+		if( $shipment_location = $this->input->post('shipment_location') AND
+			$item_id = $this->input->post('item_id') AND
+			$action  = $this->input->post('action')){
+
+			$uri_segment = array('id_item' => $item_id);
+			if(!checkForSession(false, $ajax = true) OR !checkForPermission($this->session->userdata('user_id'), $uri_segment, 'items', $ajax = true)){
+				
+				echo 'dont';
+
+			}else{	
+
+				$this->db->select('item_shipment_options.id');
+				$this->db->from('item_shipment_options');
+				$this->db->join('shipment_locations_admin', 'shipment_locations_admin.id = item_shipment_options.shipment_location_id');
+				$this->db->where(array('item_shipment_options.item_id' => $item_id));
+				$this->db->like('shipment_location_name', $shipment_location, 'after');
+
+				if(strstr($shipment_location, 'express')){
+					$this->db->where('SUBSTRING_INDEX(shipment_location_name, "_" , -1) =', 'express');
+				}else{
+					$this->db->where('SUBSTRING_INDEX(shipment_location_name, "_" , -1) !=', 'express');
+				}
+
+				$q = $this->db->get();
+				//echo $this->db->last_query();
+				if($r = $q->result()){
+
+					$this->db->select('item_shipment_options.id, shipment_location_name');
+					$this->db->from('item_shipment_options');
+					$this->db->join('shipment_locations_admin', 'shipment_locations_admin.id = item_shipment_options.shipment_location_id');
+					$this->db->where(array('item_shipment_options.item_id' => $item_id, 'enabled' => 1));
+					$this->db->where('if(SUBSTRING_INDEX(shipment_location_name, "_" , -1) != "express", SUBSTRING_INDEX(shipment_location_name, "_" , 1), shipment_location_name) !=', $shipment_location);
+				
+					$qCheck = $this->db->get();
+					//echo $this->db->last_query();
+					if($rCheck = $qCheck->result()){ 
+						foreach ($r as $value) {
+							$this->db->update('item_shipment_options', array('enabled' => ($action=='on' ? 1 : 0)), 'id = '. $value->id);
+						}
+						echo 'success';
+					}else{
+						echo $this->lang->line('actualizar_status_location_1');
+					}
+					
+				}else{
+					echo $this->lang->line('actualizar_status_location_2');
+				}
+			}
+
+		}else{
+			echo $this->lang->line('actualizar_status_location_3');
+		}
+
+	}
+
+	public function add_shipment(){
+
+		$shipment_value = $this->input->post('value');
+		$store_id 		= $this->input->post('store_id');
+		$item_id  		= $this->uri->segment(3);
+
+		if($shipment_value AND $store_id){	
+
+			$uri_segment = array('store_id' => $store_id);
+			
+			if(!checkForSession(false, $ajax = true) OR !checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores', $ajax = true)){
+				
+				echo 'dont';
+
+			}else{
+
+				//Get all shipment_types
+				$shipment_types_q = $this->db->get_where('shipment_types', array('id' => $shipment_value)); 
+
+				if($shipment_types_r = $shipment_types_q->result()){
+
+					if($shipment_types_r[0]->group_name != 'default'){
+						//Check if the store has permission to add this special shipment_type
+						$delivery_options_q = $this->db->get_where('delivery_options', array('store_id' 	=> $store_id,
+																							 'group_id' 	=> $shipment_value,
+																							 'deleted !=' 	=> 1));
+						if($delivery_options_r = $delivery_options_q->result()){
+							//Add shipment_type to item
+							if($shipment_types_r[0]->tipo_entrega != 'fisico'){
+
+								// Elimino shipment_types existentes
+								$this->db->delete('item_shipment_options', array('item_id' => $item_id));
+								// Casos: donativo, recoge cliente, digital
+								$insert_array = array('item_id' => $item_id, 'shipment_weight_id' => $shipment_value, 'shipment_location_id' => 0);
+								if($this->db->insert('item_shipment_options', $insert_array)){
+									echo 'success';
+								}else{
+									echo $this->lang->line('add_shipment_1');
+								}
+
+							}else{
+
+								if($this->add_shipment_type($shipment_value, $item_id)){
+									echo 'success';
+								}else{
+									echo $this->lang->line('add_shipment_2');
+								}
+								
+							}
+						}else{
+							echo $this->lang->line('add_shipment_3');
+						}
+
+					}else{
+						//Add shipment_type to item
+						if($shipment_types_r[0]->tipo_entrega != 'fisico'){
+
+							// Elimino shipment_types existentes
+							$this->db->delete('item_shipment_options', array('item_id' => $item_id));
+							// Casos: donativo, recoge cliente, digital
+							$insert_array = array('item_id' => $item_id, 'shipment_weight_id' => $shipment_value, 'shipment_location_id' => 0);
+							if($this->db->insert('item_shipment_options', $insert_array)){
+								echo 'success';
+							}else{
+								echo $this->lang->line('add_shipment_4');
+							}
+
+						}else{
+							if($this->add_shipment_type($shipment_value, $item_id)){
+								echo 'success';
+							}else{
+								echo $this->lang->line('add_shipment_5');
+							}
+
+						}
+						
+					}
+				}else{
+					echo $this->lang->line('add_shipment_6');
+				}
+			}
+		}else{
+			echo $this->lang->line('add_shipment_7');
+		}
+
+	}
+
+	private function add_shipment_type($shipment_value, $item_id){
+
+		// Elimino shipment_types existentes
+		$this->db->delete('item_shipment_options', array('item_id' => $item_id));
+
+		$this->db->select('shipment_locations_admin.*');
+		$this->db->from('shipment_locations_admin');
+		$this->db->where(array('shipment_weight_id' => $shipment_value, 'status !=' => 1));
+
+		$shipment_locations_q = $this->db->get();
+
+		if($shipment_locations_r = $shipment_locations_q->result()){
+
+			foreach ($shipment_locations_r as $value) {
+
+				$insert_array = array(	'item_id' 						=> $item_id, 
+										'shipment_weight_id' 			=> $shipment_value, 
+										'shipment_location_id' 			=> $value->id,
+									 );
+
+				$this->db->insert('item_shipment_options', $insert_array);
+
+			}
+			return true;
+
+		}else{
+			return false;
+		}
+
+	}
+
+	private function description_cleanup(){
+
+		//$this->load->library('HTMLPurifier/HTMLPurifier');
+		//Bajé la librería (14May2013)
+		$this->db->select('store_id, description, description_eng');
+		$this->db->from('items');
+		$this->db->like('description', 'mso', 'both');
+		$this->db->or_like('description_eng', 'mso', 'both');
+		$this->db->limit(50);
+
+		$q = $this->db->get();
+		$r = $q->result();
+
+		foreach ($r as $item) {
+
+			//$item->clean_html_des = $this->htmlpurifier->purify($item->description);
+			//$item->clean_html_des_eng = $this->htmlpurifier->purify($item->description_eng);
+
+		}
+
+		$data['items'] = $r;
+
+		$this->load->view('items/html_purifier', $data);
+
+	}
+
+	// Para copiar imagenes de una tienda a otra
+
+	private function duplicate_media_items_from_store($store_id = 1416){
+
+		$bucketName_src = 'kichink';
+		$bucketName_destination = 'kichink';
+		$this->load->library('s3');
+
+		$this->db->select('*');
+		$this->db->from('items');
+		$this->db->where('store_id', $store_id);
+		$q = $this->db->get();
+		$r = $q->result();
+		$i = 0;
+
+		foreach ($r as $value) {
+			
+			$this->db->select('*');
+			$this->db->from('media');
+			$this->db->like('object_name', 'items_'.$value->old_id.'_', 'after'); 
+			$this->db->where('deleted', 0);
+			$q_media = $this->db->get();
+			$r_media = $q_media->result();
+
+			foreach ($r_media as $v_media) {
+
+				$split = explode('items_'.$value->old_id.'_', $v_media->object_name);
+				$new_object_name = 'items_'.$value->id.'_'.$split[1];
+				
+				$this->db->insert('media', array(	'table' => 'items', 
+													'object_name' => $new_object_name,
+													'object_order' => 1,
+													'deleted' => 0
+												));
+
+				$new_media_id = $this->db->insert_id();
+
+				$this->db->select('*');
+				$this->db->from('files');
+				$this->db->where('media_id', $v_media->id);
+				$q_files = $this->db->get();
+
+				if($r_files = $q_files->result()){
+
+					foreach ($r_files as $v_files){	
+
+						switch ($v_files->type) {
+							case 'img_thumb':
+								$name_last = '_thumb.';
+								break;
+							case 'img_bordered':
+								$name_last = '_b.';
+								break;
+							case 'img_original':
+								$name_last = '.';
+								break;
+						}
+
+						$filename = $v_media->object_name.$name_last.$v_files->extension;
+						$new_filename = $new_object_name.$name_last.$v_files->extension;
+
+						if($this->s3->copyObject($bucketName_src, $filename, $bucketName_destination, $new_filename, S3::ACL_PUBLIC_READ)) {
+
+							$this->db->insert('files', array(	'media_id' => $new_media_id,
+																'url'	   => $v_files->url,
+																'type'	   => $v_files->type,
+																'extension' => $v_files->extension,
+																'width' => $v_files->width,
+																'height' => $v_files->height
+													));
+
+
+						}
+
+					
+
+					}
+
+
+				}
+
+				
+			}
+			
+			$i++;
+
+		}
+
+		echo $i;
+
+	}
+
+	
+	
+	
+}
+/* End of file items.php */
+/* Location: ./application/controllers/items.php */

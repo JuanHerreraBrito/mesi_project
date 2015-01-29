@@ -1,0 +1,28 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Errors extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+		//checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 */
+	public function index()
+	{
+		
+		page_not_found();
+
+	}
+	
+	
+	
+}
+
+/* End of file error.php */
+/* Location: ./application/controllers/error.php */

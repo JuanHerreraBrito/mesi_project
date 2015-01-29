@@ -49,7 +49,7 @@ class Welcome extends CI_Controller {
 	{
 	  $this->load->view('m1/header1');
 			$this->load->view('m1/set_log');
-			$this->load->view('m1/footer');
+			$this->load->view('m1/footer_out');
 	}
 	
 	/*  Session STARTED          */
@@ -215,6 +215,31 @@ class Welcome extends CI_Controller {
 	/*Fin de Métodos de Registro*/	   
 	   
 	   
+	      
+	   public function inv_selec()//inventariado VISTA
+	  {
+	       $logged_in = $this->session->userdata('logged_in');
+
+	    if( $logged_in== TRUE )
+	      {
+	        $session_id = $this->session->userdata('username');
+		$data['nombre_usuario']=$session_id;
+		$this->load->view('m1/header2');
+		$this->load->view('m1/loged_view',$data);
+		$this->load->view('m1/herra_view');
+		  $this->load->view('m1/registry_view');//vista de registro
+		$this->load->view('m1/inv_view');//
+		$this->load->view('m1/footer');
+		
+		
+	      }
+	      else { $err = $this->set_log(); }
+	  	 
+	 }
+	   
+	   
+	   
+	   
 	   
 	   
 	   public function inv()//inventariado VISTA
@@ -250,6 +275,7 @@ class Welcome extends CI_Controller {
 			      $this->load->view('m1/loged_view',$data);
 	 
 	  			$this->load->view('m1/herra_view');
+	  			$this->load->view('m1/registry_view');
 				$this->load->view('m1/inv_view');
 				$this->load->view('m1/inventariado/inv_view_suc');
 	   			$this->load->view('m1/footer');
@@ -274,6 +300,7 @@ class Welcome extends CI_Controller {
 					    $this->load->view('m1/loged_view',$data);
 	 
 					    $this->load->view('m1/herra_view');
+					    $this->load->view('m1/registry_view');
 					    $this->load->view('m1/inv_view');
 					    $this->load->view('m1/inventariado/inv_view_tipo');
 					    $this->load->view('m1/footer');
@@ -305,6 +332,7 @@ class Welcome extends CI_Controller {
 					$this->load->view('m1/header2');
 					$this->load->view('m1/loged_view',$data);
 	  				$this->load->view('m1/herra_view');
+	  				$this->load->view('m1/registry_view');
 				   	$this->load->view('m1/inv_view');
 				   	$this->load->view('m1/inventariado/inv_view_gral');
 	   				$this->load->view('m1/footer01');
@@ -329,6 +357,7 @@ class Welcome extends CI_Controller {
 					  $this->load->view('m1/header2');
 					  $this->load->view('m1/loged_view',$data);
 	 				  $this->load->view('m1/herra_view');
+	 				  $this->load->view('m1/registry_view');
 					  $this->load->view('m1/inv_view');
 					  
 					  $this->load->view('m1/inventariado/inv_view_mat');
@@ -398,6 +427,7 @@ public function edit_item()
 		  $this->load->view('m1/header2');
 		  $this->load->view('m1/loged_view',$data);	 
 		  $this->load->view('m1/herra_view');
+		  $this->load->view('m1/registry_view');//vista de registro
 		  $this->load->view('m1/inventariado/new_user_view');
 		  $this->load->view('m1/footer');
 	      }
@@ -499,11 +529,7 @@ public function edit_item()
 			 $answer= $this->api->execute_call($sitio);    
 			 //echo $answer;
 			if($answer===-1){echo "No se pudo agregar el objeto"; }
-			if($answer===true){ 
-			 $this->new_type_end(); 
-				
-
-			  }
+			if($answer===true){  $this->new_type_end();  }
 			 break;
 		     case "mat":
 		     $sitio['description']  = $_GET['description'];		     
@@ -570,9 +596,9 @@ public function edit_item()
 	 	  	$this->load->view('m1/herra_view');
 			$this->load->view('m1/inventariado/new_type_end');
 			$this->load->view('m1/footer');
-			echo " <meta http-equiv='Refresh' content='3; URL=http://localhost/mesi/kontrol/index.php/welcome/inv_tipo#selet'>";
-				
-				
+			echo "<meta http-equiv='Refresh' content='1;url=http://localhost/~lionband/kontrol/index.php/welcome/inv#selet'";
+			
+			
 		    }
 		    else { $err = $this->set_log(); }
 		}
@@ -599,6 +625,18 @@ public function edit_item()
 	}
 	
 	/*Fin de Funcion de busqueda*/
+	
+	
+	/*DomPDF*/
+	public function pdf()
+	{
+	    $this->load->library('html2pdf');
+	    $params['cadena'] = "YO SOY LA IMPRESIO";
+	  $result=  $this->html2pdf->Html2pdf($params);
+	  
+	}
+	
+	/*fIN DOMPDF*/
 	
 	
 	/*Funciones de valor*/

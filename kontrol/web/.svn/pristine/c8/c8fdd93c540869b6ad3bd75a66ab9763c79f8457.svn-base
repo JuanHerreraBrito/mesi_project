@@ -1,0 +1,248 @@
+@import url(http://fonts.googleapis.com/css?family=Rokkitt|Open+Sans:400,700);
+
+@media (max-width: 767px) {
+    .center-block {
+        text-align: center;
+    }
+    #menu-videos li h3{
+        font-size: 18px;
+    }
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Rokkitt', sans-serif;
+    font-weight: 400;
+}
+
+p {
+    font-family: 'Open Sans', sans-serif;
+}
+
+html {
+    background-color: #fff;
+}
+
+footer {
+    height: 90px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: #BBB;
+    padding-top: 60px;
+}
+
+#menu-videos{
+    background:#EDEDEC;
+    max-height: 600px;
+    overflow:hidden;
+}
+#menu-videos li{
+    border-bottom: 1px solid #CCC;
+    margin:0;
+}
+#menu-videos li a{
+    color:#000;
+    border-radius: 0;
+    padding-left: 90px;
+    padding-right: 20px;
+    cursor:pointer;
+}
+#menu-videos li a.fotos{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-02.png) no-repeat 20px center;
+}
+#menu-videos li a.pagos{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-03.png) no-repeat 20px center;
+}
+#menu-videos li a.categorias{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-04.png) no-repeat 20px center;
+}
+#menu-videos li a.nuevapantalla{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-05.png) no-repeat 20px center;
+}
+#menu-videos li a.facebook{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-06.png) no-repeat 20px center;
+}
+#menu-videos li a.empaque{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-07.png) no-repeat 20px center;
+}
+#menu-videos li a.kontrol{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-08.png) no-repeat 16px center;
+}
+#menu-videos li a.recoleccion{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_disabled/ic-09.png) no-repeat 16px center;
+}
+#menu-videos li.active{
+    background: #1469a8;
+}
+#menu-videos li.active a{
+    color:#fff;
+    font-size: 18px;
+}
+#menu-videos li.active a.fotos{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-10.png) no-repeat 20px center;
+}
+#menu-videos li.active a.pagos{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-11.png) no-repeat 20px center;
+}
+#menu-videos li.active a.categorias{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-12.png) no-repeat 20px center;
+}
+#menu-videos li.active a.nuevapantalla{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-13.png) no-repeat 20px center;
+}
+#menu-videos li.active a.facebook{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-14.png) no-repeat 20px center;
+}
+#menu-videos li.active a.empaque{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-15.png) no-repeat 20px center;
+}
+#menu-videos li.active a.kontrol{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-16.png) no-repeat 16px center;
+}
+#menu-videos li.active a.recoleccion{
+    background: url(http://s3.amazonaws.com/kichink-tutoriales/video_enabled/ic-17.png) no-repeat 16px center;
+}
+
+/*.top {
+        background-color: #572361;
+}
+
+.top .navbar-brand {
+        height: 76px;
+        line-height: 76px;
+        text-align: center;
+        padding: 0 10px 0 0;
+        text-decoration: none;
+}
+
+.top .container {
+        padding: 0;
+}*/
+
+#hero {
+    background-color: #b098b5;
+    margin-top:50px;
+}
+
+#hero .container {
+    background-color: #b098b5;
+    padding: 0;
+}
+
+#hero .item {
+    position: relative;
+    background: #b098b5;
+    padding:0;
+    margin:0;
+}
+
+#hero .item img.base {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#hero .item img.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 100px;
+    margin: auto;
+    z-index: 10;
+}
+
+.owl-theme .owl-controls {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 6px;
+}
+
+.owl-theme .owl-controls .owl-page span {
+    background: #572361 !important;
+    opacity: 1 !important;
+}
+
+.owl-theme .owl-controls .owl-page.active span {
+    background: #fff !important;
+}
+
+.fence {
+    background-color: #572361;
+}
+
+.fence .container {
+    color: #fff;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.fence .container h2 {
+    font-size: 34pt;
+    margin: 0 0 20px;
+}
+
+.fence .container p {
+    font-size: 10pt;
+    margin: 0;
+}
+
+.articles .container {
+    padding: 50px 0 20px;
+}
+
+.articles .container h3 {
+    color: #572361;
+    font-size: 13pt;
+    margin-bottom: 30px;
+    margin-top: 20px;
+}
+
+.articles .container a {
+    color: #572361 !important;
+}
+
+.articles .container a:hover,
+.articles .container a:hover h3 {
+    color: #a30085 !important;
+    text-decoration: none !important;
+}
+
+.articles.guides .container article {
+    margin-bottom: 30px;
+}
+/*
+.navbar-nav li a {
+        color: #9a79a8;
+        font: 400 18pt/76px 'Rokkitt', sans-serif;
+        height: 76px;
+        padding: 0 20px;
+}
+
+.navbar-nav li a:hover {
+        color: #fff;
+        background-color: transparent;
+}
+*/
+.bottom {
+    background-color: #474747;
+}
+
+.bottom .container {
+    background-color: #373737;
+    min-height: 150px;
+}
+
+.bottom .container h3 {
+    color: #999;
+}
+
+.bottom .container p {
+    color: #666;
+}
+
+.navbar-nav {
+    margin: 0;
+}

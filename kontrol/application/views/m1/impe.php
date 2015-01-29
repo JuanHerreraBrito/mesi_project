@@ -26,11 +26,23 @@
 ,,,,,,,,,,,,,,,,,,,<br>
 
 </div>
+<script type="text/javascript" >
 
+
+function init() {
+var objBrowse = window.navigator;
+if (objBrowse.appName == “Opera” || objBrowse.appName == “Netscape”) {
+setTimeout(‘window.print()’, 1000);
+} else {
+window.print();
+}
+}
+window.onload = init;
+</script>
 
 <hr>
 
-<p><input type="button" class="printer"  value="Imprimir"></p>
+<p><input type="button" class="printer" onClick="init()" value="Imprimir"></p>
 
 
 

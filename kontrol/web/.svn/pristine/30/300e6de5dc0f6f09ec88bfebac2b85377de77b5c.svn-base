@@ -1,0 +1,76 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+	
+
+  <div class="container">
+
+    	
+  
+
+      <div id="section-6" class="section">
+        <h2 class="section_titles" style="text-align:center;"><?=$this->lang->line('beta_signup_title_text');?></h2>
+        <hr style="margin:0px">
+              
+        <div class="row">
+          <div class="span8 form-new-store" style="margin-left:245px">
+            <div style="width:54px;margin:0 auto"><img src="/img/logoKichink_chico.png" /></div>
+            <p style="padding: 10px 5px; text-align: center;"><?=$this->lang->line('beta_signup_apply_text');?></p>
+
+            <? if(isset($tester_user['flashMessage'])){ ?>
+            <div class="alert-message warning">
+              <a class="close" href="#">×</a>
+              <?=$tester_user['flashMessage']?>
+            </div>
+            <? } ?>
+          
+            <form class="form-stacked" method="post" action="<?=base_url().'login/add_tester#section-6'?>">
+              <fieldset>
+                <div class="clearfix">
+                  <label for="name"> <?=$this->lang->line('beta_signup_name_text');?> </label>
+                  <input type="text" name="name"  class="span7" />
+                </div>
+                <br />
+                <div class="clearfix">
+                  <label for="email"> <?=$this->lang->line('beta_signup_email_text');?> </label>
+                  <input type="text" name="email" class="span7" />
+                </div>
+                <div class="clearfix">
+                  <label for="current"> <?=$this->lang->line('beta_signup_selling_text');?> </label>
+                  <input type="checkbox" name="current" value="brick" /> <?=$this->lang->line('beta_signup_selling_option1_text');?> <br />
+                  <input type="checkbox" name="current" value="online" /> <?=$this->lang->line('beta_signup_selling_option2_text');?> <br />
+                  <input type="checkbox" name="current" value="none" /> <?=$this->lang->line('beta_signup_selling_option3_text');?> <br />
+                </div>
+                <div class="clearfix">
+                  <label for="store"> <?=$this->lang->line('beta_signup_storename_text');?>  </label>
+                  <input type="text" name="store" class="span7" />
+                </div>
+                <div class="clearfix">
+                  <label for="details"><?=$this->lang->line('beta_signup_storedetails_text');?> </label> 
+                  <textarea name="details" class="span7"></textarea>
+                </div>
+                <br />
+                <div class="clearfix">
+                  <input type="submit" class="btn large primary" value="<?=$this->lang->line('beta_signup_button_signup_text');?>"  style="width:400px"/>
+                </div>
+              </fieldset>
+            </form>
+
+          </div>
+        
+        </div>
+      </div>
+
+  </div> <!--end of container--> 
+
+<script type="text/javascript">
+$('body').css('padding-top', '0px');
+$(document).ready(function() {
+  $('#nav').onePageNav({
+  	filter: ':not(.external)',
+  	scrollThreshold: 0.25,
+    easing: 'swing',
+  });
+});
+</script>
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_2.1_0.2' ))?>

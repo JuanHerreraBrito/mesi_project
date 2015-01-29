@@ -19,59 +19,7 @@
       	<script src="jquery-1.9.0.js" type="text/JavaScript" language="javascript"></script>
 	<script src="jquery.PrintArea.js" type="text/JavaScript" language="javascript"></script>
 	
-	<script type="text/javascript">
-	
-
-	
-
-	
-	
-
-    $(document).ready(function()
-      { 
-      
-      $(".boton").click(function(){
-	$("#desplegable").slideToggle("slow");
-	  });
-	$("#desplegable").css({ display: 'none' });
-      
-
-      
-      $(".printer").bind("click",function()
-	{
-		
-		alert("Imprimiendo¡");
-	});
-      
-      
-        var p = 0;
-
-        $('#point').click(function()
-        {
-
-          if(p==0){
-            $(this).css("fill","red");
-            p=1;
-          /*sipoint*/
-          }
-
-          else{
-              $(this).css("fill","white");
-              p=0;
-              /*nopoint*/
-              }
-
-
-
-        });
-    
-      
-      });
-    
-
-
-
-      </script>
+	<script type="text/javascript" src="http://mena.site88.net/mesi/kontrol/conten/js/header.js" > </script>
     </head>
   
     

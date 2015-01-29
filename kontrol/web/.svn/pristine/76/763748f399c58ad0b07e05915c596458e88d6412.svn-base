@@ -1,0 +1,300 @@
+/* 
+ * V2 Sell.Kichink
+ * Orders
+ */
+$(document).ready(function() {
+
+    $("#new-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "bFilter": false,
+         "bInfo": false,
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }]
+    });
+
+    $("#previous-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "bFilter": false,
+         "bInfo": false,
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }],
+    });
+
+
+    $("#open-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "bFilter": false,
+         "bInfo": false,
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }]
+    });
+
+    $("#offset-new").on("change", function() {
+        get_new_orders(1, $(this).val());
+    });
+
+    $("#offset-open").on("change", function() {
+        get_open_orders(1, $(this).val());
+    });
+
+    $("#offset-previous").on("change", function() {
+        get_previous_orders(1, $(this).val());
+    });
+
+    function get_open_orders(page, limit) {
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "open", page: page, limit: limit}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#open-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#open-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#open-orders").data().DinamicTable.methods.drawTable();
+            } else {
+                $("#open-orders").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+            }
+            var total_pages = Math.ceil(obj.data[0].total_count / limit);
+
+            var pagination = document.createElement('ul');
+            $(pagination).addClass("pagination");
+            $(pagination).html('<li><a href="#">&laquo;</a></li>');
+            var from = 0;
+            if (page <= 3)
+                from = 0;
+            else if (page > 3)
+                from = page - 2;
+            else if ((page + 2) >= total_pages)
+                from = total_pages - 2;
+
+            for (var i = from; i < (from + 5); i++) {
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                $(a).html(i + page);
+                if (page == (i + 1)) {
+                    $(li).addClass("active");
+                    $(a).click(function() {
+                        console.log(1);
+                        get_open_orders(i + page, limit);
+                    });
+                }
+                $(li).html(a);
+                $(pagination).append(li);
+            }
+            $(pagination).append('<li><a href="#">&raquo;</a></li>');
+            if(obj.data[0].total_count>limit)
+            $("#pagination-open").html(pagination);
+            setTooltip($("#open-orders").find('.label.status'));
+
+
+
+        });
+    }
+
+
+    function get_previous_orders(page, limit) {
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "previous", page: page, limit: limit}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#previous-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#previous-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#previous-orders").data().DinamicTable.methods.drawTable();
+            } else {
+                $("#previous-orders").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+            }
+            var total_pages = Math.ceil(obj.data[0].total_count / limit);
+            var pagination = document.createElement('ul');
+            $(pagination).addClass("pagination");
+            $(pagination).html('<li><a href="#">&laquo;</a></li>');
+            var from = 0;
+            if (page <= 3)
+                from = 1;
+            if (page > 3)
+                from = page - 2;
+            if ((page + 2) >= total_pages)
+                from = total_pages - 2;
+
+            for (var i = from; i < (from + 5); i++) {
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                $(a).html(i + page);
+                if (page == (i)) {
+                    $(li).addClass("active");
+                    
+                    $(a).bind("click",function() {
+                        console.log(2);
+                        //get_previous_orders(i + page, limit);
+                    });
+                }
+                $(li).html(a);
+                $(pagination).append(li);
+            }
+            $(pagination).append('<li><a href="#">&raquo;</a></li>');
+       
+            if(obj.data[0].total_count>limit)
+            $("#pagination-previous").html(pagination);
+            setTooltip($("#previous-orders").find('.label.status'));
+
+        });
+    }
+
+    function get_new_orders(page, limit) {
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "new", page: page, limit: limit}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#new-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#new-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#new-orders").data().DinamicTable.methods.drawTable();
+            } else {
+                $("#new-orders").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+            }
+            var total_pages = Math.ceil(obj.data[0].total_count / limit);
+
+            var pagination = document.createElement('ul');
+            $(pagination).addClass("pagination");
+            $(pagination).html('<li><a href="#">&laquo;</a></li>');
+            var from = 0;
+            if (page <= 3)
+                from = 0;
+            if (page > 3)
+                from = page - 2;
+            if ((page + 2) >= total_pages)
+                from = total_pages - 2;
+
+            for (var i = from; i < (from + 5); i++) {
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+
+                $(a).html(i + page);
+                if (page == (i + 1)) {
+                    $(li).addClass("active");
+                    $(a).click(function() {
+                        get_new_orders(i + page, limit);
+                    });
+                }
+                $(li).html(a);
+                $(pagination).append(li);
+            }
+            $(pagination).append('<li><a href="#">&raquo;</a></li>');
+            if(obj.data[0].total_count>limit)
+            $("#pagination-new").html(pagination);
+            setTooltip($("#new-orders").find('.label.status'));
+        });
+    }
+
+    function setTooltip(t) {
+        t.each(function() {
+            var title = "";
+            if ($(this).hasClass("incomplete")) {
+                title = "Warning! The order has not been completed, check out what is happening";
+            }
+            if ($(this).hasClass("without-founds")) {
+                title = "The order could not be programmed because there was a problem when generating the TC payment. We must wait for customer to update their payment method";
+            }
+            if ($(this).hasClass("waiting-for-payment")) {
+                title = "Waiting for customer to make payment in cash";
+            }
+            if ($(this).hasClass("new")) {
+                title = "Your customer has just placed an order. See what they liked from your store!";
+            }
+            if ($(this).hasClass("pending")) {
+                title = "An order was placed, but no action has been taken.";
+            }
+            if ($(this).hasClass("confirmed")) {
+                title = "The order has been confirmed and scheduled by the store";
+            }
+            if ($(this).hasClass("en-ruta")) {
+                title = "La orden está en proceso de entrega";
+            }
+            if ($(this).hasClass("delivered")) {
+                title = "The order was delivered successfully";
+            }
+            if ($(this).hasClass("pendiente-cancelacion")) {
+                title = "Se ha solicitado la cancelación de la orden";
+            }
+            if ($(this).hasClass("closed")) {
+                title = "The cycle is complete, the item was delivered and we deposited your money";
+            }
+            $(this).popover({
+                content: title,
+                placement: "right",
+                trigger: "hover"
+            });
+        });
+
+    }
+
+    get_new_orders(1, 10);
+    get_open_orders(1, 10);
+    get_previous_orders(1, 10);
+
+
+});

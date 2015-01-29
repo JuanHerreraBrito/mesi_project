@@ -1,0 +1,31 @@
+<div class="col-lg-2 col-md-2 col-sm-2" id="sidebar-left">  
+    <div align="center">
+        <a href="#" class="fotoTienda">
+            <img src="http://placehold.it/160x160" alt="" height="160px" width="160px"/>
+        </a>
+    </div>    
+    <div align="center">    
+        <button style="width:160px" class="btn btn-primary form-control add-item"><span class="glyphicon glyphicon-plus-sign"></span> Agregar Art&iacute;culo</button>
+    </div>
+    <div class="border"></div>
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <a href="/stores/notifications/<?= $store->id ?>">
+        <span class="fa fa-envelope-o"></span>&nbsp;<b>Mensajes</b>&nbsp;<span id='notif_total' class="badge">0</span>
+        </a>
+    </div>
+    <div class="border"></div>
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div><span class="glyphicon glyphicon-stats"></span>&nbsp;<b>Stats</b> for <a class="publish" href="#">today<!--span style="font-size:x-small" class="glyphicon glyphicon-chevron-down"></b--></a></div>
+        <div id="stats" >
+            <div class="stats-box col-lg-12">
+                <h2 id="sales">$0.00</h2>
+                <p>in sales</p>
+            </div>
+            <br/>
+            <div class="stats-box col-lg-12">
+                <h2 id="views">0</h2>
+                <p>pageviews</p>
+            </div>
+        </div>
+    </div>
+</div>

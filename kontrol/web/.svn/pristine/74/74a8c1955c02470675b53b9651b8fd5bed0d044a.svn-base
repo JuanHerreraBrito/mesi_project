@@ -1,0 +1,225 @@
+<?=$this->load->view('layout/header.php', array('page_title'=> 'Kichink | '.$this->lang->line('stores_imageadmin_title_text')));$screen_code='S_3.4_0.2'?>
+
+	<? if(isset($media['original'])){ ?>
+        <div class="modal hide fade" id="deleteModal" style="display:none">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal" href="#">×</a>
+            <h3><?=$this->lang->line('stores_imageadmin_deleteModal_header');?></h3>
+            </div>
+            <form action="/media/delete_image"  style="margin-bottom:0px;" method="post">
+            <div class="modal-body" style="text-align:center">
+                    <input type="hidden" name="image_id" value="<?=$media['original'][0]->MediaID?>" />
+                    <input type="hidden" name="object_name" value="<?=$media['original'][0]->object_name?>" />
+                    <h5><?=$this->lang->line('stores_imageadmin_deleteModal_text');?></h5>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" name="submit_delete" value="<?=$this->lang->line('stores_imageadmin_deleteModal_delete');?>" class="btn" />
+                <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_imageadmin_deleteModal_close');?></a>
+            </form>
+            </div>
+        </div><!--Modal-->
+    <? } ?>
+
+	<div class="container">	
+        <div class="content">
+            <div class="page-header">
+            <? if(isset($media['original'])){ 
+				$tableID = split('_',$media['original'][0]->object_name);
+			?>
+               <h1 style="float:left"><?=$this->lang->line('stores_imageadmin_title_text');?></h1>
+               <div style="float:right;padding-top:5px">
+                   <a class="btn big danger" data-toggle="modal" href="#deleteModal"><?=$this->lang->line('stores_imageadmin_delete_button_text');?></a>  
+               </div>  
+                   <a class="btn" id="image_button" href="<?=base_url().$media['original'][0]->table.'/id/'.$tableID[1]?>" style="float:left;clear:both"><?=$this->lang->line('stores_imageadmin_back_button_text');?></a>
+                <div style="clear:both;"></div>
+            </div>
+                <?
+					$thumb_w = 128;
+					$thumb_h = 128;
+				?>
+				<script type="text/javascript">
+					$(function(){
+						$('#cropbox').Jcrop({
+							aspectRatio: 7/5,
+							boxWidth: 500, 
+							setSelect: [0,0,<?=$media['original'][0]->width.','.$media['original'][0]->height?>],
+							onSelect: updateCoords,
+							onChange: updateCoords
+						});
+					});
+					function updateCoords(c)
+					{
+						showPreview(c);
+						$("#x").val(c.x);
+						$("#y").val(c.y);
+						$("#w").val(c.w);
+						$("#h").val(c.h);
+						$("#preview_pre").css('display','none');
+
+					}
+					function showPreview(coords)
+					{
+						var rx = <?=400?> / coords.w;
+						var ry = <?=285?> / coords.h;
+						
+						$("#preview img").css({
+							width: Math.round(rx*<?=$media['original'][0]->width?>)+'px',
+							height: Math.round(ry*<?=$media['original'][0]->height?>)+'px',
+							marginLeft:'-'+  Math.round(rx*coords.x)+'px',
+							marginTop: '-'+ Math.round(ry*coords.y)+'px'
+						});
+					}
+				</script>
+                <? if(isset($mediaCrop['flashMessage'])){ ?>
+                
+					<div class="span16">
+                        <div class="alert-message success">
+                             <a class="close" href="#">×</a>
+                             <?=$mediaCrop['flashMessage']?>
+                        </div>
+        			</div>
+				
+				<? } ?>
+				<div class="row"><!-- Cropped section -->
+                    <div class="span9">
+                        <h1><?=$this->lang->line('stores_imageadmin_crop_subtitle_text');?></h1>
+                        <small><?=$this->lang->line('stores_imageadmin_text_1');?></small><br /><br />
+                        <img src="<?=$media['original'][0]->url.$media['original'][0]->object_name.'_b.'.$media['original'][0]->extension?>" id="cropbox" alt="cropbox" />
+                    </div>
+                    <div class="span7" style="margin-top: 72px;">
+                        <small><?=$this->lang->line('stores_imageadmin_text_2');?></small>
+                        <div id="preview" style="width: <?=400?>px;  height: <?=285?>px; overflow:hidden;">
+                            <img src="<?=$media['original'][0]->url.$media['original'][0]->object_name.'_b.'.$media['original'][0]->extension?>" alt="cropped" />
+                        </div>
+                        <br />
+                        <form action="/media/save/<?=$media['original'][0]->MediaID?>" method="post" class="">
+                            <input type="hidden" id="x" name="x" />
+                            <input type="hidden" id="y" name="y" />
+                            <input type="hidden" id="w" name="w" />
+                            <input type="hidden" id="h" name="h" />
+                            <input type="hidden" name="filename" value="<?=$media['original'][0]->object_name.'_b.'.$media['original'][0]->extension?>" />
+                            <input type="hidden" name="media_id" value="<?=$media['original'][0]->MediaID?>" />
+                            <input type="submit" name="submitCrop" value="Crop image" class="btn primary small" />
+                            <? if (isset($media['cropped'][0])){ ?>
+                            	<a class="btn small success" data-toggle="modal" href="#pictureCropModal"><?=$this->lang->line('stores_imageadmin_version_button_text');?></a>
+                        	<? } ?>
+                        </form>
+                       
+                    </div>
+                </div>
+                <br  />
+                <script type="text/javascript">
+                $(function(){
+						$('#cropboxThumbnail').Jcrop({
+							aspectRatio: <?=1?>,
+							boxWidth: 500,
+							setSelect: [0,0,<?=$media['original'][0]->width.','.$media['original'][0]->height?>],
+							onSelect: updateCoordsThumbnail,
+							onChange: updateCoordsThumbnail
+						});
+					});
+					function updateCoordsThumbnail(c)
+					{
+						showPreviewThumbnail(c);
+						$("#xThumbnail").val(c.x);
+						$("#yThumbnail").val(c.y);
+						$("#wThumbnail").val(c.w);
+						$("#hThumbnail").val(c.h);
+						$("#previewThumbnail_pre").css('display','none');
+
+					}
+					function showPreviewThumbnail(coords)
+					{
+						var rx = <?=$thumb_w?> / coords.w;
+						var ry = <?=$thumb_h?> / coords.h;
+						
+						$("#previewThumbnail img").css({
+							width: Math.round(rx*<?=$media['original'][0]->width?>)+'px',
+							height: Math.round(ry*<?=$media['original'][0]->height?>)+'px',
+							marginLeft:'-'+  Math.round(rx*coords.x)+'px',
+							marginTop: '-'+ Math.round(ry*coords.y)+'px'
+						});
+					}
+				</script>
+                <div class="row"><!-- Thumbnail section -->
+                    <div class="span9">
+                        <h1><?=$this->lang->line('stores_imageadmin_choose_subtitle_text');?></h1>
+                        <img src="<?=$media['original'][0]->url.$media['original'][0]->object_name.'_b.'.$media['original'][0]->extension?>" id="cropboxThumbnail" alt="cropboxThumbnail" />
+                    </div>
+                    <div class="span7" style="margin-top: 56px;">
+                        <small><?=$this->lang->line('stores_imageadmin_text_2');?></small>
+                        <div id="previewThumbnail" style="width: <?=$thumb_w?>px;  height: <?=$thumb_h?>px; overflow:hidden;">
+                            <img src="<?=$media['original'][0]->url.$media['original'][0]->object_name.'_b.'.$media['original'][0]->extension?>" alt="thumb" />
+                        </div>
+                        <br />
+                        <form action="/media/save/<?=$media['original'][0]->MediaID?>" method="post" class="">
+                            <input type="hidden" id="xThumbnail" name="xThumbnail" />
+                            <input type="hidden" id="yThumbnail" name="yThumbnail" />
+                            <input type="hidden" id="wThumbnail" name="wThumbnail" />
+                            <input type="hidden" id="hThumbnail" name="hThumbnail" />
+                            <input type="hidden" name="filenameThumbnail" value="<?=$media['original'][0]->object_name.'_b.'.$media['original'][0]->extension?>" />
+                            <input type="hidden" name="media_idThumbnail" value="<?=$media['original'][0]->MediaID?>" />
+                            <input type="hidden" name="role" value="<?=$media['original'][0]->role?>" />
+                            <input type="submit" name="submitThumb" value="Crop image" class="btn primary small" />
+                            <? if (isset($media['thumb'][0])){ ?>
+                            	<a class="btn small success" data-toggle="modal" href="#pictureThumbModal"><?=$this->lang->line('stores_imageadmin_version_button_text');?></a>
+                        	<? } ?>
+                        </form>
+                    </div>
+                </div>
+                
+                <!--Modals-->
+					<? if (isset($media['thumb'][0])){ ?>
+                        <div class="modal hide fade" id="pictureThumbModal" style="display:none">
+                            <div class="modal-header">
+                                <a class="close" data-dismiss="modal" href="#">×</a>
+                            <h3><?=$this->lang->line('stores_imageadmin_latest_version_text');?></h3>
+                            </div>
+                            <div class="modal-body" style="text-align:center">
+                                 <img src="<?=$media['thumb'][0]->url.$media['thumb'][0]->object_name.'_thumb.'.$media['thumb'][0]->extension?>" alt="thumb_pre" />
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_imageadmin_deleteModal_close');?></a>
+                            </div>
+                        </div>
+                    <? } ?>
+                     <? if (isset($media['cropped'][0])){ ?>
+                        <div class="modal hide fade" id="pictureCropModal" style="display:none">
+                            <div class="modal-header">
+                                <a class="close" data-dismiss="modal" href="#">×</a>
+                            <h3><?=$this->lang->line('stores_imageadmin_latest_version_text');?></h3>
+                            </div>
+                            <div class="modal-body" style="text-align:center">
+                                 <img src="<?=$media['cropped'][0]->url.$media['cropped'][0]->object_name.'_cropped.'.$media['cropped'][0]->extension?>" alt="crop_pre" width="50%" />
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_imageadmin_deleteModal_close');?></a>
+                            </div>
+                        </div>
+                    <? } ?>
+                <!--End of Modals-->
+                
+        <? } else { 
+				if(isset($image_error)){ 
+					$this->load->view('media/error_image', $image_error);
+					$screen_code = 'S_3.4.1_0.2';
+				}else{ 
+		?>
+        		<h1><?=$this->lang->line('stores_imageadmin_title_text');?></h1>
+            </div>
+				<div class="row"> 
+					<div class="span16">
+                        <div class="alert-message warning">
+                             <a class="close" href="#">×</a>
+                             <?=$media['flashMessage']?>
+                        </div>
+        			</div>
+                </div><!--End of row-->
+                
+        <? 		}
+			} ?>
+        	
+         
+        </div>
+    
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> $screen_code ))?>

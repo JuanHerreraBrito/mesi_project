@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>
+    Instala tu tienda de Kichink en FB.
+</title>
+<meta name="description" content="Descubre como funciona Kichink. Tu tienda en linea esta lista para que empieces a usarla. Empieza a vender desde tu website, facebook, twitter, pinteres e instagram. Ademas montar tu tienda es gratis, y nosotros nos encargamos de que tus clientes puedan pagar con tarjeta o efectivo, de la logistica y la entrega de los productos y del servicio al cliente. ">
+<link rel="image_src" href="<?=(isset ($item_thumb) ? $item_thumb : 'https://kichink.com/img/kichink_logo_topbar.png')?>" />
+<script src="http://www.kichink.com/v3/js/jquery-1.9.1.min.js"></script>
+<script src="http://www.kichink.com/v3/bootstrap/js/bootstrap.min.js"></script>
+<link href="http://www.kichink.com/v3/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="http://www.kichink.com/v3/css/que_es.css" type="text/css" />
+
+ <link href="/img/favicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/icons/apple-touch-icon-72x72.png">
+
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/icons/apple-touch-icon-114x114.png">
+
+
+
+
+
+
+</head>
+<body>
+<!-- Header -->
+
+
+<div id="header">
+	<div class="container" style="position:relative;">
+		<div id="header_logo" style="float:none; margin:20px auto;">
+			<h1>
+				<img src="http://www.kichink.com/v3/img/como_funciona/kichink_logo_grande_fondo_morado_que_es.png" />
+			</h1>
+		</div>
+		
+		<div id="header_nav_main" style="float:none; position:absolute; right:10px; top:0px; ">
+			<!-- <ul>
+				<li>
+					<a href="https://mitienda.kichink.com">Login</a>
+				</li>
+			</ul> -->
+		</div>
+		
+	</div>
+</div>
+
+<!-- Tu tienda -->
+<div class="fullpage morado" style="height:650px;">
+	<div class="container" style="position:relative;">	
+		<h2 class="tu_tienda_title rockwell">
+			Instala tu tienda en esta p&aacute;gina de Facebook en 3 simples pasos<br />
+			
+		</h2>
+		<? if(isset($error)){ ?>
+			<div class="alert"><?=$error?></div>
+		<? } ?>
+		<h1>1. Haz login </h1>
+		<form action="" method="post">
+			<input type="text" name="username" placeholder="Usuario" /><br />
+			<input type="password" name="password" placeholder="Contrase&ntilde;a" /><br />
+			<input type="submit" class="btn btn-primary btn-large btn-kichink" value="Login"/>
+		</form>		
+		<h4>Si todavia no tienes una tienda en linea <a href="#">Crea una aqui</a></h4>
+		
+	</div>
+	
+	
+</div>
+
+
+</body>
+</html>

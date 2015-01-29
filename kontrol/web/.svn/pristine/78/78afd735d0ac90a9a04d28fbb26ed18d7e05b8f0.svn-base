@@ -1,0 +1,65 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+   
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('login_page_title_text');?> <small><?=$this->lang->line('login_page_subtitle_text');?></small></h1>
+        </div>
+        <div class="row">
+          <div class="span16">
+
+            <? if(isset($manual_user['flashMessage'])){ ?>
+					<div class="alert-message <?=$manual_user['alert-message']?>">
+                         <a class="close" href="#">×</a>
+                        <?=$manual_user['flashMessage']?>
+					</div>
+			<?  	if($manual_user['alert-message']=='success'){ ?>
+						<script type="text/javascript">
+							$(document).ready(function(){
+								setTimeout('window.location.href="<?=base_url().'login'?>"',2000);
+							 });
+						</script>
+			<?		}
+				} ?>
+
+			<h1>Register Application</h1>
+			
+			<form class="form-stacked" method="post" action="<?=base_url().'login/manual_register'?>">
+				<fieldset>
+					<div class="clearfix">
+						<label for="name"> Name: </label>
+						<input type="text" name="name"  class="span7" />
+					</div>
+					<br />
+					<div class="clearfix">
+						<label for="email"> Email:</label>
+						<input type="text" name="email" class="span7" value="<?=(isset($email)?$email:'')?>" />
+					</div>
+                    <br />
+					<div class="clearfix">
+						<label for="store"> Password: </label>
+						<input type="password" name="password" class="span7" />
+					</div>
+                    <br />
+                    <div class="clearfix">
+						<label for="store"> Key: </label>
+						<input type="text" name="key" class="span7" />
+					</div>
+					<br />
+					<div class="clearfix">
+						<input  type="submit" class="btn large" value="Register" />
+					</div>
+				</fieldset>
+			</form>
+			
+          </div>
+     
+        </div>
+      </div>
+
+
+ 
+<?=$this->load->view('layout/footer.php')?>

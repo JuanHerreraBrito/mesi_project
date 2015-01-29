@@ -1,0 +1,97 @@
+<?php
+
+class Api extends CI_Controller {
+
+	private $sitio = 'sell';
+
+	function __construct()
+	{
+		parent::__construct();
+		checkForSession();
+	}
+	
+	public function route(){
+		
+		if($function = $this->uri->segment(2)){
+			switch($function){
+				default:
+					$this->api_call();
+					break;
+			} 
+		} else {
+			echo "API";
+		}
+	}
+	
+	public function index(){
+		echo "Kichink Api v3";
+	}
+	
+	public function api_call(){
+		//include('../../../shared_resources_3.0/libraries/Kichink_Api.php');
+		include('../../../shared_resources/v3/libraries/Kichink_Api.php');
+		$api = new kichink_api;
+		$api->execute_call($this->sitio);
+		/*
+		$function = $this->uri->segment(2);
+		
+		switch($function){
+			case "stats":
+			case "b2b_stores":
+			case "stores":
+				if($this->check_user_admin_perms()){
+					$api->execute_call();
+				}
+				break;
+			case "items":
+				if($this->check_user_admin_perms_items()){
+					$api->execute_call();
+				}
+				break;
+				
+			default:
+				echo "Kichink Api";
+				break;
+		}*/
+		
+		
+	}
+
+	private function check_user_admin_perms_items(){
+
+		$item_id = $this->input->post('item_id');
+		$user_id = $this->session->userdata('user_id');
+
+		$this->db->join('user_perm', 'user_perm.store_id = items.store_id');
+		$this->db->where('items.id', $item_id);
+		$this->db->where('user_perm.user_id', $user_id);
+		$q = $this->db->get('items');
+
+		if($r = $q->result()){
+			return true;
+		} else {
+			$this->output->set_status_header('404');
+			return false;
+		}
+
+	}
+	
+	private function check_user_admin_perms(){
+		$store_id = $this->input->post('store_id');
+		$user_id = $this->session->userdata('user_id');
+		$q = $this->db->get('user_perm', array('user_id'	=> $user_id,
+											   'store_id'	=> $store_id) );
+		if($r = $q->result()){
+			return true;
+		} else {
+			$this->output->set_status_header('404');
+			return false;
+		}
+	}
+	
+	
+	
+}
+
+/* End of file welcome.php */
+/* Location: ./system/application/controllers/welcome.php */

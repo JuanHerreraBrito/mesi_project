@@ -1,0 +1,1181 @@
+<?
+
+// Items_helper
+//$this->load->helper('../../../../shared_resources/helpers/items_helper');
+
+?>
+
+<link href="/css/jquery.Jcrop.css" rel="stylesheet">
+<link href="/css/jquery.miniColors.css" rel="stylesheet">
+<link href="/css/custom-theme/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+
+<!--Necesario para jquery.cycle.all, porque tiene funciones obsoletos-->
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.js"></script>
+<script type="text/javascript" src="/js/feather.js"></script>
+<script type="text/javascript" src="/js/autoNumeric-1.7.4.js"></script>
+<script type="text/javascript" src="/v2/js/item_id.js"></script>
+
+<script type="text/javascript">
+	
+	/* Var necesarias */
+	var store_id = <?=$store->id?>;
+	var item_id = <?=$item_id?>;
+	var base_url = "<?=base_url()?>";
+	/* END Var necesarias */
+	
+	//$(document).ready(function(){
+		
+		//$("#flip").click(function(){
+		//	$("#panel").slideToggle('slow');
+		//});
+
+	//});
+
+
+	//function remove_opt(id){
+	//	$('#opt_'+id).remove();
+	//}
+
+</script>
+
+
+<? $usrPref = getUsrPref($this->session->userdata('user_id')); ?>
+   <div class="modal fade" id="pictureModal" style="display:none">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<a class="close" data-dismiss="modal" href="#">×</a>
+				<h3><?=$this->lang->line('item_modal_header');?></h3>
+				</div>
+				<form method="post" action="/media/save" enctype="multipart/form-data" style="margin-bottom:0px;">
+				<div class="modal-body">
+						<input type="file" name="image" />
+						<img src="/img/ajax-loader.gif" alt="progressbar" id="progressbar" style="display:none;margin:0 auto; margin-top:10px"/>
+						<input type="hidden" name="table" value="items" />
+						<input type="hidden" name="from" value="<?=uri_string()?>" />
+						<input type="hidden" name="tableID" value="<?=(isset($item_data[0]->id) ? $item_data[0]->id : '')?>" /><br /><br  />
+				</div>
+				<div class="modal-footer">
+					<input type="submit" name="submit" value="<?=$this->lang->line('item_modal_upload');?>" class="btn" id="pictureModalButton" />
+					<a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('item_modal_close');?></a>
+				</form>
+				</div>
+			</div>
+		</div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" style="display:none">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal" href="#">×</a>
+        <h3><?=$this->lang->line('item_deleteModal_header');?></h3>
+        </div>
+        <form action="/items/delete_item"  style="margin-bottom:0px;" method="post">
+        <div class="modal-body" style="text-align:center">
+                <input type="hidden" name="item_id" value="<?=(isset($item_data[0]->id) ? $item_data[0]->id : '')?>" />
+                <input type="hidden" name="store_id" value="<?=(isset($item_data[0]->store_id) ? $item_data[0]->store_id : '')?>" />
+                <h5><?=$this->lang->line('item_deleteModal_text');?></h5>
+        </div>
+        <div class="modal-footer">
+            <input type="submit" name="submit_delete" value="<?=$this->lang->line('item_deleteModal_delete');?>" class="btn" />
+            <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('item_deleteModal_close');?></a>
+        </form>
+        </div>
+    </div>
+
+     <div class="modal fade" id="deletePictureModal" style="display:none">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<a class="close" data-dismiss="modal" href="#">×</a>
+				<h3><?=$this->lang->line('stores_imageadmin_deleteModal_header');?></h3>
+				</div>
+				<form action="/media/delete_image"  style="margin-bottom:0px;" method="post">
+				<div class="modal-body" style="text-align:center">
+						<input type="hidden" name="image_id" value="" id="image_id" />
+						<input type="hidden" name="object_name" id="object_name" value="" />
+						<h5><?=$this->lang->line('stores_imageadmin_deleteModal_text');?></h5>
+				</div>
+				<div class="modal-footer">
+					<input type="submit" name="submit_delete" value="<?=$this->lang->line('stores_imageadmin_deleteModal_delete');?>" class="btn" />
+					<a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_imageadmin_deleteModal_close');?></a>
+				</form>
+				</div>
+			</div>
+		</div>
+    </div><!--Modal-->
+
+<style>
+    ul#items-details-menu{
+        margin:15px 0;
+    }
+    ul#items-details-menu li{
+        border:none;
+    }
+    ul#items-details-menu li a{
+        color:#3dc5f5;
+    }
+    ul#items-details-menu li.active a{
+        color:#CCC;
+    }
+    ul#items-details-menu li.disabled a{
+        color:#BBB;
+    }
+    #settings{
+        color:#666;
+		margin-top: 40px;
+    }
+    input.error{
+        border:1px solid #C88;
+        background-color: #EBCCCC;
+    }
+    #settings label{
+        margin: 10px 0 15px 0;
+    }
+
+    #settings h3.title{
+        margin:25px 0;
+    }
+
+    #settings .step{
+        padding-bottom:15px;
+    }
+
+    #settings .step .options p{
+        color:#AAA;
+        font-size: 12px;
+    }
+
+    .panel,.options{
+        margin-top:25px;
+        margin-bottom: 25px;
+    }
+
+    h4.semi-title{
+        border-bottom:1px solid #DDDDDD;
+        margin-bottom:15px;
+    }
+    .treecontainer{
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid #d5d5d5;
+    }
+	
+	/* Form style */
+	.input-group{
+		margin-bottom: 10px;
+		width: 100%;
+	}
+	.input-group .title{
+		width: 30%;
+		float: left;
+	}
+	.input-group .title .description{
+		color: #999;
+		font-size: 12px;
+		display: block;
+	}
+	.input-group .form-control{
+		width: 70%;
+	}
+	
+	.checkbox-label{
+		height: 50px;
+	}
+	.checkbox-label > .form-control{
+		width: initial;
+		float: left;
+		margin-right: 5px;
+	}
+	.checkbox-label > .description{
+		padding-top: 10px;
+	}
+	.checkbox-label > .description > .form-control{
+		display: inline;
+		width: 20%;
+	}
+	.checkbox-label > label{
+		padding-top: 10px;
+		text-align: left;
+	}
+	#imageEdit{
+		margin-top: 10px;
+	}
+	/* END Form style */
+	
+	/*
+	 * Boton ON/OFF para publicar item
+	 */
+	.toggle-button {
+		display: inline-block;
+		cursor: pointer;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		-ms-border-radius: 5px;
+		-o-border-radius: 5px;
+		border-radius: 5px;
+		border: 1px solid;
+		border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+		position: relative;
+		text-align: left;
+		overflow: hidden;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+	/* line 29, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button.deactivate {
+		filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+		opacity: 0.5;
+		cursor: default !important;
+	}
+	/* line 32, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button.deactivate label, .toggle-button.deactivate span {
+		cursor: default !important;
+	}
+	/* line 36, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button > div {
+		display: inline-block;
+		width: 150px;
+		position: absolute;
+		top: 0;
+	}
+	/* line 41, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button > div.disabled {
+		left: -50%;
+	}
+	/* line 45, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button input[type=checkbox] {
+		display: none;
+	}
+	/* line 53, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span, .toggle-button label {
+		cursor: pointer;
+		position: relative;
+		float: left;
+		display: inline-block;
+	}
+	/* line 60, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button label {
+		background: #fefefe;
+		margin-left: -4px;
+		margin-right: -4px;
+		border: 1px solid #E6E6E6;
+		margin-top: -1px;
+		z-index: 100;
+		background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fefefe), color-stop(100%, #e6e6e6));
+		background-image: -webkit-linear-gradient(top, #fefefe, #e6e6e6);
+		background-image: -moz-linear-gradient(top, #fefefe, #e6e6e6);
+		background-image: -o-linear-gradient(top, #fefefe, #e6e6e6);
+		background-image: linear-gradient(top, #fefefe, #e6e6e6);
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		-ms-border-radius: 4px;
+		-o-border-radius: 4px;
+		border-radius: 4px;
+	}
+	/* line 72, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span {
+		color: #fefefe;
+		text-align: center;
+		font-weight: bold;
+		z-index: 1;
+	}
+	/* line 78, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.labelLeft {
+		-moz-border-radius-topleft: 4px;
+		-webkit-border-top-left-radius: 4px;
+		border-top-left-radius: 4px;
+		-moz-border-radius-bottomleft: 4px;
+		-webkit-border-bottom-left-radius: 4px;
+		border-bottom-left-radius: 4px;
+		padding-left: 3px;
+	}
+	/* line 83, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.labelRight {
+		-moz-border-radius-topright: 4px;
+		-webkit-border-top-right-radius: 4px;
+		border-top-right-radius: 4px;
+		-moz-border-radius-bottomright: 4px;
+		-webkit-border-bottom-right-radius: 4px;
+		border-bottom-right-radius: 4px;
+		color: black;
+		background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #fefefe), color-stop(100%, #e6e6e6));
+		background-image: -webkit-linear-gradient(bottom, #fefefe, #e6e6e6);
+		background-image: -moz-linear-gradient(bottom, #fefefe, #e6e6e6);
+		background-image: -o-linear-gradient(bottom, #fefefe, #e6e6e6);
+		background-image: linear-gradient(bottom, #fefefe, #e6e6e6);
+		padding-right: 3px;
+	}
+	/* line 91, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.primary, .toggle-button span.labelLeft {
+		color: #fefefe;
+		background: #0088cc;
+		background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #0088cc), color-stop(100%, #0055cc));
+		background-image: -webkit-linear-gradient(bottom, #0088cc, #0055cc);
+		background-image: -moz-linear-gradient(bottom, #0088cc, #0055cc);
+		background-image: -o-linear-gradient(bottom, #0088cc, #0055cc);
+		background-image: linear-gradient(bottom, #0088cc, #0055cc);
+	}
+	/* line 96, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.info {
+		color: #fefefe;
+		background: #5bc0de;
+		background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #5bc0de), color-stop(100%, #2f96b4));
+		background-image: -webkit-linear-gradient(bottom, #5bc0de, #2f96b4);
+		background-image: -moz-linear-gradient(bottom, #5bc0de, #2f96b4);
+		background-image: -o-linear-gradient(bottom, #5bc0de, #2f96b4);
+		background-image: linear-gradient(bottom, #5bc0de, #2f96b4);
+	}
+	/* line 102, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.success {
+		color: #fefefe;
+		background: #62c462;
+		background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #62c462), color-stop(100%, #51a351));
+		background-image: -webkit-linear-gradient(bottom, #62c462, #51a351);
+		background-image: -moz-linear-gradient(bottom, #62c462, #51a351);
+		background-image: -o-linear-gradient(bottom, #62c462, #51a351);
+		background-image: linear-gradient(bottom, #62c462, #51a351);
+	}
+	/* line 108, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.warning {
+		color: #fefefe;
+		background: #dbb450;
+		background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #dbb450), color-stop(100%, #f89406));
+		background-image: -webkit-linear-gradient(bottom, #dbb450, #f89406);
+		background-image: -moz-linear-gradient(bottom, #dbb450, #f89406);
+		background-image: -o-linear-gradient(bottom, #dbb450, #f89406);
+		background-image: linear-gradient(bottom, #dbb450, #f89406);
+	}
+	/* line 114, ../sass/bootstrap-toggle-buttons.scss */
+	.toggle-button span.danger {
+		color: #fefefe;
+		background: #ee5f5b;
+		background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #ee5f5b), color-stop(100%, #bd362f));
+		background-image: -webkit-linear-gradient(bottom, #ee5f5b, #bd362f);
+		background-image: -moz-linear-gradient(bottom, #ee5f5b, #bd362f);
+		background-image: -o-linear-gradient(bottom, #ee5f5b, #bd362f);
+		background-image: linear-gradient(bottom, #ee5f5b, #bd362f);
+	}
+	/*
+	 * END Boton ON/OFF para publicar item
+	 */
+	
+	/* Slider */
+	#nav-slider{
+		width: 100%;
+		height: 190px;
+		overflow: auto;
+		overflow-y: hidden;
+		margin: 0 auto;
+		white-space: nowrap
+	}
+	#nav-slider img{
+		display: inline;
+		margin: 5px;
+	}
+	#nav-slider > li{
+		display: inline;
+		margin: 5px;
+	}
+	/* END Slider */
+	
+	/* ScrollSpy */
+	.settings-content {
+		position: relative;
+		height: 757px;
+		margin-top: 10px;
+		overflow: auto;
+	}
+	#compartir{
+		height: 757px;
+	}
+	.settings-content > div{
+		min-height: 500px;
+	}
+	
+	/* END ScrollSpy */
+</style>
+<div class="col-lg-9 col-md-9 col-sm-9">
+	<!--Button ON/OFF-->
+	<div id="step4">
+		<h4 style="float:left;text-transform:uppercase"><?=$this->lang->line('stores_itempage_onair');?></h4>
+		<div id="toggle-button" style="margin-left:10px;margin-top:3px">
+			<input id="checkbox_live_item" type="checkbox" name="live_item" <?=isset($postValues['live_item']) ? ($postValues['live_item'] ? 'checked="cheked"' : '') : $item_data[0]->live==1 ? 'checked="cheked"': '' ?>>
+		</div>
+		<h4 style="clear:both;line-height:26px"><small><?=$this->lang->line('stores_itempage_onair_text');?></small></h4>
+	</div>
+
+    <div class="col-lg-12 col-md-12 col-sm-12">
+		
+        <div id="settings" class="collapse navbar-collapse">
+			
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#articulo"><?=$this->lang->line('stores_itempage_settings_title_text');?></a></li>
+                <li><a href="#categorias"><?=$this->lang->line('stores_itempage_categories');?></a></li>
+                <li><a href="#inventario">Inventario</a></li>
+                <li><a href="#opciones_envio"><?=$this->lang->line('stores_itempage_shipment_options');?></a></li>
+                <li><a href="#descuentos"><?=$this->lang->line('stores_itempage_discounts');?></a></li>
+                <li><a href="#compartir"><?=$this->lang->line('stores_itempage_share');?></a></li>
+			</ul>
+		</div>
+		<div class="settings-content" data-spy="scroll" data-target="#settings" data-offset="10">
+				<!--Tab Articulo-->
+                <div id="articulo" >
+					<h2><?=$this->lang->line('stores_itempage_settings_title_text');?></h2>
+					<div style="height: 45px"><button class="btn btn-primary btn-items" id="update_articulos">Actualizar</button></div>
+					<div class="row">
+						<? if(isset($flashMessage)){ ?>
+						<div class="col-lg-12"><div class="alert-message warning"><a class="close" href="#">×</a><?=$flashMessage?></div></div>
+						<? } ?>
+	
+						<div class="col-lg-8">
+							<!--Slide-->
+							<div class="slide">
+								<img class="img-responsive" src="http://placehold.it/700x500" />
+							</div>
+							<!--Buttons actions-->
+							<div id="imageEdit" style="float:right;">
+								<a class="btn btn-warning" id="editPicture" href="#" >
+								  <img src="/img/pencil.png" width="14" hiehgt="14" style="margin-top:0px; margin-right:5px"/><?=$this->lang->line('stores_itempage_picture_button_text_edit');?>
+								</a>
+								<a class="btn btn-danger" id="deletePicture" data-toggle="modal" href="#deletePictureModal">
+									<?=$this->lang->line('stores_itempage_picture_button_text_delete');?>
+								</a>
+							</div>
+							<div id="imageEdit" style="float:right;">
+	
+								<a class="btn btn-default" data-toggle="modal" href="#pictureModal" id="step1"><?=$this->lang->line('stores_itempage_picture_button_text_add');?></a>
+	
+							</div>
+	
+						</div>
+						<div class="col-lg-4">
+							<!--<br/>
+							<a href="javascript:void(0);" onclick="javascript:startIntro();" class="btn success large" style="margin:0 0 0 20px;padding:9px;width:160px;text-align:center;"><?=$this->lang->line('stores_orders_mostrar_tuto');?></a>
+							<br/><br/>-->
+							<ul class="nav nav-tabs nav-justified">
+								<li class="<?=$usrPref->usr_language == 'es' ? 'active' : ''?>"><a data-toggle="tab" href="#spanish"><?=$this->lang->line('stores_itempage_spanish_tab');?></a></li>
+								<li class="<?=$usrPref->usr_language == 'en' ? 'active' : ''?>"><a data-toggle="tab" href="#english"><?=$this->lang->line('stores_itempage_english_tab');?></a></li>
+							</ul>
+							<div id="step2">
+								<div id="my-tab-content" class="tab-content">
+									<div id="spanish" class="<?=$usrPref->usr_language == 'es' ? 'active' : ''?> fade in tab-pane item-details-tab">
+										<textarea class="form-control" style="font-size:20px; font-weight:bold; height:50px; line-height:22px;" name="name" id="item_name"></textarea>
+										<br />
+										<textarea class="form-control" id="description" name="description"></textarea>
+									</div>
+	
+									<div id="english" class="<?=$usrPref->usr_language == 'en' ? 'active' : ''?> fade in tab-pane item-details-tab">
+										<textarea class="form-control" style="font-size:20px; font-weight:bold; height:50px; line-height:22px;" name="name_eng"
+													id="item_name_eng"></textarea>
+										<br />
+										<textarea class="form-control" id="description_eng"
+												  name="description_eng"></textarea>
+									</div>
+								</div>
+							</div>
+							<!--Precio del articulo-->
+							<h4 style="margin-top:20px; margin-bottom: 0px; color:#666;">Precio</h4>
+							<h2 style="font-weight:300;margin-top:10px">
+	
+								<div class="input-group">
+									<span class="input-group-addon">MXN $</span>
+									<div id="step3">
+										<input class="form-control" type="text" value=""
+												name="prices" id="price" style="font-size:15px; font-weight:300; text-align:right" />
+									</div>
+								</div>
+								
+								<div class="input-group">
+									<span class="input-group-addon">USD $</span>
+									<input class="form-control" type="text" value="" name="pricesUSD" id="priceUSD"
+											style="float: left;font-size:15px; font-weight:300;text-align:right" />
+								</div>
+								<input type="hidden" name="price" value="" id="priH" />
+							</h2>
+						</div>
+						<div class="clear"></div>
+						<div class="col-lg-9">
+							<!--Thumbnails images-->
+							<div id="nav-slider" style="display: none;" class="nav-slider">
+								<a href="#" class="activeSlide"></a>
+							</div>
+						</div>
+					</div>
+                </div>
+                <!--END Tab Articulo-->
+				<!--Tab Categorias-->
+				<div id="categorias">
+					<h2><?=$this->lang->line('stores_itempage_categories');?></h2>
+					<div style="height: 45px"><button class="btn btn-primary btn-items" id="update_categorias">Actualizar</button></div>
+					<div id="jstree_categories_items" style="padding-bottom:15px;border-bottom: 1px solid #e2e2e2; margin-bottom: 10px;">
+						<ul>
+							<li data-jstree='{"opened":true}' class="jstree-open">All
+								<ul id="maincats"></ul>
+							</li>
+						</ul>
+					</div>
+                </div>
+                <!--END Tab Categorias-->
+				<!--Tab Inventario-->
+				<div id="inventario">
+					<h2>Inventario</h2>
+					<div style="height: 45px"><button class="btn btn-primary btn-items" id="update_inventario">Actualizar</button></div>
+					<div class="row">
+						<div class="col-lg-4">
+
+							<div id="step5">
+								<h4><?=$this->lang->line('stores_itempage_settings_sku_text_1');?> <small> <?=$this->lang->line('stores_itempage_settings_sku_text_2');?></small></h4>
+								<input type="text" class="form-control" id="sku" name="sku"  value=""  />
+							</div>
+							<br />
+
+							<div id="step6">
+								
+								<div id="inventories_kichink_units">
+									<h5 style="line-height:20px">Inventarios<br />administrados por Kichink</h5>
+									<input class="form-control" type="text" class="span2" id="units_availible_read" disabled="disabled"
+										   value="" />
+								</div>
+								
+								<div id="manager_inventories">
+									<div class="checkbox-label">
+										<input class="form-control" type="radio" name="inventories" id="inventories_unique" value="inventories_unique" />
+										<label for="inventories_unique" style="text-align:left">
+											<strong> <?=$this->lang->line('stores_itempage_settings_unique_text_1');?></strong>
+										</label>
+									</div>
+									<div class="checkbox-label">
+										<input class="form-control" type="radio" name="inventories" id="inventories_num" value="inventories_num" />
+										<label for="inventories_num" style="text-align:left">
+											<strong> <?=$this->lang->line('stores_itempage_settings_Inventories_text_1');?> </strong>
+										</label>
+									</div>
+									
+									<?=$this->lang->line('stores_itempage_settings_Inventories_text_1.2');?><br/><br/>
+									<input type="text" class="form-control" size="5" id="units_availible" name="units_availible"  value="" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-8" style="background:#F9F9F9;">
+							<h4 style="margin-top:10px;line-height:16px;padding:0 10px" id="step7">
+
+								<div id="purchase_options_title">
+									<!--Si ya hay campos personalizados creados, se muestra este container para agregar nuevos campos-->
+									<div>
+										<input class="form-control" style="width: initial; float: left; margin-right: 5px;height: initial;" type="checkbox" name="settings_opts_1" id="settings_opts_check_1"
+											   onchange="show_setting_options(1)" />
+										<?=$this->lang->line('stores_itempage_purchase_options');?>
+									</div>
+									<small><?=$this->lang->line('stores_itempage_purchase_options_text');?></small><br/>
+								</div>
+
+								<div id="purchase_options_init">
+									<!--Imagen de introduccion-->
+									<img style="margin-top:0;cursor:pointer;" src="/img/mensaje.png" alt="plantillas_msg" onclick="javascript:$('#new_options_item').slideToggle('slow');" /><br/>
+									<small><?=$this->lang->line('stores_item_purchase_options_alert');?></small><br/>
+
+								</div>
+							</h4>
+							<div id="inventories_kichink_options_purcharse">
+							
+								<!--No disponible porque se maneja por kichink-->
+								<div style="width:auto;height:auto;clear:both;text-align:center;">
+									<h5>Inventarios administrados por Kichink</h5>
+								</div>
+							</div>
+							
+							<!--Panel 1 (Crear campo personalizado, si ya existe despliega las opciones para colocar el inventario)-->
+							<div style="width:auto;height:auto;clear:both;" id="settings_opts_panel_1">
+										
+								<!--Group Name y Options de cada grupo-->
+								<div id="option_item"></div>
+								
+								<!--Si no existe ya un campo personalizado se pide crear uno al item-->
+								<div id="new_options_item">
+									<div id="options-items">
+										
+										<div class="input-group">
+											<div class="title">
+												Nombre del grupo
+												<small class="description" style="color:#999;font-size:12px;">Ej. Tallas, Colores, etc.</small></label>
+											</div>
+											<input type="text" class="grupo_opt form-control" id="group_name" />
+										</div>
+										<div class="input-group">
+											<div class="title">Tipo de opciones</div>
+											<select class="form-control select_opt" id="select_opt">
+													<option value="select">Select</option>
+											</select>
+										</div>
+										
+										<div class="input-group">
+											<div class="title">Opci&oacute;n</div>
+											<input type="text" class="opcion_opt form-control" />
+										</div>
+									</div>
+									<div style="padding:10px 0; text-align:center;">
+											<button type="button" id="boton_append_1" class="btn badd">Agregar opci&oacute;n</button>
+											<button type="button" class="btn btn-big btn-primary bg" id="save_purchase_opts">Guardar</button>
+									</div>	
+								</div>
+							</div>
+						
+							<!--Panel 2 (ISBN, Autor). Campos creados, disponibles para agregar informacion -->
+							<div style="width:auto; height:auto;clear:both;padding-top:15px;" id="settings_opts_panel_2_display">
+								<h4 style="margin-top:20px;line-height:16px;padding:0 10px;">
+									<input type="checkbox" name="settings_opts_2" id="settings_opts_check_2" onchange="show_setting_options(2)" />
+									<?=$this->lang->line('stores_itempage_display_options');?> <br />
+									<small><?=$this->lang->line('stores_itempage_display_options_text');?></small><br/>
+								</h4>
+								
+								<div id="settings_opts_panel_2"></div>
+								
+								<div id="item_without_options" style="display: none;">
+									<p style="padding:10px;text-align:center"><?=$this->lang->line('stores_itempage_without_display_options');?></p>
+								</div>
+								
+							</div>
+							<br/><br/>
+
+						</div>
+
+						<script type="text/javascript">
+							function show_setting_options(name){
+								var id='settings_opts_check_'+name;
+								if( !$('#'+id).is(':checked') ){
+									$('#settings_opts_panel_'+name).slideUp();
+								} else {
+									$('#settings_opts_panel_'+name).slideDown();
+								}
+							}
+						</script>
+						
+					</div>
+                </div>
+                <!-- END Tab Inventario-->
+				<!--Tab Opciones de envio-->
+				<div id="opciones_envio">
+					<h2><?=$this->lang->line('stores_itempage_shipment_options');?></h2>
+					<div style="height: 45px"><button class="btn btn-primary btn-items" id="update_pos">Actualizar</button></div>
+					<div>
+						<div id="step8">
+							<h4><?=$this->lang->line('stores_itempage_ava');?></h4>
+							<?
+								if(isset($item_data[0]->disponibilidad) AND !empty($item_data[0]->disponibilidad)){
+									$disponibilidad 		= json_decode($item_data[0]->disponibilidad);
+									$disponibilidad_type 	= $disponibilidad[0]->type;
+									$disponibilidad_value 	= $disponibilidad[0]->value;
+								}
+	
+							?>
+							<div class="checkbox-label">
+								<input  class="form-control" name="availible_item" type="radio" value="ava_inme"
+									<?=(isset($postValues['availible_item']) AND $postValues['availible_item'] == 'ava_inme') ? 'checked="checked"' : (isset($disponibilidad_type) ? ($disponibilidad_type == 'ava_inme' ? 'checked="checked"' : '') : 'checked="checked"' )?> />
+								<div class="description">&nbsp;<?=$this->lang->line('stores_itempage_ava_inme');?></div>
+							</div>
+							<div class="checkbox-label">
+								<input class="form-control" name="availible_item" type="radio" value="ava_days" <?=(isset($postValues['availible_item']) AND $postValues['availible_item'] == 'ava_days') ? 'checked="checked"' : (isset($disponibilidad_type) ? ($disponibilidad_type == 'ava_days' ? 'checked="checked"' : '') : '' )?>/>
+								<div class="description">&nbsp;<?=$this->lang->line('stores_itempage_ava_in');?>
+									<input type="text" class="form-control" value="<?=(isset($postValues['availible_item']) AND $postValues['availible_item']=='ava_days') ? $postValues['input_ava_days'] : ((isset($disponibilidad_type) AND $disponibilidad_type == 'ava_days') ? $disponibilidad_value : '') ?>" name="input_ava_days" class="span1" />
+									<?=$this->lang->line('stores_itempage_ava_in_text');?>
+								</div>
+							</div>
+							<div class="checkbox-label">
+								<input class="form-control" name="availible_item" type="radio" value="ava_date" <?=(isset($postValues['availible_item']) AND $postValues['availible_item'] == 'ava_date') ? 'checked="checked"' : (isset($disponibilidad_type) ? ($disponibilidad_type == 'ava_date' ? 'checked="checked"' : '') : '' )?>/>
+								<div class="description">&nbsp;<?=$this->lang->line('stores_itempage_ava_date');?>
+									<input class="form-control" type="text" value="<?=(isset($postValues['availible_item']) AND $postValues['availible_item']=='ava_date') ? $postValues['input_ava_date'] : ((isset($disponibilidad_type) AND $disponibilidad_type == 'ava_date') ? $disponibilidad_value : '') ?>" name="input_ava_date" class="span2" id="input_ava_date" />
+								</div>
+							</div>
+						</div>
+						<script>
+							$(function() {
+								$( "#input_ava_date" ).datepicker({ dateFormat: 'dd/mm/yy' });
+							});
+						</script>
+
+						<h4><?=$this->lang->line('stores_itempage_shipment_type');?></h4>
+						<p style="color:#666;" id="step9"><?=$this->lang->line('stores_itempage_shipping_text');?></p>
+						<div style="background:url('/img/opacity.png') repeat;display:none;position:absolute;width:270px;z-index:999" id="shipment_onload">
+							<p style="color:#532E63;font-size:18px;font-weight:500;padding:5px;text-align:center;margin-top:20px"></p>
+							<div style="width:220px;margin:0 auto" id="shipment_onload_img"><img src="/img/ajax-loader.gif" /></div>
+						</div>
+						<?
+							foreach($shipment_types as $value):
+							
+								if(!empty($item_data[0]->shipment_type) AND $item_data[0]->shipment_type == $value->id){
+									$checked = 'checked="checked"';
+									if($value->tipo_entrega == 'fisico'){
+										$display_shipment_locations = true;
+									}
+								}else{
+									$checked = '';
+								}
+							?>
+							<div class="checkbox-label">
+								<input class="form-control" type="radio" name="radio_shpmnt_options" id="<?=$value->group_type?>" value="<?=$value->id?>" <?=$checked?>  />
+								<label for="<?=$value->group_type?>" style="text-align:left">
+									<strong><?=ucwords($value->group_type)?></strong><small style="margin-left:0px;font-size:11px">(<?=$value->group_name?>)</small>
+								</label>
+							</div>
+						<?  endforeach; ?>
+
+						<div id="shipment_locations">
+							
+							<h4><?=$this->lang->line('stores_itempage_shipment_locations');?></h4>
+							
+							<? foreach($item_shipment_options as $location): ?> 
+							<div class="checkbox-label">
+								<input id="<?=$location->shipment_location_name?>" name="location_opts[]" type="checkbox" />
+								<label for="<?=$location->shipment_location_name?>" style="text-align:left">
+									<?=ucfirst(str_replace('_', ' ', $location->shipment_location_label))?>
+								</label>
+							</div>
+							<? endforeach; ?>
+						</div>
+
+						<script type="text/javascript">
+
+								$("input[name='radio_shpmnt_options']:radio").on('click', function(){
+									$('#shipment_locations_table').slideUp();
+									$('#shipment_onload p').html('<?=$this->lang->line('stores_itempage_shipment_locations_loading_new');?>');
+									$('#shipment_onload').css('display', 'block');
+									$('#shipment_onload_img').css('display', 'block');
+									var value = $(this).val();
+									var store_id = <?=$item_data[0]->store_id?>;
+									$.ajax({
+										 type: 'post',
+										 url: '/items/add_shipment/<?=$this->uri->segment(3)?>',
+										 data: { value:value, store_id:store_id }
+									}).done(function( data ) {
+										try{
+											if(data != 'success'){
+												if(data == 'dont'){
+													location.reload();
+												}else{
+													$('#shipment_onload_img').css('display', 'none');
+													$('#shipment_onload p').html(data+'<?=$this->lang->line('stores_itempage_shipment_locations_try_again');?>');
+													setTimeout(function(){ cleanDiv() }, 2000);
+												}
+											}else{
+												$('#shipment_onload').fadeOut('slow');
+												toogleLocations(value);
+											}
+										}catch(e){
+											alert('Error'); //error in data result
+											location.reload();
+										}
+									}).fail(function(jqXHR, textStatus) {
+										alert( "Error: " + textStatus );
+										location.reload();
+									});
+
+								});
+
+								function updateLocations(id){
+									var shipment_mark = $('#shipment_mark_'+id);
+									var shipment_location = shipment_mark.attr('shipment_location');
+									var item_id 		  = <?=$item_data[0]->id?>;
+									var action			  = shipment_mark.attr('action');
+									var new_action		  = '';
+									shipment_mark.hide();
+									if ($('#loading_'+id).length > 0){
+									  $('#loading_'+id).show();
+									}else{
+										shipment_mark.before('<img src="/img/creating_store.gif" width="20" height="20" id="loading_'+id+'" />');
+									}
+									var input_field = shipment_mark;
+
+									$.ajax({
+										 type: 'post',
+										 url: '/items/actualizar_status_location',
+										 data: { shipment_location: shipment_location, item_id: item_id, action:action }
+									}).done(function(data){
+										try{
+											$('#loading_'+id).hide();
+											input_field.show();
+											if(data==='success'){
+												if(action==='on'){new_action='off';}else{new_action='on';}
+												input_field.attr('action', new_action);
+												$('#locations_message').html('<?=$this->lang->line('stores_itempage_shipment_locations_updated');?>');
+												setTimeout(function(){ cleanMsg() }, 2000);
+											}else{
+												if(data==='dont'){
+													location.reload();
+												}else{
+													if(action==='off'){checked="checked"}else{checked=""}
+													input_field.attr('checked', checked);
+													$('#locations_message').html(data);
+													setTimeout(function(){ cleanMsg() }, 2000);
+												}
+											}
+										}catch(e){
+											alert('Error'); //error in data result
+											location.reload();
+										}
+									}).fail(function(jqXHR, textStatus) {
+										alert( "Error: " + textStatus );
+										location.reload();
+									});
+								}
+
+								function cleanDiv(){
+									$('#shipment_onload').fadeOut('slow');
+									$('#shipment_onload p').html('');
+								}
+								function cleanMsg(){
+									$('#locations_message').html('');
+								}
+								function toogleLocations(value){
+									var item_id = <?=$item_data[0]->id?>;
+									$.ajax({
+										 type: 'post',
+										 url: '/items/get_shipment_locations',
+										 data: {shipment_weight_id:value, item_id:item_id}
+									}).done(function( data ) {
+										try{
+											if(data=='dont'){
+												location.reload();
+											}else{
+												$("#shipment_locations_table").html(data);
+												$('#shipment_locations_table').slideDown();
+											}
+										}catch(e){
+											alert('Error'); //error in data result
+											location.reload();
+										}
+									}).fail(function(jqXHR, textStatus) {
+										alert( "Error: " + textStatus );
+										location.reload();
+									});
+								}
+
+						</script>
+					</div>
+                </div><!--End of POS-->
+                <!--END Tab Opciones de envio-->
+				<!--Tab Descuentos-->
+				<div id="descuentos">
+					<h2><?=$this->lang->line('stores_itempage_discounts');?></h2>
+					<div style="height: 45px"><button class="btn btn-primary btn-items" id="update_payments">Actualizar</button></div>
+					<p style="color:#666;">
+						<?=$this->lang->line('stores_itempage_discounts_text');?>
+					</p>
+					<h3 style="font-weight:300;margin-bottom:20px">
+						
+						<div id="step10">
+							<!--Discount-->
+							<div class="checkbox-label">
+								<div class="description"><?=$this->lang->line('stores_itempage_discounts_disc');?>
+									<input type="text" value="<?=((isset($postValues['discount_amount']) AND isset($postValues['discount_type'])) ? number_format($postValues['discount_amount'],($postValues['discount_type'] == 'money' ? 2: 0)) : 0)?>"
+											name="discount_amount" id="discount_amount" class="form-control"
+											style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:90px;" />
+									<select name="discount_type" id="" class="form-control" style="font-size:18px;">
+										<option value="percentage" <?=((isset($postValues['discount_type']) AND $postValues['discount_type']=='percentage') ? 'selected' : '')?>>%</option>
+										<option value="money" <?=((isset($postValues['discount_type']) AND $postValues['discount_type']=='money') ? 'selected' : '')?>>$</option>
+									</select>
+								</div>
+							</div>
+							
+							<!--Start-->
+							<div class="checkbox-label">
+								<div class="description">
+									<?=$this->lang->line('stores_itempage_discounts_starts');?>
+									<input type="text" value="<?=(isset($postValues['discount_start']) ? $postValues['discount_start'] : date('d/m/Y'))?>" name="discount_start"
+											id="discount_start" class="form-control"
+											style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+									<?=$this->lang->line('stores_itempage_discounts_expire');?>
+									<input type="text" value="<?=(isset($postValues['discount_expiration']) ? $postValues['discount_expiration'] : '')?>" placeholder="Opcional"
+											name="discount_expiration" id="discount_expiration" class="form-control"
+											style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+									<?=$this->lang->line('stores_itempage_discounts_stock');?>
+									<input type="text" value="<?=(isset($postValues['discount_existencias']) ? $postValues['discount_existencias'] : '')?>" placeholder="Opcional"
+											name="discount_existencias" id="discount_existencias" class="form-control"
+											style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+								</div>
+							</div>
+						</div>
+						
+						<div id="step11">
+							<p style="margin-top:20px"><?=$this->lang->line('stores_itempage_discounts_msg');?></p>
+							<!--Code-->
+							<div class="checkbox-label">
+								<div class="description"><?=$this->lang->line('stores_itempage_discounts_code');?>
+									<input type="text" name="coupon_code" id="coupon_code" value="<?=(isset($postValues['coupon_code']) ? $postValues['coupon_code'] : '')?>"
+									placeholder="Opcional" class="form-control"
+									style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+								</div>
+							</div>
+						</div>
+
+						<script>
+
+						$(function() {
+							$( "#discount_start" ).datepicker({ dateFormat: 'dd/mm/yy'});
+							$( "#discount_expiration" ).datepicker({ dateFormat: 'dd/mm/yy' });
+						});
+						</script>
+					</h3>
+
+					<? if($item_data[0]->discounts){ ?>
+						<h6 style="margin-top:10px; color:#666;">
+						 <?=$this->lang->line('stores_itempage_discounts_ava');?>
+						</h6>
+						<table class="bordered-table zebra-stripped" id="discount_table">
+							<tbody>
+							<? foreach($item_data[0]->discounts as $discount){ ?>
+								<tr>
+									<td width="40%" style="text-align:center">
+										<div style="font-size:18px;">
+											<? if(!empty($discount->coupon_code)){ ?>
+												<?=$this->lang->line('stores_itempage_discounts_code');?>:<div style="font-size:12px"><?=$discount->coupon_code?></div>
+											<? } ?>
+											<? if(!empty($discount->order_perc)){ ?>
+												<?=$discount->order_perc?>%
+											<? } ?>
+											<? if(!empty($discount->order_money)){ ?>
+												$<?=$discount->order_money?>
+											<? } ?>
+										</div>
+										<a href="/items/delete_discount/<?=$item_data[0]->id.'/'.$discount->id?>">[ <?=$this->lang->line('stores_itempage_discounts_del');?> ]</a>
+									</td>
+									<td width="60%">
+										<? if(!empty($discount->order_perc)){ ?>
+											$ <?=number_format(round($item_data[0]->price * ( (100-$discount->order_perc)/100), 2 ) ,2 )?> x
+										<? } ?>
+										<? if(!empty($discount->order_money)){ ?>
+											$ <?=number_format(round($item_data[0]->price - $discount->order_money, 2), 2)?> x
+										<? } ?>
+										<? if($discount->max_discounts AND $discount->max_discounts > 0){ ?>
+											<p><small><?=$discount->max_discounts?> <?=$this->lang->line('stores_itempage_discounts_units');?></small></p>
+										<? } ?>
+										<br/>
+										<p><small>
+											<?=date('d/m/Y', strtotime($discount->start_date))?>
+											<? if(!empty($discount->end_date)){ ?>
+												<?='-'.date('d/m/Y', strtotime($discount->end_date))?>
+											<? }else{ ?>
+												- <?=$this->lang->line('stores_itempage_discounts_expiration');?>
+											<? } ?>
+										</small></p>
+									</td>
+								</tr>
+							<? } ?>
+							</tbody>
+						</table>
+					<? }else{ ?>
+
+						<p style="padding:10px;border:1px solid #CCCCCC;text-align:center;font-weight:bold"><?=$this->lang->line('stores_itempage_discounts_without');?></p>
+
+					<? } ?>
+                </div><!--End of payments-->
+                <!--END Tab Descuentos-->
+				<!--Tab Compartir-->
+				<div id="compartir">
+					<h2><?=$this->lang->line('stores_itempage_share');?></h2>
+					<p><?=$this->lang->line('stores_itempage_share_text');?></p>
+					<div id="step12">
+					<a href="https://www.facebook.com/dialog/feed?app_id=421452251236177&link=https://www.kichink.com/buy/<?=$item_data[0]->id?>?lang=<?=($this->session->userdata('lang') == 'en' ? 'eng' : 'spa')?>&redirect_uri=http://www.kichink.com" target="_blank" title="Share to facebook"><img src="http://cdn3.iconfinder.com/data/icons/socialmediabookmark/buttons/facebook_button.png" style="float:left;margin-right:5px"/></a>
+					<a href="http://twitter.com/home?status=https://www.kichink.com/buy/<?=$item_data[0]->id?>" title="Share to facebook" target="_blank"><img src="http://cdn3.iconfinder.com/data/icons/socialmediabookmark/buttons/twitter_button.png" /></a><br /><br />
+					</div>
+					<pre style="word-wrap:normal">
+						<code style="background:none;">&lt;script type=&quot;text/javascript&quot; src=&quot;http://files.kichink.com/kichink_v1.js&quot;&gt;&lt;/script&gt;
+						&lt;script type=&quot;text/javascript&quot;&gt;
+						kichink_insert_buy_button({
+						&nbsp;&nbsp;&nbsp;	item_id:<?=$item_data[0]->id?>,
+						&nbsp;&nbsp;&nbsp;	label: 'Comprar',
+						&nbsp;&nbsp;&nbsp;	show_tarjetas:false,
+						&nbsp;&nbsp;&nbsp;	img:false
+							}); &lt;/script&gt;
+						</code>
+					</pre>
+                </div><!--End of payments-->
+				<!--END Tab Compartir-->
+        </div>
+    </div>
+</div>
+
+<!--<script type="text/javascript" src="/js/nicEdit-latest.js"></script>-->
+<script type="text/javascript" src="/js/jquery.toggle.buttons.js"></script>
+<script type="text/javascript" src="/js/tinymce/tinymce.min.js"></script>
+<script type="text/javascript" defer="defer">
+
+	tinymce.init({
+        selector: "#description",
+        menubar: false,
+        statusbar : true,
+        height : 150,
+        <?=$this->session->userdata('lang') == 'es' ? "language : 'es'," : '' ?>
+        entity_encoding : "raw",
+        plugins: [
+            "textcolor  paste"
+        ],
+        toolbar1: "styleselect forecolor backcolor | bullist numlist outdent indent "
+    });
+    tinymce.init({
+        selector: "#description_eng",
+        menubar: false,
+        statusbar : true,
+        height : 150,
+        <?=$this->session->userdata('lang') == 'es' ? "language : 'es'," : '' ?>
+        entity_encoding : "raw",
+        plugins: [
+            "textcolor  paste"
+        ],
+        toolbar1: "styleselect forecolor backcolor | bullist numlist outdent indent "
+    });
+
+	$('#toggle-button').toggleButtons({
+
+	  width: 100,
+	  height: 25,
+	  font: {
+	    'font-size': '16px',
+	    'font-style': 'normal'
+	  },
+	  animated: true,
+	  transitionspeed: 1, // Accepted values float or "percent" [ 1, 0.5, "150%" ]
+	  label: {
+	    enabled: "ON",
+	    disabled: "OFF"
+	  },
+	  style: {
+	    // Accepted values ["primary", "danger", "info", "success", "warning"] or nothing
+	    enabled: "primary",
+	    disabled: "danger",
+	    custom: {
+	      disabled: {
+	        background: "#D0D0D0",
+	        gradient: "#DDD",
+	        color: "#969696"
+	      }
+	    }
+	  }
+	});
+
+	//$('.slide').cycle({
+	//	fx:     'fade',
+	//	speed:  'fast',
+	//	timeout: 0,
+	//	pager:  '#nav' 
+	//	after:   onAfter,
+	//	height:  'auto',
+	//});
+	//
+	//function onAfter() {
+	//	var getId = $('.slide').children('img:visible').attr('id');
+	//	var getAlt =  $('.slide').children('img:visible').attr('alt');
+	//
+	//	var get_objectName = $('.slide').children('img:visible').attr('alt');
+	//	get_objectName = get_objectName.split('-');
+	//
+	//	var id = getId.split('&');
+	//
+	//	var origExt = $('.slide').children('img:visible').attr('class').split(' ');
+	//
+	//	$('#image_id').attr('value', id[0]);
+	//	$('#object_name').attr('value',get_objectName[1]);
+	//	$('#counter_span').html(get_objectName[0]);
+	//
+	//	var itemURL = $('.slide').children('img:visible').attr('src');
+	//	var launchId = getId;
+	//	var launchSrc = itemURL.substr( 0, itemURL.length-6) + '.' + origExt[1];
+	//
+	//	$('a#editPicture').attr("onclick", "return launchEditor('"+launchId+"','"+launchSrc+"');");
+	//}
+	//
+	//<!--Instantiate the widget -->
+	//var featherEditor = new Aviary.Feather({
+	//	apiKey: '6282e2a3c',
+	//	apiVersion: 2,
+	//	language : '<?=$usrPref->usr_language?>',
+	//	tools: ['crop', 'resize', 'enhance','effects','stickers','orientation','brightness','contrast','saturation','sharpness','draw','text','redeye','whiten','blemish'],
+	//	//initTool : 'crop',
+	//	onSave: function() {
+	//		//alert(newURL);
+	//		location.reload();
+	//	},
+	//	postUrl: '<?=base_url().'mediaAv/saveAviary'?>'
+	//});
+	//
+	//function launchEditor(id, src) {
+	//	featherEditor.launch({
+	//		image: id,
+	//		url: src,
+	//		postData : id,
+	//		cropPresets : ['700x500']
+	//	});
+	//	return false;
+	//}
+
+	$('#pictureModalButton').bind('click', function(){
+		$('#progressbar').css('display','block');
+	});
+
+  	$('#price').autoNumeric();
+  	$('#priceUSD').autoNumeric();
+
+  	$('#price').on('change', function() {
+  		convertionPrice();
+  	});
+	$('#priceUSD').on('change', function() {
+		convertionPriceUSD();
+	});
+
+	function convertionPrice(){
+		var xRate = <?=$x_rate->price?>;
+		var price = Number($('#price').autoNumericGet());
+		/*if (price <= xRate){
+			var total = price;
+			var totalUSD = 1;
+		}else{*/
+			var total = price;
+			var totalUSD = price/xRate;
+		//}
+		$('#price').autoNumericSet(total.toFixed(2));
+		$('#priceUSD').autoNumericSet(totalUSD.toFixed(2));
+	}
+	function convertionPriceUSD(){
+		var xRate = <?=$x_rate->price?>;
+		var price = Number($('#priceUSD').autoNumericGet());
+		/*if (price <= 1){
+			var total = xRate;
+			var totalUSD = 1;
+		}else{*/
+			var total = price*xRate;
+			var totalUSD = price;
+		//}
+		$('#price').autoNumericSet(total.toFixed(2));
+		$('#priceUSD').autoNumericSet(totalUSD.toFixed(2));
+	}
+
+	<? if(strtotime($item_data[0]->updated) == strtotime($item_data[0]->created)){ ?>
+
+  		var el = $('textarea , input[type=text][name=prices]');
+		el.focus(function(e) {
+		    if (e.target.value == e.target.defaultValue)
+		        e.target.value = '';
+		});
+		el.blur(function(e) {
+	        if (e.target.value == '')
+	            e.target.value = e.target.defaultValue;
+	    });
+
+  	<? } ?>
+
+	$('#submit_button').bind('click', function(e){
+		$('#priH').val($('#price').autoNumericGet());
+	});
+
+	//<![CDATA[
+	  /*bkLib.onDomLoaded(function() {
+	  	new nicEditor({buttonList : ['fontSize','bold','italic','underline','forecolor','html'],maxHeight : 200}).panelInstance('description');
+	  	new nicEditor({buttonList : ['fontSize','bold','italic','underline','forecolor','html'],maxHeight : 200}).panelInstance('description_eng');
+	  });*/
+	 //]]>
+</script>

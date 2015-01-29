@@ -1,0 +1,5 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+?>
+

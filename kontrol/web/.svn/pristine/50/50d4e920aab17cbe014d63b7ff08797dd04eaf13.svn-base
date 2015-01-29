@@ -1,0 +1,64 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<script type="text/javascript" src="/v2/js/stores.js"></script>
+<script type="text/javascript" src="/v2/js/orders.js"></script>
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8">
+    <div class="col-lg-12" id="main-content">
+        <section>
+            <div class="title">
+                <h3><?= $this->lang->line('v3_orders_new') ?></h3>
+                <span><?= $this->lang->line('v3_orders_new_description') ?></span>
+            </div> 
+            <div class="dataTables_wrapper">
+                <div id="new-orders">      
+                </div>
+                <div id="pagination-new"></div>
+            </div>
+        </section>
+        <section>
+            <div class="title">
+                <h3><?= $this->lang->line('v3_orders_open') ?></h3>             
+                <span><?= $this->lang->line('v3_orders_open_description') ?></span>
+            </div>
+            <div class="dataTables_wrapper">
+                <div id="open-orders">
+                </div>
+                <div id="pagination-open"></div>
+            </div>
+        </section>
+        <section>
+            <div class="title">
+                <h3><?= $this->lang->line('v3_orders_previous') ?></h3> 
+                <span><?= $this->lang->line('v3_orders_previous_description') ?></span>
+            </div>
+            <div class="dataTables_wrapper">
+                <div id="previous-orders">
+                </div>
+                <div id="pagination-previous"></div>
+            </div>
+        </section> 
+        <section>
+            <div class="title">
+                <h3><?= $this->lang->line('v3_orders_waiting_for_payment_') ?></h3> 
+                <span><?= $this->lang->line('v3_orders_waiting_for_payment_description') ?></span>
+            </div>
+            <div class="dataTables_wrapper">
+                <div id="waiting_for_payment-orders">
+                </div>
+                <div id="pagination-waiting_for_payment"></div>
+            </div>
+        </section> 
+        
+        
+        
+    </div>
+</div>
+
+<?
+$this->load->view('v2/layout/footer');
+?>

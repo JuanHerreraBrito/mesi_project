@@ -1,0 +1,36 @@
+<?=$this->load->view('layout/header.php')?>
+<style>
+	table{
+		border: 1px solid #000;
+	}
+	pre {
+		width: 300px; 
+		-ms-word-break: break-all;
+     	word-break: break-all;
+	    word-break: break-word;
+		-moz-hyphens: auto; -webkit-hyphens: auto; -o-hyphens: auto; -ms-hyphens: auto; hyphens: auto;
+	}
+}
+</style>
+
+<div class="container" style="width:1400px">
+	 <div class="content" style="width:1400px">
+		<table>
+			<tr>
+				<td>Descripcion</td>
+				<td>Descripcion_eng_cleanedup</td>
+				<td>Descripcion</td>
+				<td>Descripcion_eng_cleanedup</td>
+			</tr>
+			<? foreach($items as $item){ ?>
+				<tr>
+					<td width="20%"><pre><xmp><?=$item->description?></xmp></pre></td>
+					<td width="20%"><pre><xmp><?=$item->clean_html_des?></xmp></pre></td>
+					<td width="20%"><pre><xmp><?=$item->description_eng?></xmp></pre></td>
+					<td width="20%"><pre><xmp><?=$item->clean_html_des_eng?></xmp></pre></td>
+				</tr>
+			<? } ?>
+		</table>
+	</div>
+
+<?=$this->load->view('layout/footer.php')?>

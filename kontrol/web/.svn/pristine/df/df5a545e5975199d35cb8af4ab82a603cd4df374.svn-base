@@ -1,0 +1,277 @@
+
+<?=$this->load->view('layout/header_previews', array('page_title'=>$store->name, 'text' => $store->itemsPrice_text, 'back' => $store->itemsPrice_back));?>
+
+<? 
+ $this->load->helper('text');
+ //HEADER
+if(!empty($store->images['header']['default'])){ //Getting the header_image
+	$url_header = $store->images['header']['default'][0]->url.$store->images['header']['default'][0]->object_name.'_b.'.$store->images['header']['default'][0]->extension;
+	$resize_header = resize($url_header, 980 , 0, TRUE);
+	$scrollTo=100;
+}else{
+  	$background_noHeader= 'style="background:#EEEEEE;height:105px"';
+	$scrollTo=0;
+}
+ //LOGO
+ if(!empty($store->images['logo']['default'])){ 
+	$url_logo = $store->images['logo']['default'][0]->url.$store->images['logo']['default'][0]->object_name.'_b.'.$store->images['logo']['default'][0]->extension;
+ }else{
+	$url_logo = 'http://placehold.it/160x160';
+ }
+?>
+    <div class="container">
+    
+      <div id="imageCover-preview" <?=isset($background_noHeader)?$background_noHeader:''?> >
+        <? if(!isset($background_noHeader)){ ?>
+        <img src="<?=$url_header?>" width="<?=$resize_header['height']?>" height="<?=$resize_header['width']?>" />
+        <? } ?>
+      	<!--<div style="position:absolute;bottom:0;right:20px;height:50px;">
+          <div style="float:left;width:110px">-->
+            <!-- AddThis Button BEGIN -->
+            <!--<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+              <a class="addthis_button_preferred_1"></a>
+              <a class="addthis_button_preferred_2"></a>
+              <a class="addthis_button_preferred_3"></a>
+            </div>
+            <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4fbee3b26afe1231"></script>-->
+            <!-- AddThis Button END --> 
+          <!--</div>
+          <div style="float:left">
+            <a href="<?='http://pinterest.com/pin/create/button/?url='.urlencode(base_url().$this->uri->uri_string()).'&media='.urlencode($url_logo).'&description='.urlencode($store->name.' | '.$store->description)?>" class="pin-it-button" count-layout="horizontal"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>
+          </div>   	  
+		    </div>-->
+      </div>
+
+      <div class="content">
+      
+        <div class="page-header" style="padding:20px 20px 0px;min-height:90px;background:#fff;border-bottom:none">
+        	<div id="logoCover" class="logoCoverImageContainer borderProfile">
+              <img src="<?=$url_logo?>" width="160" height="160" />
+          </div>
+          <h1 style="float:left;margin:-50px 0 15px 190px;width:570px">
+            <a href="<?=base_url().'stores/preview/'.$store->id?>"><?=$store->name?></a><br />
+            <small><?=$store->description?></small>
+          </h1>
+          <div style="clear:both;"></div> 
+        </div>
+       
+        <div class="row">
+          <div class="span12">
+          	<!--<ul class="tabs store_preview" data-tabs="tabs">
+                <li><a href="#all"><?=$this->lang->line('stores_previewPage_allTab')?></a></li>
+                <li><a href="#new"><?=$this->lang->line('stores_previewPage_newTab')?></a></li>
+                <li class="active"><a href="#featured"><?=$this->lang->line('stores_previewPage_featuredTab')?></a></li>
+        	   </ul>-->
+          
+          	<div id="my-tab-content" class="tab-content">
+                    <div id="all" class="tab-pane settings_tab row">
+                    	<div class="span12">
+						  <? if(!empty($items_store)){
+                                //print_r($items_store);
+								
+                                foreach($items_store as $item){
+                                    if (is_array($item->image)){
+										 $url = $item->image[0]->url.$item->image[0]->object_name.'_thumb.'.$item->image[0]->extension;
+                                        ?>
+                                        <div style="position:relative;float:left;margin:9px">
+                                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_previewPage_ribbon').'</div>' : ''?>
+                                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="<?=$url?>" style="padding:4px; background:#F4F4F4;" /></a>
+                                            <div class="items-price">$ <?=number_format($item->price,2)?></div>
+                                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                                        </div>
+                                        
+                                 <? }else{ ?>
+ 										<div style="position:relative;float:left;margin:9px">
+                                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_previewPage_ribbon').'</div>' : ''?>
+                                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="http://placehold.it/200x150" style="padding:4px;background:#F4F4F4;" /></a>                                            
+                                            <div class="items-price">$ <?=number_format($item->price,2)?></div>
+                                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                                        </div>
+                             <?		}
+                                } 
+                             }else{ 
+                             ?>
+                                <div style="width:200px; height:150px; float:left; margin:9px; padding: 3px; border:1px solid #eee; background:#F4F4F4; text-align:center; font-size:50px;">
+                                <br /><br />
+                                <small style="font-size:14px;"><?=$this->lang->line('stores_previewPage_emptyStore')?></small>
+                                </div>
+                            <?  
+                             }
+                          ?>
+                    	</div>
+                    </div><!--end of All-->
+                    
+                    <div id="new" class="tab-pane settings_tab row">
+                    	<div class="span12">
+						 <? if(!empty($items_store)){
+                                //print_r($items_store);
+                                foreach($items_store as $item){
+                                    if (is_array($item->image)){
+                                        $url = $item->image[0]->url.$item->image[0]->object_name.'_thumb.'.$item->image[0]->extension;
+                                        ?>
+ 										<div style="position:relative;float:left;margin:9px">
+                                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_previewPage_ribbon').'</div>' : ''?>
+                                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="<?=$url?>" style="padding:4px; background:#F4F4F4;" /></a>                                            
+                                            <div class="items-price">$ <?=number_format($item->price,2)?></div>
+                                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                                        </div>
+                                        
+                                 <? }else{ ?>
+ 										<div style="position:relative;float:left;margin:9px">
+                                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_previewPage_ribbon').'</div>' : ''?>
+                                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="http://placehold.it/200x150" style="padding:4px; background:#F4F4F4;" /></a>                                            
+                                            <div class="items-price">$ <?=number_format($item->price,2)?></div>
+                                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                                        </div>
+                             <?		}
+                                } 
+                             }else{ 
+                             ?>
+                                <div style="width:200px; height:150px; float:left; margin:9px; padding: 3px; border:1px solid #eee; background:#F4F4F4; text-align:center; font-size:50px;">
+                                <br /><br />
+                                <small style="font-size:14px;"><?=$this->lang->line('stores_previewPage_emptyStore')?></small>
+                                </div>
+                            <?  
+                             }
+                          ?>
+                    	</div>
+                    </div><!--end of New-->
+                    
+                    <div id="featured" class="active tab-pane settings_tab row">
+                    	<div class="span12">
+						  <? if(!empty($items_store)){
+                                //print_r($items_store);
+                                foreach($items_store as $item){
+                                    if (is_array($item->image)){
+                                        $url = $item->image[0]->url.$item->image[0]->object_name.'_thumb.'.$item->image[0]->extension;
+                                        ?>
+ 										<div style="position:relative;float:left;margin:9px">
+                                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_previewPage_ribbon').'</div>' : ''?>
+                                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="<?=$url?>" style="padding:4px; background:#F4F4F4;" /></a>                                            
+                                            <div class="items-price">$ <?=number_format($item->price,2)?></div>
+                                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                                        </div>
+                                        
+                                 <? }else{ ?>
+ 										<div style="position:relative;float:left;margin:9px">
+                                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_previewPage_ribbon').'</div>' : ''?>
+                                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="http://placehold.it/200x150" style="padding:4px; background:#F4F4F4;" /></a>                                            
+                                            <div class="items-price">$ <?=number_format($item->price,2)?></div>
+                                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                                        </div>
+                             <?		}
+                                } 
+                             }else{ 
+                             ?>
+                                <div style="width:200px; height:150px; float:left; margin:9px; padding: 3px; border:1px solid #eee; background:#F4F4F4; text-align:center; font-size:50px;">
+                                <br /><br />
+                                <small style="font-size:14px;"><?=$this->lang->line('stores_previewPage_emptyStore')?></small>
+                                </div>
+                            <?  
+                             }
+                          ?>
+                    	</div>
+                    </div><!--end of Featured-->
+                  
+              </div><!--end of my-tab-content-->
+          </div>
+          <div class="span4">
+          	<h4><?=$this->lang->line('stores_previewPage_aboutUs')?></h4>
+          	<p><?=$store->about?><br  /></p>
+            <? if(!empty($store->locations)){ ?>
+            <div style="padding:8px;color:#fff;cursor:pointer" class="topbar-inner" id="viewMapa"><?=$this->lang->line('stores_previewPage_map')?><span style="float:right;">>></span></div>
+            <div id="mapContainer" style="display:none">
+            
+            	<div id="map"></div>
+            	 
+            </div>
+            <? } ?>
+            <br  />
+            <p style="text-align:center"><a href="mailto:<?=$store->email?>" class="btn large"><?=$this->lang->line('stores_previewPage_contactStore')?></a></p>
+            <!--
+            <ul class="store-contact">
+            	<li><img src="/img/icons/glyphicons_322_twitter.png" style="margin-right:10px" width="24px" height="24px" />Twitter</li>
+                <li><img src="/img/icons/glyphicons_320_facebook.png" style="margin-right:10px" width="24px" height="24px" />Facebook</li>
+                <li><img src="/img/icons/glyphicons_329_e-mail.png" style="margin-right:10px" width="24px" height="24px" />Email</li>
+                <li><img src="/img/icons/glyphicons_163_iphone.png" style="margin-right:15px;margin-left:5px" />Phone</li>
+            </ul>
+          	<br />
+ 	        <ul class="tabs">
+		        <li class="active"><a href="#">Most popular</a></li>
+		        <li><a href="#">Staff picks</a></li>
+		    </ul>
+
+			<table class="zebra-striped">
+				<? for($k=0;$k<5;$k++){?> 
+				<tr>
+					<td style="width:200px;">
+						<a href="#">
+							Item Name
+						</a>
+						<small style="font-size:12px; color:#999;">[ Qty: 2 ]</small>
+					</td>
+					<td>
+						$100
+					</td>
+				</tr>
+				<? } ?>
+
+			</table>
+            
+            
+            <br />
+             -->
+          </div>
+        </div>
+      </div>
+      
+<script>
+$(document).ready(function() {
+	 	 window.scrollTo(0,<?=$scrollTo?>);
+});
+</script>
+
+<? if(!empty($store->locations)){
+	  $locations = json_decode($store->locations);
+?>
+<script>
+$(document).ready(function() {
+	  	//Map
+	   	$('#viewMapa').bind('click', function() {
+			$('#mapContainer').slideToggle(function initialize() {
+				
+				  var map = new google.maps.Map(document.getElementById('map'), {
+					zoom: 15,
+					center: new google.maps.LatLng(<?=$locations[0]->coords->x?>, <?=$locations[0]->coords->y?>),
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				  });
+			  
+				  var infoWindow = new google.maps.InfoWindow;
+			  
+				  var onMarkerClick = function() {
+					var marker = this;
+					var latLng = marker.getPosition();
+					var address = '<?=$locations[0]->address?>';
+					infoWindow.setContent('<p style="font-size:10px">'+address+'</p>');
+					infoWindow.open(map, marker);
+				  };
+				  google.maps.event.addListener(map, 'click', function() {
+					infoWindow.close();
+				  });
+			  
+				  var marker1 = new google.maps.Marker({
+					map: map,
+					position: new google.maps.LatLng(<?=$locations[0]->coords->x?>, <?=$locations[0]->coords->y?>)
+				  });
+				
+				  google.maps.event.addListener(marker1, 'click', onMarkerClick);
+		   
+			 });
+		 });
+});
+</script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<? } ?>
+	  
+	 
+<?=$this->load->view('layout/footer.php')?>

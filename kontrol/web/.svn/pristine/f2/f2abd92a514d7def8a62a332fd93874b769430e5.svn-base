@@ -1,0 +1,343 @@
+<? 
+ ////// Paginacion
+  $page = $this->input->get('page');
+  $current_cat = $this->input->get('category');
+  $current_view = $this->input->get('view'); 
+  $num_pages = ceil($store->item_count/12);
+  $this->load->helper('text');
+ //HEADER
+  if(!empty($store->images['header']['default'])){ //Getting the header_image
+    $url_header = $store->images['header']['default'][0]->url.$store->images['header']['default'][0]->object_name.'_b.'.$store->images['header']['default'][0]->extension;
+    $resize_header = resize($url_header, 940 , 0, TRUE);
+    $scrollTo=100;
+  }else{
+    $background_noHeader= 'style="background:#F4F4F4;height:105px"';
+    $scrollTo=0;
+  }
+ //LOGO
+  if(!empty($store->images['logo']['default'])){ 
+    $url_logo = $store->images['logo']['default'][0]->url.$store->images['logo']['default'][0]->object_name.'_b.'.$store->images['logo']['default'][0]->extension;
+  }else{
+    $url_logo = 'http://placehold.it/160x160';
+  }
+  // B2B Conditional 
+  $show_b2b_login_view = false;
+  $block_links_b2b = false;
+  if(isset($store->b2b_restricted_access) AND $store->b2b_restricted_access == 1 AND !$this->session->userdata('user_id') AND $this->session->userdata('b2b_restricted_access') != $store->id){ 
+    $show_b2b_login_view = true;
+    $block_links_b2b = true;
+  }
+  //Page description 
+  $page_description = $store->description;
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title> <?=(isset ($page_title) ? $page_title : 'Kichink: Tu servicio de comercio electr&oacute;nico favorito')?></title>
+    <meta name="description" content="<?=(isset ($page_description) ? $page_description : '')?>">
+    <meta name="title" content="<?=(isset ($page_title) ? $page_title : '')?>">
+    <meta name="author" content="Kichink">
+    <link href="http://www.kichink.com/v2/bootstrap/bootstrap.css" rel="stylesheet">
+    <link href="http://www.kichink.com/v2/css/item_template_1.css" rel="stylesheet">
+    <script src="http://www.kichink.com/v2/js/jquery.js" type="text/javascript"></script>
+    <script src="http://www.kichink.com/v2/js/bootstrap.js" type="text/javascript"></script>
+    <script src="http://www.kichink.com/v2/js/jquery.carouFredSel-6.0.4-packed.js" type="text/javascript"></script>
+    <script src="http://www.kichink.com/js/jquery.infinitescroll.js" type="text/javascript"></script>
+    <style type="text/css">
+      <? if(isset($store->itemsPrice_back)){ 
+            $back = $store->itemsPrice_back; $fontColor  = $store->itemsPrice_text;
+          }else{
+            $fontColor = '#FFFFFF';$back = '#49C7F4'; 
+      } ?>
+      .items_price_ribbon{ color: <?=$fontColor?>; background: <?=$back?>; }
+
+      <?=isset($store->custom_css) ? $store->custom_css : ''?>
+
+    </style>
+    
+  </head>
+<body>
+  
+<div style="position:fixed;top:0;left:0;width:100%;background:#942984;z-index:9999;">
+  <div style="float:right;margin:5px 10px">
+    <a href="/stores/id/<?=$store->id?>" style="color:#FFFFFF;text-decoration:underline">Regresar a tu tienda</a>
+  </div>
+
+  <div style="width:960px;margin:0 auto">
+    <div style="width:300px;margin:10px auto 0 auto;text-align:center;">
+      <img src="/img/logo_kichink_k.png" width="35" />
+      <h3><?=$this->lang->line('headerPreview_smallTag');?></h3>
+    </div>
+  </div>
+</div>
+
+<div class="content bottom-rounded">
+  <div class="container">
+    <div class="imageCover" <?=isset($background_noHeader)?$background_noHeader:''?>>
+      <? if(!isset($background_noHeader)){ ?>
+      <img src="<?=$url_header?>" width="<?=$resize_header['height']?>" height="<?=$resize_header['width']?>" alt="imgHeader" />
+      <? } ?>
+    </div>
+  </div><!-- /container imagen_cover -->
+  <div class="container"><!-- nombre_marca -->
+    <div class="row">
+      <div class="span3">
+        <div class="store_logo">
+          <img class="thumbnail artdos" src="<?=$url_logo?>"/>
+        </div>
+      </div>
+      <div class="span9 rec">
+        <div class="store_data">
+          <h1 class="tipouno"><?=$store->name?></h1>
+        </div>
+            
+        <div style="width:283px;float:right" class="navbar navbar-static">
+               
+          <ul class="nav pull-right">
+            <li class="divider-vertical"></li>
+            <li><a href="javascript:void(0);">Tienda</a></li>
+            <li class="divider-vertical"></li>
+            <? if(!empty($store_categories)){ ?>
+            <li class="dropdown">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#">Categor&iacute;as<b class="caret"></b></a>
+              <ul class="dropdown-menu categorias">
+                <? foreach($store_categories as $value){ ?>
+                 <li><a href="javascript:void(0);"><?=$value->name?> <small class="total_cats">(<?=$value->total?>)</small></a></li>
+                <? } ?>
+              </ul>
+            </li>
+            <li class="divider-vertical"></li>
+            <? } ?>
+            <li class="dropdown">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#">Cuenta<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-submenu">
+                  <a tabindex="-1" href="#">Idioma</a>
+                  <ul class="dropdown-menu">
+                    <li><a href="javascript:changeLang('en')"> <?=$this->session->userdata('lang') == 'en' ? '<i class="icon-ok"></i>':'' ?> English</a><li>
+                    <li><a href="javascript:changeLang('es')"> <?=$this->session->userdata('lang') == 'es' ? '<i class="icon-ok"></i>':'' ?> Espa&ntilde;ol</a><li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a tabindex="-1" href="#">Moneda</a>
+                  <ul class="dropdown-menu">
+                    <li><a href="javascript:changeCurr('USD')"><?=$this->session->userdata('currency') == 'USD' ? '<i class="icon-ok"></i>':'' ?>USD</a></li>
+                    <li><a href="javascript:changeCurr('MXN')"><?=$this->session->userdata('currency') == 'MXN' ? '<i class="icon-ok"></i>':'' ?>MXN</a></li>
+                  </ul>
+                </li>
+                <li><a href="/login/doLogout"><?=$this->lang->line('www_userHeader_logOut')?></a></li>
+              </ul>
+              <script type="text/javascript">
+                function changeCurr(currency){
+                    var ajax1 = $.get("/stores/change_lang", { currency: currency }, function(data) {
+                        //alert(data);
+                      })
+                      .success(function() { location.reload();  })
+                      .error(function() { alert("Hubo un error al hacer el cambio. Por favor recarga la pagina e intente de nuevo"); }); 
+                    
+                }
+                
+                function changeLang(lang){
+                    var ajax2 = $.get("/stores/change_lang", { lang: lang }, function(data) {
+                        //alert(data);
+                      })
+                      .success(function() { location.reload();  })
+                      .error(function() { alert("Hubo un error al hacer el cambio. Por favor recarga la pagina e intente de nuevo"); }); 
+                    
+                }
+              </script>
+            </li>
+            <li class="divider-vertical"></li>
+          </ul>
+        </div>
+
+        <div class="row">
+         <div class="span9">
+           <h1 class="tipodos"><?=$store->description?></h1>
+         </div>
+        </div>
+      </div>
+  
+    </div>
+  </div><!-- /container nombre_marca -->
+<div class="container">
+  <div class="row">
+    <div class="span7">
+      <? if(!empty($store_categories)){ ?>
+          <ul class="nav nav-pills botonesdos">
+            <li <?=(!$this->input->get('category') ? 'class="active"' : '')?>><a href="#">Todos</a></li>
+            <?  $main_cat = $store_categories;
+                foreach (array_slice($main_cat, 0, 4) as $cat){ ?>
+                    <li <?=($this->input->get('category') == $cat->id ? 'class="active"' : '')?>><a href="#"><?=ucfirst($cat->name)?></a></li>
+            <?  } ?>
+          </ul>
+      <? } ?>
+    </div>
+    <div class="span5">
+      <div class="btn-group botones">
+        <? if($store->about){ ?>
+        <a href="javascript:void(0);" rel="popover" id="acerca_de" class="btn" >Acerca de</a>
+        <? } ?>
+        <? if($store->email){ ?>
+        <a href="#" class="btn">Contactar</a>
+        <? } ?>
+        <!--<button class="btn">Seguir</button>-->
+      </div>
+      <ul class="share_controls" id="btnshare" style="float:right">
+        <!-- AddThis Button BEGIN -->
+        <li><a href="#" id="popoverLoQuiero" rel="popover"><img src="http://www.kichink.com/v2/img/star.png" alt="Favoritos"></a></li>
+        <li><a href="javascript:void(0);"class="addthis_button_facebook"><img src="http://www.kichink.com/v2/img/facebook.png" alt=""></a></li>
+        <li><a href="javascript:void(0);" class="addthis_button_twitter"><img src="http://www.kichink.com/v2/img/twitter.png" alt=""></a></li>
+        <li><a href="javascript:void(0);"class="addthis_button_email"><img src="http://www.kichink.com/v2/img/mail.png" alt=""></a></li>
+        <!--AddThis Button END -->         
+      </ul>
+    </div>
+  </div>
+</div>
+  <div class="container centers"><!-- Articulos -->
+    <div class="row">
+      <div class="span12 cent" id="items-grid"><!-- Productos -->
+        <? 
+          if(!empty($items_store)){
+            //print_r($items_store);
+            foreach($items_store as $item){
+              if (is_array($item->image)){
+                  $url = $item->image[0]->url.$item->image[0]->object_name.'_thumb.'.$item->image[0]->extension;
+              }else{
+                  $url = 'http://placehold.it/200x150';
+              } ?>
+              <div class="items" style="width:215px; height:230px; background:url(http://www.kichink.com/img/home/item_background_home.png) no-repeat; float:left; margin:10px; position:relative;">
+                <div class="items_price_ribbon">                                                  
+                  <p style="text-align:center;padding:0px;margin:0">$ <?=$this->session->userdata('currency') == 'MXN' ? number_format($item->priceMXN['price'],2) : number_format($item->priceUSD['price'],2) ?></p>
+                </div>  
+                <? if($item->units_availible < 1){ 
+                      echo '<div class="small_ribbon"><p style="text-align:center;padding:0px;margin:0">'.$this->lang->line('www_store_ribbon').'</p></div>';
+                   } else {
+
+                      $print_discount = false;
+
+                      if(isset($item->discount) AND $item->discount){
+                        $print_discount   = '<div class="small_ribbon"><p style="text-align:center;padding:0px;margin:0">'.round(($item->discount*100)/($this->session->userdata('currency') == 'MXN' ? $item->priceMXN['price'] : $item->priceUSD['price'])).'% off </p>';
+                      }
+                      
+                      if($store->ultimos_inventarios AND $item->units_availible <= $store->ultimos_inventarios AND $item->inventories == 1){
+
+                        if(!$print_discount){
+                          $print_discount  .= '<div class="small_ribbon">';
+                        }
+                          
+                        $print_discount  .= '<p class="ultimos_articulos">&iexcl;&Uacute;ltimos art&iacute;culos!</p>';
+                        
+                      }
+
+                      if($print_discount){
+                        $print_discount  .= '</div>'; 
+                        echo $print_discount;  
+                      }
+
+                  } ?>
+                <? if(!$block_links_b2b){ ?><a href="/items/preview/<?=$item->id?><?=($current_view ? '?view='.$current_view:'')?>"><? } ?>
+                  <img style="position:absolute; top:7px; left:7px; width:200px; height:150px" width="200" height="150" src="<?=$url?>" />
+                <? if(!$block_links_b2b){ ?></a><? } ?>                   
+                <div class="items-name">
+                  <?=character_limiter($item->name, 30)?>
+                </div>
+              </div>
+        <?  }
+          } 
+        ?>
+
+      </div><!-- /Productos -->
+
+      <? if($num_pages > 1){ ?>
+      <a id="next_content" class="span12 cent" href="/stores/preview/<?=$store->id?>?page=2<?=($current_cat ? '&category='.$current_cat:'')?>">Cargar m&aacute;s art&iacute;culos</a>
+      <? } ?>
+    </div><!--/row-->
+  
+  </div><!-- /Articulos -->
+  <a href="#" class="scrollup btn-kichink" style="display:none">Desplazarse hacia arriba</a>
+  <div id="popover_about_store" style="display:none">
+    <p class="store_about_content"><?=$store->about?></p>
+  </div>
+
+<script type="text/javascript">
+
+  $(window).scroll(function(){
+    if ($(this).scrollTop() > 200) {
+      $('.scrollup').fadeIn();
+    } else {
+      $('.scrollup').fadeOut();
+    }
+  }); 
+  
+  $('.scrollup').click(function(){
+    $("html, body").animate({ scrollTop: 0 }, 600);
+    return false;
+  });
+
+  if(window.self !== window.top){ 
+    var behavior = "twitter"; var iframe = true;
+  }else{
+    var behavior = false; var iframe = false;
+  }
+
+  $('#items-grid').infinitescroll({
+    loading: {
+        finishedMsg: "<div id='loading-items-empty'>No tenemos m&aacute;s art&iacute;culos para desplegar</div>",
+        msgText: "<div id='loading-items'><div id='left-loading-items'>Cargando</div><div id='right-loading-items'>productos</div></div>",
+        img: "http://www.kichink.com/img/kichink-loading-64.gif",
+        speed: 0
+    },
+    navSelector   : "a#next_content:last",
+    nextSelector  : "a#next_content:last",
+    itemSelector  : "#items-grid .items",
+    behavior: behavior,
+    debug: false
+  });
+
+  if(iframe){
+    $(window).unbind('.infscr');
+    $('a#next_content').click(function(){
+      $(document).trigger('retrieve.infscr');
+      return false;
+    });
+  }
+
+  $('#acerca_de').popover({ 
+    html : true,
+    placement:'bottom',
+    trigger: 'click',
+    content: function() {
+        return $('#popover_about_store').html();
+    }
+  })
+
+  var clicked = false; // Popover
+  $('#popoverLoQuiero').click(function(e){
+    e.preventDefault();
+  });
+
+  function closePopOver(){
+    $('#popoverLoQuiero').popover('hide');
+    clicked=false;
+  }
+
+</script>
+
+</div><!-- / content -->
+<footer><!-- Footer -->
+  <p>Esta tienda en l&iacute;nea est&aacute; protegida y encriptada con SSL de 256 bits y es operada por <a href="https://www.kichink.com"><img class="imgmini" src="https://www.kichink.com/v2/img/logo_powered_by_kichink.png" /></a><small>&copy; 2012 Kichink Servicios SA de CV</small></p>
+  <ul id="listres">
+      <li><a href="javascript:void(0);">Pol&iacute;ticas de privacidad</a></li>
+      <li><a href="javascript:void(0);">Seguridad y Garant&iacute;a Kichink!</a></li>
+      <li><a href="javascript:void(0);">Devoluciones</a></li>
+      <li><a href="javascript:void(0);">Abre tu propia tienda en 5 minutos</a></li>
+  </ul>
+</footer><!-- /Footer -->
+
+</body>
+</html>
+
+

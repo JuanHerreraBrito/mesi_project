@@ -1,0 +1,83 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<script type="text/javascript" src="/v2/js/tickets.js"></script>
+<div class="col-lg-8 col-md-7 col-sm-7">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div id="app_header">
+            <h3>Tickets</h3>
+            <ul id="app_menu" class="nav nav-tabs nav-justified">
+                <li><a data-toggle="tab" href="#resumen">Resumen</a></li>
+                <li class="active"><a data-toggle="tab" href="#details">Detalle</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div id="resumen" class="tab-pane fade settings_tab">
+                <br/>
+                <table class="table" id="resumen-items">
+                    <thead>
+                        <tr>
+                            <th><i class="fa fa-tag"></i> Items</th>
+                            <th>No. registrados</th>
+                            <th>Registrados</th>
+                            <th>Total</th>
+                            <th>$</th>    
+                        </tr>    
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <table class="table" id="resumen-invitados">
+                    <thead>
+                        <tr>
+                            <th><i class="fa fa-user"></i> Invitados</th><th>No registrados</th><th>Registrados</th>
+                        </tr>    
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <table class="table" id="resumen-ordenes">
+                    <thead>
+                        <tr>
+                            <th><i class="fa fa-money"></i> Ordenes</th><th>No pagadas</th><th>Pagadas</th>
+                        </tr>    
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="details" class="tab-pane settings_tab active">
+                <div class="col-lg-12 col-md-12 col-sm-12 ">
+                    <br/>
+                    <form id="search4ticket" class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Orden</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="search_orders" placeholder="Orden">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Comprador</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="search_buyers" placeholder="Comprador">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Invitado</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="search_guests" placeholder="Invitado">
+                            </div>
+                        </div>
+                        <div align="right">
+                            <button class="btn btn-default">Buscar</button>
+                        </div>
+                    </form>
+
+
+                    <div id="tickets"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

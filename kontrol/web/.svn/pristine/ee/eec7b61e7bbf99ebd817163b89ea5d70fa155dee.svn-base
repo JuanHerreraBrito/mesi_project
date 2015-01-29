@@ -1,0 +1,153 @@
+<style>
+    .resumen{
+        margin:15px 0;
+    }
+
+    .res-item {
+        display: inline-block;
+        border: 1px solid #e2e2e2;
+        text-align: center;
+        width: 30%;
+        padding: 15px 0;
+        margin: 0 10px;
+        border-radius: 5px;
+        box-shadow: 2px 2px 6px #ccc;
+        background: #ffffff;
+    }
+
+    .res-item span{
+        color:#bdbdbd;
+    }
+
+    .res-item h1{
+        padding:0;
+        margin:0
+    }
+    #accordion-pagos{
+        margin:15px 0;
+    }
+    #accordion-pagos a,#accordion-pagos a:hover{
+        color:#333;
+        text-decoration:none;
+    }
+
+    #accordion-pagos .panel-title b{
+        display: inline-block;
+        width:160px;
+    }
+    
+    #accordion-pagos .panel-title i{
+        font-weight: normal;
+        font-style: normal;
+    }
+    
+    #accordion-pagos .panel-title span{
+        float:right;
+        color: #999;
+    }
+    
+    #accordion-pagos .panel-title .articulo{
+        display: inline-block;
+        width:40%;
+        font-weight: 200;
+    }
+</style>
+<!-------------------container starts here---------------------->
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8 ">
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div class="item-container">
+            <div class="title">
+                <h3>Resumen</h3>
+                <span>Resumen general de pagos, ordenes y items</span>
+            </div>
+            <div class="resumen">
+                <div class="res-item">
+                    <h1 class="orders">0</h1>
+                    <span>ordenes</span>
+                </div>
+                <div class="res-item">
+                    <h1 class="payments">0</h1>
+                    <span>pagos</span>
+                </div>
+                <div class="res-item">
+                    <h1 class="items">0</h1>
+                    <span>articulos</span>
+                </div>
+            </div>
+
+            <div class="title">
+                <h3>Resumen por articulos</h3>
+                <span>Pagos agrupados por articulos</span>
+            </div>          
+            <div class="panel-group" id="accordion-pagos">
+               
+            </div>
+             <div class="title">
+                <h3>Resumen de pago</h3>
+                <span>Resumen de pago a detalle menos comisiones</span>
+            </div>
+            <table class="table resumen-pago">
+                <tr>
+                    <td align="right">Subtotal:</td><td align="right" class="subtotal">$0.00</td>
+                </tr>
+                <tr>
+                    <td align="right">Comisi&oacute;n Kichink!:</td><td align="right"><span style="color:#900" class="comision">-$0.00</span</td>
+                </tr>
+                <tr>
+                    <td align="right"><h3>Total:</h3></td><td align="right"><h3 class="total">$0.00</h3></td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+</div>
+<script>
+   call_api('/api/pagos/get_payment_order_details', 'post', {"store_id": store_id, "type":"general","id":8524}, function(data) {
+        var ajax_request = jQuery.parseJSON(data.toString());
+        console.log(ajax_request);
+        var obj= ajax_request.data.pago;
+        $(".resumen").find(".res-item .payments").html(obj.stats.payments_count);
+        $(".resumen").find(".res-item .orders").html(obj.stats.orders_count)
+        $(".resumen").find(".res-item .items").html(obj.stats.items_count);
+        
+        for(i in obj.items){
+            for(j in obj.items[i]){
+                var id=i;//obj.items[i][j].id
+            
+                var o='<div class="panel panel-default">'+
+                    '<div class="panel-heading">'+
+                        '<a data-toggle="collapse" data-parent="#accordion-pagos" href="#collapse-'+i+'">'+
+                            '<div class="panel-title">'+
+                                '<b>No. '+obj.items[i][j].id+'</b>'+
+                                '<i class="articulo">'+obj.items[i][j].name+'</i>'+
+                                '<span>'+obj.items[i][j].units+' unidades</span>'+
+                            '</div>'+
+                        '</a>'+
+                    '</div>';
+                    if(obj.items[i][j].purchase_options){
+                        o+='<div id="collapse-'+i+'" class="panel-collapse collapse">'+
+                            '<div class="panel-body">'+
+                                '<ul>';
+                        for(var k=0;k<obj.items[i][j].purchase_options.length;k++){
+                                o+='<li>'+obj.items[i][j].purchase_options[k].purchase_option+' - '+obj.items[i][j].purchase_options[k].units+' unidades</li>';
+                        }
+                        o+=     '</ul>'+
+                            '</div>'+
+                        '</div>';
+                    }
+                o+='</div>';
+            
+                $("#accordion-pagos").append(o);
+            }
+        }
+        
+        $(".resumen-pago .subtotal").html("$"+number_format(obj.pagos_resume.subtotal,2,".",","));
+            $(".resumen-pago .comision").html("$"+number_format(obj.pagos_resume.comision_k,2,".",","));
+            $(".resumen-pago .total").html("$"+number_format(obj.pagos_resume.pago_total,2,".",","));
+        
+    });
+</script>
+</body>
+</html>

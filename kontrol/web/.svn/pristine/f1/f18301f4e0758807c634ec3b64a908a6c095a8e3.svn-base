@@ -1,0 +1,745 @@
+<?=$this->load->view('layout/header.php', array('page_title'=>$store->name, 'text' => $store->itemsPrice_text, 'back' => $store->itemsPrice_back));?>
+<? 
+ $this->load->helper('text');
+ //HEADER
+if(!empty($store->images['header']['default'])){ //Getting the header_image
+	$editHeaderImage = true;
+	$url_header = $store->images['header']['default'][0]->url.$store->images['header']['default'][0]->object_name.'_b.'.$store->images['header']['default'][0]->extension;
+	$url_original_header = $store->images['header']['original'][0]->url.$store->images['header']['original'][0]->object_name.'.'.$store->images['header']['original'][0]->extension;
+	$img_id_original_header = $store->images['header']['original'][0]->media_id.'&header&'.$store->images['header']['original'][0]->object_name;
+	$resize_header = resize($url_header, 980 , 0, TRUE);
+	$scrollTo=100;
+}else{
+	$editHeaderImage = false;
+	$img_id_original_header = '0';
+  	$background_noHeader= 'style="background:#EEEEEE;height:105px"';
+	$scrollTo=0;
+}
+ //LOGO
+ if(!empty($store->images['logo']['default'])){ 
+ 	$editLogoImage = true;
+	$url_logo = $store->images['logo']['default'][0]->url.$store->images['logo']['default'][0]->object_name.'_b.'.$store->images['logo']['default'][0]->extension;
+	$url_original_logo = $store->images['logo']['original'][0]->url.$store->images['logo']['original'][0]->object_name.'.'.$store->images['logo']['original'][0]->extension;
+	$img_id_original_logo = $store->images['logo']['original'][0]->media_id.'&logo&'.$store->images['logo']['original'][0]->object_name;
+ }else{
+	$editLogoImage = false;
+	$img_id_original_logo = '0';
+	$url_logo = 'http://placehold.it/160x160';
+ }
+?>
+<script>
+  /// Add to FB
+  window.fbAsyncInit = function() {
+    // init the FB JS SDK
+    FB.init({
+      appId      : '689942954354946',                        // App ID from the app dashboard
+      channelUrl : '//sell.kichink.com/utils/fb_channel_file', // Channel file for x-domain comms
+      status     : true,                                 // Check Facebook Login status
+      xfbml      : true                                  // Look for social plugins on the page
+    });
+  
+    // Additional initialization code such as adding Event Listeners goes here
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+   
+   $(document).ready(function(){
+        
+    });
+    var pages = [];
+   function add_to_fb_page(){
+      FB.ui(
+          {
+              method: 'pagetab'
+          },
+          function(response) {
+              if (response != null && response.tabs_added != null) {
+  
+                  $.each(response.tabs_added, function(pageid) {
+                     save_fb_page_id(pageid);
+                  });
+              }
+          }
+        ); 
+   }
+   function save_fb_page_id(page_id){
+      call_api('/api/stores/associate_fb_page_id', 'post', { store_id:<?=$store->id?>, page_id:page_id}, function(data) {
+          alert('<?=$this->lang->line('v3_layout_store_facebook_installed');?>');
+      });
+   }
+</script> 
+    <div id="bienvenida_modal" class="modal hide fade" style="width:780px;background:#CCB2D5">
+        <div class="modal-header" style="border-bottom:none">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h1 style="text-align:center;color:#532E63;font-weight:bold"><?=$this->lang->line('v3_layout_welcome_title');?></h1>
+          <? if($this->session->userdata('online_signup')){ ?>
+          <h2 style="text-align:center;color:#532E63;font-weight:bold;line-height:0"><?=$this->lang->line('v3_layout_congratulations');?></h2>
+          <? } ?>
+        </div>
+        <div class="modal-body" style="max-height:390px;overflow-y:auto;">
+            <div style="width:750px" class="row">
+                <div class="span9" style="background:#FFFFFF">
+                    <h3 style="color:#532E63;text-align:center"><?=$this->lang->line('v3_layout_welcome_what_not_sell');?></h3>
+                    <div style="float:left;width:120px;margin-left:20px"/>
+                        <img src="/img/welcome_modal/no_armas.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center"><?=$this->lang->line('v3_layout_welcome_no_guns')?></h5>
+                    </div>
+                    <div style="float:left;width:120px"/>
+                        <img src="/img/welcome_modal/no_drogas.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center"><?=$this->lang->line('v3_layout_welcome_no_drugs')?></h5>
+                    </div>
+                    <div style="float:left;width:120px"/>
+                        <img src="/img/welcome_modal/no_pornografia.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center"><?=$this->lang->line('v3_layout_welcome_no_porn')?></h5>
+                    </div>
+                    <div style="float:left;width:120px"/>
+                        <img src="/img/welcome_modal/no_objs_ilegales.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center"><?=$this->lang->line('v3_layout_welcome_no_illegal_items')?></h5>
+                    </div>
+                    <!--<h3 style="color:#532E63;text-align:center">&iquest;C&oacute;mo empiezo a vender?</h3>-->
+                    <div style="height:50px;clear:both"></div>
+                    <p style="text-align:center"><a href="javascript:closeModal();" class="btn primary large" style="width:200px;text-align:center"><?=$this->lang->line('v3_layout_welcome_im_ready')?></a></p>
+                </div>
+                <div class="span3">
+                    <h3 style="color:#532E63"><?=$this->lang->line('v3_layout_welcome_contact_title')?></h3>
+                    <p style="color:#532E63"><?=$this->lang->line('v3_layout_welcome_contact_data')?></p><br/>
+                    <p style="text-align:center"><a href="/img/welcome_modal/MANUAL_USUARIO_2013_v2.pdf" target="_blank" class="btn success" style="text-align:center;width:130px"><?=$this->lang->line('v3_layout_welcome_contact_manual')?></a></p>
+                    <p style="text-align:center"><a href="/img/welcome_modal/ordenes_info.jpg" class="btn success" target="_blank" style="text-align:center;width:130px"><?=$this->lang->line('v3_layout_welcome_contact_download_infography')?></a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <? if($store->live_store == 1 AND $store->tienda_pruebas == 0){ ?>
+    <div class="modal hide fade in" id="websiteModal">
+   
+      <div class="modal-header">
+          <button data-dismiss="modal" class="close">×</button>
+          <h3>C&oacute;digo website</h3>
+      </div>
+      <div class="modal-body">
+        <p>Copia y pega el siguiente c&oacute;digo en tu website para instalar tu tienda Kichink</p>
+        <pre style="height:250px;overflow:auto">
+&lt;html&gt;
+&lt;head&gt;
+&lt;!-- Agregar nombre de la tienda --&gt;
+&lt;title&gt;Nombre de tu tienda&lt;/title&gt;
+&lt;!-- Agregar descripcion con palabras clave --&gt;
+&lt;meta name="description" content="Nombre de tu tienda | Tienda en l&iacute;nea" /&gt;
+
+&lt;style&gt;
+ body{
+  margin:0px; padding:0px;
+  font-family:Arial, Helvetica, sans-serif; 
+ }
+&lt;/style&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div style="width:100%; height:100%; position:absolute; top:0px; left:0px;"&gt;
+  &lt;!-- Agregar ID de tienda --&gt;
+  &lt;iframe src="https://www.kichink.com/stores/id/<?=$store->id?>" width="100%" height="100%"  frameborder="0"&gt;
+    &lt;div style="width:300px; margin:40% auto; font-size:20px;"&gt;
+      Tu navegador no permite mostrar la tienda en esta ventana. 
+      &lt;!-- Agregar ID de tienda --&gt;
+      &lt;a href="https://www.kichink.com/stores/id/<?=$store->id?>"&gt;Haz clic para abrir a en una nueva ventana.&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/iframe&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </pre>
+      </div>      
+      <div class="modal-footer">
+          <a class="btn" data-dismiss="modal" href="#">Cerrar</a>
+      </div>
+    </div>
+    <? } ?>
+    
+    <div class="modal hide fade in" id="publishModal">
+    <? if($store->publish_store_ok != 1){?>
+      <div class="modal-header">
+          <button data-dismiss="modal" class="close">×</button>
+          <h3><?=$this->lang->line('stores_publishModal_title');?></h3>
+      </div>
+      <div class="modal-body" style="background:url('/img/creating_store.gif') no-repeat center center">
+        <iframe style="visibility:hidden;" onload="this.style.visibility = 'visible';" src="/stores/publicar/<?=$store->id?>" width="530" height="300" scrolling="no" frameborder="0">Browser not compatible</iframe>
+      </div>      
+      <div class="modal-footer">
+          <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_publishModal_cancel_unapproved');?></a>
+      </div>
+    <? }else{ ?>
+      <form method="post" action="/stores/goLive" style="margin-bottom:0px;">
+          <div class="modal-header">
+              <button data-dismiss="modal" class="close">×</button>
+              <h3><?=$this->lang->line('stores_publishModal_title');?></h3>
+          </div>
+          <div class="modal-body">
+             <p><?=$this->lang->line('stores_publishModal_p');?></p>
+             <input type="hidden" name="store_id" value="<?=$store->id?>" />
+        </div>
+          <div class="modal-footer">
+              <input type="submit" name="submit" value="<?=$this->lang->line('stores_publishModal_accept');?>" class="btn" />
+              <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_publishModal_cancel');?></a>
+          </div>
+      </form>
+    <? } ?>
+	  </div>
+    <? if($store->live_store == 1){ ?>
+        <div class="modal hide fade in" id="offlineModal">
+          <? if($store->tienda_pruebas == 0){ ?>
+            <div class="modal-header">
+                  <button data-dismiss="modal" class="close">×</button>
+                  <h3><?=$this->lang->line('stores_offlineModal_title');?></h3>
+            </div>
+            <div class="modal-body">
+                 <p>Por favor contacta al Equipo Kichink! para solicitar esta acci&oacute;n</p>
+            </div>
+            <div class="modal-footer">
+                  <a class="btn" data-dismiss="modal" href="#">Cerrar</a>
+            </div>
+          <? }else{ ?>
+            <form method="post" action="/stores/goOffline" style="margin-bottom:0px;">
+                <div class="modal-header">
+                    <button data-dismiss="modal" class="close">×</button>
+                    <h3><?=$this->lang->line('stores_offlineModal_title');?></h3>
+                </div>
+                <div class="modal-body">
+                   <p><?=$this->lang->line('stores_offlineModal_p');?></p>
+                   <input type="hidden" name="store_id" value="<?=$store->id?>" />
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" name="submit" value="<?=$this->lang->line('stores_offlineModal_accept');?>" class="btn" />
+                    <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_offlineModal_cancel');?></a>
+                </div>
+            </form>
+          <? } ?>
+        </div>
+    <? } ?>
+  	<form method="post" action="/media/save" enctype="multipart/form-data" style="margin-bottom:0px;">
+    <div class="modal hide fade" id="logoModal" style="display:none">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal" href="#">×</a>
+        <h3><?=$this->lang->line('stores_page_logo_button_text');?></h3>
+        </div>
+        <div class="modal-body">
+                <input type="file" name="image" />
+                <img src="/img/ajax-loader.gif" alt="progressbar" id="progressbar" style="display:none;margin:0 auto; margin-top:10px"/>
+                <input type="hidden" name="table" value="stores" />
+                <input type="hidden" name="role" value="logo" />
+                <input type="hidden" name="from" value="<?=uri_string()?>" />
+                <input type="hidden" name="tableID" value="<?=$store->id?>" /><br />
+        </div>
+        <div class="modal-footer">
+            <input type="submit" name="submit" value="<?=$this->lang->line('stores_modal_upload');?>" class="btn" id="logoModalButton" />
+            <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_modal_close');?></a>
+        </div>
+    </div>
+   	</form>
+
+    <form method="post" action="/media/save" enctype="multipart/form-data" style="margin-bottom:0px;">
+    <div class="modal hide fade" id="pictureModal" style="display:none">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal" href="#">×</a>
+        <h3><?=$this->lang->line('stores_page_header_button_text');?></h3>
+        </div>
+        <div class="modal-body">
+                <input type="file" name="image" />
+                <img src="/img/ajax-loader.gif" alt="progressbar2" id="progressbar2" style="display:none;margin:0 auto; margin-top:10px"/>
+                <input type="hidden" name="table" value="stores" />
+                <input type="hidden" name="role" value="header" />
+                <input type="hidden" name="from" value="<?=uri_string()?>" />
+                <input type="hidden" name="tableID" value="<?=$store->id?>" /><br />
+        </div>
+        <div class="modal-footer">
+            <input type="submit" name="submit" value="<?=$this->lang->line('stores_modal_upload');?>" class="btn" id="pictureModalButton" />
+            <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_modal_close');?></a>
+        </div>
+    </div>
+    </form>
+
+            
+    <div class="container">
+    
+      <div id="imageCover" <?=isset($background_noHeader)?$background_noHeader:''?> >
+      	<? if(!isset($background_noHeader)){ ?>
+      		<img src="<?=$url_header?>" width="<?=$resize_header['height']?>" height="<?=$resize_header['width']?>" id="<?=$img_id_original_header?>" alt="980x250" />
+        <? } ?>
+      </div>
+
+      <div class="content">
+        <div class="page-header" style="background:#fff">
+          <? if($editLogoImage){ ?>
+            <div style="position:absolute; z-index:9; margin-left:55px; margin-top:10px">
+              <ul>              
+                <li class="btn small dropdown" data-dropdown="dropdown">
+                  <a href="#" class="dropdown-toggle editImage" style="background:none;color:#333">
+                  	<img width="16" height="16" style="float:left;margin-right:7px;" src="/img/pencil.png"><?=$this->lang->line('stores_page_header_buttonEdit_text');?>
+                  </a>
+                  <ul class="dropdown-menu drop-editImage">
+                    <li>
+                    	<a href="#" onclick="return launchEditor('<?=$img_id_original_logo?>','<?=$url_original_logo?>', '160x160');">
+    		              <?=$this->lang->line('stores_page_header_buttonEdit_option1');?>
+                    	</a>
+                    </li>
+                    <li>
+                    	<a href="#logoModal" data-toggle="modal">
+                      	<?=$this->lang->line('stores_page_header_buttonEdit_option2');?>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          <? } ?>
+          <div id="logoCover" class="logoCoverImageContainer borderProfile">
+          	<? if(!$editLogoImage){ ?>
+          	  <a href="#logoModal" data-toggle="modal" class="btn small" style="position:absolute; bottom:5px;right:5px"><?=$this->lang->line('stores_page_logo_button_text');?></a>
+            <? } ?>
+            <img src="<?=$url_logo?>" width="160" height="160" id="<?=$img_id_original_logo?>" alt="160x160" />
+          </div>
+          <h1 style="float:left;margin:-50px 0 15px 190px;width:570px"><?=$store->name?><br /><small><?=$store->description?></small></h1>
+          <? if(!$editHeaderImage){ ?>
+          	<a class="btn" data-toggle="modal" href="#pictureModal" style="float:right;margin-top:-50px"><?=$this->lang->line('stores_page_header_button_text');?></a>
+		      <? }else{ ?>
+          	<div style="float:right; margin-top:-50px">
+              <ul>              
+                <li class="btn small dropdown" data-dropdown="dropdown">
+                  <a href="#" class="dropdown-toggle editImage" style="background:none;color:#333">
+                  	<img width="16" height="16" style="float:left;margin-right:7px;" src="/img/pencil.png"><?=$this->lang->line('stores_page_header_buttonEdit_text');?>
+                  </a>
+                  <ul class="dropdown-menu drop-editImage">
+                    <li>
+                    	<a href="#" onclick="return launchEditor('<?=$img_id_original_header?>','<?=$url_original_header?>', '980x250');">
+			                <?=$this->lang->line('stores_page_header_buttonEdit_option1');?>
+                      </a>
+                    </li>
+                    <li>
+                    	<a href="#pictureModal" data-toggle="modal">
+                      	<?=$this->lang->line('stores_page_header_buttonEdit_option2');?>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+          	</div>
+          <? } ?>
+          
+          <a href="<?=base_url()?>" style="clear:both;float:left" class="btn"><?=$this->lang->line('stores_page_back_button_text');?></a>
+          <div style="clear:both;"></div>
+        </div>
+        <div class="row">
+          <div class="span12" id="sortable">          
+  		      <? if(!empty($items_store)){
+      			  	//print_r($items_store);
+      		   		foreach($items_store as $item){
+        					if (is_array($item->image)){
+        				    $url = $item->image[0]->url.$item->image[0]->object_name.'_thumb.'.$item->image[0]->extension; ?>
+                    <div style="position:relative;float:left;margin:9px" id="<?=$item->id?>" class="itemBox">
+                        <a href="/items/id/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="<?=$url?>" style="padding:4px; background:#F4F4F4;" /></a>
+                        <div class="items-price">$ <?=number_format($item->price, 2)?></div>
+                        <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                    </div>
+        				  <? }else{ ?>
+        			  		<div style="position:relative;float:left;margin:9px" id="<?=$item->id?>" class="itemBox">
+                      <a href="/items/id/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="http://placehold.it/200x150" style="padding:4px;background:#F4F4F4;" /></a>                 
+                      <div class="items-price">$ <?=number_format($item->price, 2)?></div>
+                      <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+                    </div>
+        			    <? }
+  			 	      } 
+              }else{ ?>
+                <div style="width:200px; height:150px; float:left; margin:9px; padding: 3px; border:1px solid #eee; background:#F4F4F4; text-align:center; font-size:50px;">
+                  <p style="font-size:12px;"><?=$this->lang->line('stores_empty_store');?></p>
+                </div>
+              <? } ?>
+          </div>
+
+          <div class="span4">
+            <? if($notificacion){ ?>
+            <h4>Notificaciones</h4>
+            <p style="text-align:justify">
+              Has solicitado la publicaci&oacute;n de tu tienda. Los Kichinks est&aacute;n trabajando como locos para preparar tu tienda y publicarla lo mas pronto posible
+              <div class="notificacion_counter"><h2><?=$notificacion?></h2>solicitud<?=$notificacion<2 ? '' : 'es'?> falta<?=$notificacion<2 ? '' : 'n'?> para que procesemos la tuya!</div>
+            </p>
+            <br/>
+            <? } ?>
+          	<h4><?=$this->lang->line('stores_page_admintools_title_text');?> <span class="label notice"><?=$this->lang->line('stores_page_admintools_subtitle_text');?></span></h4>
+          	<p style="text-align:justify"><?=$this->lang->line('stores_page_admintools_text_1');?></p>
+          	<br /><br />
+          	<p style="text-align:center;">
+		          <a href="/items/add_item/<?=$this->uri->segment(3)?>" class="btn primary large" style="width:190px;"><?=$this->lang->line('stores_page_newitem_button_text');?></a>
+ 	          </p>
+ 	          <br />
+   	        <p style="text-align:center;">
+   	        	<a href="/stores/settings/<?=$this->uri->segment(3)?>" class="btn large" style="width:190px; text-align:center;"><?=$this->lang->line('stores_page_settings_button_text');?></a>
+   	        </p>
+   	        <br />
+            <? if(isset($store->admin_inventarios) AND $store->admin_inventarios == 1){ ?>
+            <p style="text-align:center;">
+              <a href="/inventarios/id/<?=$this->uri->segment(3)?>" class="btn large" style="width:190px; text-align:center;">Administrador de inventarios</a>
+            </p>
+            <br />
+            <? } ?>
+            <? if(isset($store->b2b_restricted_access) AND  $store->b2b_restricted_access == 1){ ?>
+            <p style="text-align:center;">
+              <a href="/b2b/authorize_accounts/<?=$this->uri->segment(3)?>" class="btn large" style="width:190px; text-align:center;">Autorizaci&oacute;n de accesos</a>
+            </p>
+            <br />
+            <? } ?>
+            <? if($store->live_store == 1){ ?>
+                <p style="text-align:center;">
+                    <a href="http://kichink.com/stores/id/<?=$this->uri->segment(3)?>" class="btn large" style="width:190px; text-align:center;" target="_blank"><?=$this->lang->line('stores_page_live_button_text');?></a>
+                </p>
+            <? }else{ ?>
+            	<p style="text-align:center;">
+                    <a href="<?=base_url()?>stores/preview/<?=$this->uri->segment(3)?>" target="_blank" class="btn large" style="width:190px; text-align:center;" ><?=$this->lang->line('stores_page_preview_button_text');?></a>
+                </p>
+            <? } ?>
+            <? if($store->live_store == 1){ ?>
+                <p style="text-align:center;">
+                    <a href="#offlineModal" data-toggle="modal" class="btn large" style="width:190px; text-align:center;" target="_blank"><?=$this->lang->line('stores_page_goOffline_button_text');?></a>
+                </p>
+            <? }else{ ?>
+            	<p style="text-align:center;">
+                <a href="#publishModal" data-toggle="modal" class="btn large" style="width:190px; text-align:center;" target="_blank"><?=$this->lang->line('stores_page_goLive_button_text');?></a>
+              </p>
+            <? } ?>
+            <? if($store->live_store == 1 AND $store->tienda_pruebas == 0){ ?>
+              <p style="text-align:center;">
+                <a id="social-reg-button" class="fb" href="javascript:add_to_fb_page();">Instala en FB</a>
+              </p>
+              <p style="text-align:center;">
+                <a id="social-reg-button" data-toggle="modal" class="website" href="#websiteModal" target="_blank">Instala en tu website</a>
+              </p>
+              <br />
+            <? } ?>
+            <h5><?=$this->lang->line('stores_items_text');?></h5>
+            <p><?=$this->lang->line('stores_items_text_description');?></p>
+            <br/>
+            <h5><?=$this->lang->line('stores_categories');?></h5>
+            <input type="text" id="add_category_input" placeholder="Agregar categoria" class="span3"/><a href="#" class="btn small" id="add_category_button"><?=$this->lang->line('stores_categories_add');?></a>
+            <ul id="category_list">
+              <? if(!empty($store->categories)){
+                  foreach($store->categories as $item){
+              ?>
+                  <li id="<?=$item->id?>"><div class="titleCat"><?=$item->name?></div><div class="optionsCat"><img src="/img/edit_icon.png" class="edit_icon" width="15"><img src="/img/remove_icon.png" class="remove_icon" width="13"></div></li>
+              <?  } 
+                }
+              ?>
+            </ul>
+
+            <div style="clear:both;height:15px"></div>
+
+            <h5><?=$this->lang->line('stores_colors');?></h5>
+            <p><?=$this->lang->line('stores_colors_description');?></p>
+            <label style="width:80px;text-align:left"><?=$this->lang->line('stores_colors_text');?></label><input type="text" name="colors_text" class="span2 color-picker" size="6" value="<?=$store->itemsPrice_text?>" id="colors_text"/>
+ 	          <label style="width:80px;text-align:left"><?=$this->lang->line('stores_colors_background');?></label><input type="text" name="colors_back" class="span2 color-picker" size="6" value="<?=$store->itemsPrice_back?>" id="colors_back" />
+            <p style="text-align:center;margin-top:10px"><a class="btn small" href="#" id="colorsButton"><?=$this->lang->line('stores_colors_change_button');?></a></p>
+           
+            <div style="clear:both;height:15px"></div>
+
+            <h5><?=$this->lang->line('stores_page_orders_title_text');?></h5>
+            
+   	        <ul class="tabs" data-tabs="tabs" style="font-size:12px">
+  		        <li class="active"><a href="#active"><?=$this->lang->line('stores_page_orders_tab_1');?></a></li>
+  		        <li><a href="#closed"><?=$this->lang->line('stores_page_orders_tab_2');?></a></li>
+  		        <li><a href="#all"><?=$this->lang->line('stores_page_orders_tab_3');?></a></li>
+  		      </ul>
+
+			      <div id="my-tab-content" class="tab-content" style="margin-left:20px">
+            	<div id="active" class="active tab-pane settings_tab row">
+              	<? if(!empty($store->orders['active'])){?>
+                    <table class="zebra-striped">
+                    <? foreach($store->orders['active'] as $active){ ?>
+                        <tr>
+                            <td style="width:200px;">
+                                No. <?=$active->orderID?>
+                                <small style="font-size:12px; color:#999;">[ Qty: <?=$active->units_total?> ]</small>
+                            </td>
+                            <td style="text-align:center">
+                                <span class="label <?=$active->status?>" style="white-space:pre-wrap"><?=$active->labelName?></span> 
+                            </td>
+                        </tr>
+                     <? } ?>
+                        <tr>
+                            <td colspan="2">
+                                <a href="/orders" style="float:right;"><?=$this->lang->line('stores_page_orders_item_text_4');?></a>
+                            </td>
+                        </tr>
+                    </table>
+              	<? } ?>
+            	</div>
+              <div id="closed" class="tab-pane settings_tab row">
+              	<? if(!empty($store->orders['closed'])){?>
+                    <table class="zebra-striped">
+                    <? foreach($store->orders['closed'] as $closed){ ?>
+                        <tr>
+                            <td style="width:200px;">
+                                No. <?=$closed->orderID?>
+                                <small style="font-size:12px; color:#999;">[ Qty: <?=$closed->units_total?> ]</small>
+                            </td>
+                            <td style="text-align:center">
+                                <span class="label <?=$closed->status?>" style="white-space:pre-wrap"><?=$closed->labelName?></span> 
+                            </td>
+                        </tr>
+                     <? } ?>
+                        <tr>
+                            <td colspan="2">
+                                <a href="/orders" style="float:right;"><?=$this->lang->line('stores_page_orders_item_text_4');?></a>
+                            </td>
+                        </tr>
+                    </table>
+                <? } ?>
+            	</div>
+              <div id="all" class="tab-pane settings_tab row">
+              	<? if(!empty($store->orders['all'])){?>
+                    <table class="zebra-striped">
+                    <? foreach($store->orders['all'] as $all){ ?>
+                        <tr>
+                            <td style="width:200px;">
+                                No. <?=$all->orderID?>
+                                <small style="font-size:12px; color:#999;">[ Qty: <?=$all->units_total?> ]</small>
+                            </td>
+                            <td style="text-align:center">
+                                <span class="label <?=$all->status?>" style="white-space:pre-wrap"><?=$all->labelName?></span> 
+                            </td>
+                        </tr>
+                     <? } ?>
+                        <tr>
+                            <td colspan="2">
+                                <a href="/orders" style="float:right;"><?=$this->lang->line('stores_page_orders_item_text_4');?></a>
+                            </td>
+                        </tr>
+                    </table>
+              	<? } ?>
+            	</div>
+            </div>
+            
+            <br />
+            <!--
+            <h5><?=$this->lang->line('stores_page_stats_title_text');?></h5>
+            <table class="bordered-table">
+            	<tr>
+            		<td>
+            			<h5 style="line-height:15px; text-align:center;">30,000 <br /> <small> <?=$this->lang->line('stores_page_stats_text_1.1');?> </small> </h5>
+            		</td>
+            		<td>
+            			<h5 style="line-height:15px; text-align:center;">500k <br /> <small> <?=$this->lang->line('stores_page_stats_text_2.2');?> </small> </h5>
+            		</td>
+            		<td>
+            			<h5 style="line-height:15px; text-align:center;">$5,000 <br /> <small> <?=$this->lang->line('stores_page_stats_text_3.2');?>  </small> </h5>
+            		</td>
+            	</tr>
+            </table>-->
+          </div>
+        </div>
+      </div>
+<script src="/js/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" defer="defer">
+	
+	window.scrollTo(0,<?=$scrollTo?>);
+
+  <? $usrPref = getUsrPref($this->session->userdata('user_id')); ?>
+  <!-- Instantiate the widget -->
+  var featherEditor = new Aviary.Feather({
+    apiKey: '6282e2a3c',
+    apiVersion: 2,
+    language : '<?=$usrPref->usr_language?>',
+    maxSize : '1000',
+    tools: ['crop', 'resize', 'enhance','effects','stickers','orientation','brightness','contrast','saturation','sharpness','draw','text','redeye','whiten','blemish'],
+    //initTool : 'crop',
+    onSave: function() {
+      //alert(newURL);
+      location.reload();
+    },
+    postUrl: '<?=base_url().'mediaAv/saveAviary'?>'
+  });
+  function launchEditor(id, src, alt) {
+    featherEditor.launch({
+      image: id,
+      url: src, 
+      postData : id,
+      cropPresets : [''+alt+'']
+    });
+    return false;
+  }
+
+  $('#logoModalButton').bind('click', function(){
+      $('#progressbar').css('display','block');
+    });
+  $('#pictureModalButton').bind('click', function(){
+    $('#progressbar2').css('display','block');
+  });
+  $('#pictureModalButton').bind('click', function(){
+    $('#progressbar2').css('display','block');
+  });
+  $('#add_category_button').bind('click', function(e){
+    e.preventDefault();
+    var category = $('#add_category_input').val();
+    if( category==="" || $('#add_category_input').attr('placeholder')===category){
+      alert('Ingresa nombre de categoria');
+    }else{
+      $.post("<?=base_url()?>stores/addCategory/<?=$this->uri->segment(3)?>", { category:category },
+      function(data) {
+        //alert(data.response);
+        if(data.response===true){
+          $('ul#category_list').append('<li id="'+data.id_category+'"><div class="titleCat">'+data.category+'</div><div class="optionsCat"><img src="/img/edit_icon.png" class="edit_icon" width="15"><img src="/img/remove_icon.png" class="remove_icon" width="13"></div></li>');
+          $('#add_category_input').val('');
+        }
+      }, 'json');
+    }
+  });
+
+  $(document).on('click', '.edit_icon', function(e){
+    e.preventDefault();
+    var id = $(this).parent().parent().attr('id');
+    var li = $(this).parent().parent();
+    li.find(">:first-child").replaceWith('<div class="titleCat"><input type="text" value="' + li.find(">:first-child").text() + '" class="span3" /></div>');
+    li.find(">:last-child").replaceWith('<div class="optionsCat" style="width:34px"><img src="/img/ok_icon.png" class="ok_icon" width="13"></div>');
+  });
+
+  $(document).on('click', 'html', function(e){
+    //e.preventDefault();
+    $('#category_list li').each(function(){
+      if($(this).has('input').length > 0){
+
+        var element = $(this);
+        var inputVal = element.find('input').val();
+        var idVal = element.attr('id');
+        
+        $.post("<?=base_url()?>stores/getCategory", { cat_id:idVal },
+        function(data) {
+            element.replaceWith('<li id="'+idVal+'"><div class="titleCat">'+ data + '</div><div class="optionsCat"><img src="/img/edit_icon.png" class="edit_icon" width="15"><img src="/img/remove_icon.png" class="remove_icon" width="13"></div></li>');
+        });
+
+      }
+    });
+  });
+
+  $(document).on('click', 'ul#category_list', function(e){
+    e.stopPropagation();
+  });
+ 
+  $(document).on('click', '.remove_icon', function(e){
+    e.preventDefault();
+    var cat_id = $(this).parent().parent().attr('id');
+    $.post("<?=base_url()?>stores/deleteCategory", { cat_id:cat_id },
+    function(data) {
+      //alert(data.response);
+      if(data.response===true){
+        $('li#'+cat_id).remove();
+      }
+    }, 'json');
+    
+  });
+
+  $(document).on('click', '.ok_icon', function(e){
+    e.preventDefault();
+    var li = $(this).parent().parent();
+    var cat_id = li.attr('id'); 
+    var name = li.find('input').val();
+    $.post("<?=base_url()?>stores/updateCategory", { cat_id:cat_id, name:name },
+    function(data) {
+      if(data.response===true){
+        li.replaceWith('<li id="'+cat_id+'"><div class="titleCat">'+ name + '</div><div class="optionsCat"><img src="/img/edit_icon.png" class="edit_icon" width="15"><img src="/img/remove_icon.png" class="remove_icon" width="13"></div></li>');
+      }
+    }, 'json');
+  });
+
+  $(".color-picker").miniColors();
+
+  $('#colorsButton').bind('click', function(e){
+    e.preventDefault();
+    var back = $('#colors_back').val();
+    var text = $('#colors_text').val();
+   
+    $.post("<?=base_url()?>stores/updateColors/<?=$this->uri->segment(3)?>", { back:back, text:text },
+    function(data) {
+      if(data){
+        location.reload();
+      }
+    });
+    
+  });
+
+  $( "#sortable" ).sortable({
+    update: function(){
+      var neworder = Array();
+      $('#sortable .itemBox').each(function() {    
+        var id  = $(this).attr('id');
+        neworder.push(id);
+      });
+      $.post("/stores/updateOrder/<?=$this->uri->segment(3)?>",{neworder:neworder},function(data){});
+    }
+  });
+
+  $( "#category_list" ).sortable({
+    update: function(){
+      var neworderCats = Array();
+      $('#category_list li').each(function() {    
+        var id  = $(this).attr('id');
+        neworderCats.push(id);
+      });
+      $.post("/stores/updateCategoriesOrder/<?=$this->uri->segment(3)?>",{neworderCats:neworderCats},function(data){});
+    }
+  });
+
+  function openModal(){
+      $('#bienvenida_modal').modal('show').css({
+          width: 'auto',
+          'margin-left': function () {
+            return -($(this).width() / 2);
+          },
+          'margin-top': function () {
+            return -($(this).height() / 2);
+          }
+      });
+  }
+
+  function closeModal(){
+      $('#bienvenida_modal').modal('hide');
+  }
+
+  $(document).ready(function() {
+  <? if($this->session->userdata('online_signup')){ ?>
+      openModal();
+      <? $this->session->set_userdata('online_signup', FALSE);?>
+  <? } ?>
+  });
+
+
+  function call_api(url, method, vars, callback){
+               
+     $.ajax({
+       type: method,
+       url: url,
+       data: vars
+  }).done(function( data ) {
+    var result = jQuery.parseJSON(data);
+    if(!result.status || result.status != 'OK'){
+      alert('Request failed');
+      location.reload();
+    } else {
+      callback(data);
+    }
+    //alert( "Data Saved: " + msg );
+    
+  }).fail(function(jqXHR, textStatus) {
+    alert( "Request failed: " + textStatus );
+    location.reload();
+  });
+     
+   }
+</script>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_3_0.2' ))?>

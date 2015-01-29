@@ -1,0 +1,284 @@
+/* 
+ * V2 Sell.Kichink
+ * Order Details
+ */
+$(document).ready(function() {
+
+    $("input#fecha_recoleccion").datepicker({dateFormat: 'yy-mm-dd'});
+    $("#msg").elastic()
+
+
+    call_api('/api/orders/get_messages', 'post', {"limit": 20, "store_id": store_id, "order_id": order_id}, function(data) {
+        var ajax_request = jQuery.parseJSON(data.toString());
+        for (var i in ajax_request.data) {
+            create_bubble(ajax_request.data[i].message, ajax_request.data[i].created, ajax_request.data[i].name, false);
+        }
+    });
+
+
+    $('form[name=addComment]').find('#msg').keypress(function(event) {
+        if (event.keyCode == 13)
+        {
+            $("form[name=addComment]").submit();
+            return false;
+        }
+    });
+
+    $("form[name=addComment]").on("submit", function() {
+        var d = new Date();
+        var curr_day = d.getDate();
+        var curr_month = d.getMonth() + 1; //Months are zero based
+        var curr_year = d.getFullYear();
+        var curr_time = d.getHours() + ":" + ((d.getMinutes() >= 10) ? "" : "0") + d.getMinutes() + ":" + d.getSeconds();
+        if ($("form[name=addComment]").find("#msg").val() != "") {
+            $("form[name=addComment]").find("#msg").data("tmp-val", $("form[name=addComment]").find("#msg").val());
+            $("form[name=addComment]").find("#msg").val("")
+            create_bubble($("form[name=addComment]").find("#msg").data().tmpVal, curr_year + "-" + ((curr_month >= 10) ? "" : "0") + curr_month + "-" + curr_day + " " + curr_time, $("form[name=addComment]").find("input[name=user]").val(), true);
+            call_api('/api/orders/add_message', 'post', {"message": $("form[name=addComment]").data().tmpVal, "store_id": store_id, "order_id": order_id}, function(data) {
+
+            });
+        }
+
+        return false;
+    });
+
+
+    function create_bubble(msg, time, name, animated) {
+        var name_class = "you";
+
+        if ($("form[name=addComment]").find("input[name=user]").val().toLowerCase().trim() == name.toLowerCase().trim()) {
+            name_class = "me";
+        }
+
+        var b = document.createElement("div");
+        $(b).addClass("bubble");
+        $(b).html(msg.replace(/(<([^>]+)>)/ig, ""));
+        $(b).append("<span class='author'>" + name + ", " + date_ago(time) + "</span>");
+        $("#conversation").prepend(b);
+        if (animated) {
+            delay(function() {
+                $(b).addClass(name_class);
+            }, 400);
+        }
+        else
+            $(b).addClass(name_class);
+    }
+
+    $("#items-order").DinamicTable({
+        tableClass: "table table-responsive table-items",
+        numered: true, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            image: "image",
+            discount: "money",
+            price: "money",
+            total: "money"
+        },
+        dataTable: null,
+        actions: [//Tpdas las acciones que quiero agregar
+        ]
+    });
+
+    call_api('/api/orders/get_order_sell', 'post', {"store_id": store_id, "order_id": order_id}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var items = [];
+
+        $("#order-status").addClass(obj.data.status);
+        $("#order-status").html(obj.data.status);
+
+        if (obj.data.horario_recoleccion.from != undefined) {
+            var d = new Date(obj.data.horario_recoleccion.from);
+            var curr_day = d.getDate();
+            var curr_month = d.getMonth() + 1; //Months are zero based
+            var curr_year = d.getFullYear();
+            if (curr_day)
+                $(".from").html(curr_day + "-" + ((curr_month >= 10) ? "" : "0") + curr_month + "-" + curr_year);
+            else
+                $(".from").html("-");
+        } else {
+            var d = new Date();
+            var curr_day = d.getDate();
+            var curr_month = d.getMonth() + 1; //Months are zero based
+            var curr_year = d.getFullYear();
+        }
+
+        if (obj.data.status != "new")
+            $("#acciones").remove();
+        else {
+            $("#programar_recoleccion").click(function() {
+                call_api('/api/orders/programar_recoleccion', 'post', {"date": $("input#fecha_recoleccion").val(), "store_id": store_id, "order_id": order_id}, function(data) {
+                    $("#programar_recoleccion").parent().parent().append(kontrol_lang['order_envio_programado']);
+                    $("#programar_recoleccion").remove();
+                    $("#order-status").removeClass("new");
+                    $("#order-status").html("confirmed");
+                    $("#order-status").addClass("confirmed");
+                });
+
+            });
+
+        }
+
+        var total_de_totales = 0;
+
+        for (var i in obj.data.items) {
+
+            var t = parseFloat((obj.data.items[i].price * obj.data.items[i].units) - obj.data.items[i].discount);
+            var details = '';
+
+            if (obj.data.items[i].description)
+                details = obj.data.items[i].description;
+            if (obj.data.items[i].selected_size)
+                details += '<br />' + obj.data.items[i].selected_size;
+            if (obj.data.items[i].sku)
+                details += '<br />' + obj.data.items[i].sku;
+
+            total_de_totales += t;
+            items.push({
+                "details": details,
+                "image": obj.data.items[i].image,
+                "id": obj.data.items[i].item_id,
+                "name": obj.data.items[i].name,
+                "units": obj.data.items[i].units,
+                "price": obj.data.items[i].price,
+                "discount": obj.data.items[i].discount,
+                "total": t,
+                "comments": obj.data.items[i].comments
+            });
+        }
+
+        $(".subtotal").html("$" + number_format(total_de_totales, 2, ".", ","));
+        $(".envio").html("+$" + number_format(obj.data.shipment_price, 2, ".", ","));
+        $(".total").html("$" + number_format(obj.data.total_price, 2, ".", ","));
+
+        var visible = ["image", "id", "name", "details", "units", "price", "discount", "total"];
+        if (items.length > 0) {
+            $("#items-order").data().DinamicTable.methods.setHeader({"image": ""});
+            $("#items-order").data().DinamicTable.methods.setContent(items);
+            $("#items-order").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#items-order").data().DinamicTable.methods.drawTable();
+        } else {
+            $("#items-order").html("<span class='no'>" + kontrol_lang['order_no_items'] + "</span>");
+        }
+
+        if (obj.data.consumidor != undefined) {
+            var tr = document.createElement("div");
+            var td = document.createElement("div");
+            var p = 0;
+
+            if (obj.data.consumidor.nombre != undefined) {
+                $(td).attr("align", "center");
+                $(td).addClass("name");
+                $(td).append("<img src='/img/person_avatar.jpg'/><br/>" + obj.data.consumidor.nombre);
+                $(tr).append(td);
+            } else {
+                p++;
+            }
+
+            if (obj.data.consumidor.email != undefined) {
+                td = document.createElement("div");
+                $(td).attr("align", "center");
+                $(td).append("<a href='mailto:" + obj.data.consumidor.email + "'><span class='glyphicon glyphicon-envelope'></span>&nbsp;" + obj.data.consumidor.email + "</a>");
+                $(tr).append(td);
+            } else {
+                p++;
+            }
+
+            if (obj.data.consumidor.telefono != undefined) {
+                td = document.createElement("div");
+                $(td).attr("align", "center");
+                $(td).append("<span class='glyphicon glyphicon-earphone'></span>&nbsp;" + obj.data.consumidor.telefono + "</a>");
+                $(tr).append(td);
+                $("#consumidor").append(tr);
+            } else {
+                p++;
+            }
+
+            if (p >= 3) {
+                $("#consumidor").remove();
+            }
+
+        }
+        if (obj.data.datos_recoleccion_tienda[0] != undefined) {
+            var html = '';
+
+            $.each(obj.data.datos_recoleccion_tienda, function(i, val) {
+
+                if (i > 0)
+                    html += '<br /><br />';
+
+                html += '<b>' + (i + 1) + ') Direcci&oacute;n: </b><span class="calle">' + val.calle + '</span>&nbsp;<span class="numero">' + val.numero + '</span>&nbsp;';
+                html += '<span class="interior">' + val.interior + '</span><span class="colonia">';
+                if (val.colonia)
+                    html += ', ' + val.colonia + ',';
+                html += '</span>&nbsp;<span class="cp">';
+                if (val.cp)
+                    html += 'C.P. ' + val.cp + '<br/>';
+                html += '</span>';
+                html += '<span class="ciudad">' + val.ciudad + '</span><span class="estado_nombre">';
+                if (val.estado_nombre)
+                    html += ', ' + val.estado_nombre + ',';
+                html += '</span>&nbsp;<span class="pais_nombre">' + val.pais_nombre + '</span>';
+                html += '<br/>';
+                html += '<b>Tel&eacute;fono:</b> <span class="telefono">' + val.telefono + '</span>';
+                html += '<br/>';
+                html += '<b>Contacto:</b> <span class="contacto">' + val.contacto + '</span>';
+                html += '<br/>';
+                html += '<b>Email:</b> <span class="email">' + val.email + '</span>';
+                html += '<br/>';
+                html += '<b>Referencias:</b> <span class="referencias">';
+                if (val.referencias !== false)
+                    html += val.referencias;
+                html += '</span>';
+            });
+            $(".recoleccion").html(html);
+
+            //$(".recoleccion").find(".calle").html(obj.data.datos_recoleccion_tienda[0].calle);
+            //$(".recoleccion").find(".numero").html(obj.data.datos_recoleccion_tienda[0].numero);
+            //$(".recoleccion").find(".interior").html(obj.data.datos_recoleccion_tienda[0].interior);
+            //if (obj.data.datos_recoleccion_tienda[0].colonia)
+            //    $(".recoleccion").find(".colonia").html(", " + obj.data.datos_recoleccion_tienda[0].colonia + ",");
+            //if (obj.data.datos_recoleccion_tienda.cp)
+            //    $(".recoleccion").find(".cp").html("C.P. " + obj.data.datos_recoleccion_tienda[0].cp + "<br/>");
+            //$(".recoleccion").find(".ciudad").html(obj.data.datos_recoleccion_tienda[0].ciudad);
+            //if (obj.data.datos_recoleccion_tienda[0].estado_nombre)
+            //    $(".recoleccion").find(".estado_nombre").html(", " + obj.data.datos_recoleccion_tienda[0].estado_nombre + ",");
+            //$(".recoleccion").find(".pais_nombre").html(obj.data.datos_recoleccion_tienda[0].pais_nombre);
+            //$(".recoleccion").find(".contacto").html(obj.data.datos_recoleccion_tienda[0].contacto);
+            //$(".recoleccion").find(".email").html(obj.data.datos_recoleccion_tienda[0].email);
+            //$(".recoleccion").find(".telefono").html(obj.data.datos_recoleccion_tienda[0].telefono);
+            //$(".recoleccion").find(".referencias").html(obj.data.datos_recoleccion_tienda[0].referencias);
+
+
+            /*for (var key in obj.data.datos_recoleccion_tienda) {
+             var el = "table.recoleccion ." + key;
+             
+             if ($(el).length > 0) {
+             if (obj.data.datos_recoleccion_tienda[key] != "")
+             $(el).html(obj.data.datos_recoleccion_tienda[key]);
+             else
+             $(el).html("-");
+             }
+             }*/
+        }
+
+
+        /*if (obj.data.horario_recoleccion.to) {
+         $(".res-item .to").html(obj.data.horario_recoleccion.to);
+         }*/
+
+        if (obj.data.facturacion.length > 0) {
+            for (var key in obj.data.facturacion) {
+                var el = "table.facturacion ." + key;
+
+                if ($(el).length > 0) {
+                    if (obj.data.facturacion[key] != "")
+                        $(el).html(obj.data.facturacion[key]);
+                    else
+                        $(el).html("-");
+                }
+            }
+        } else {
+            $("#facturacion").remove();
+        }
+    });
+});

@@ -1,0 +1,64 @@
+<?= $this->load->view('v2/layout/header_new.php') ?>
+<?= $this->load->view('v2/layout/menu_index');?>
+
+<div class="signin-card" id="login">
+    <? if (isset($flashMessage)) { ?>
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong><?=$this->lang->line('v3_login_message')?>:</strong> <?=$flashMessage?>
+        </div>
+    <? } ?>
+    <div align="center" class="card">
+        <h1><?= $this->lang->line('v3_login_title'); ?>!</h1>
+        <div class="person img-circle"></div>
+        <form method="post" action="/login/doLogin" class="form-stacked">
+            <input type="text" class="form-control" name="username" placeholder="<?= str_replace(":", "", $this->lang->line('v3_login_email')) ?>" />
+            <input type="password" class="form-control" name="password" placeholder="<?= str_replace(":", "", $this->lang->line('v3_login_password')) ?>" />
+            <? if (isset($_SERVER['HTTP_REFERER'])) { ?> 
+                <input type="hidden" name="refer" value="<?= $_SERVER['HTTP_REFERER'] ?>" />
+            <? } ?>
+            <button type="submit" class="btn btn-primary btn-lg"><?= $this->lang->line('v3_login_button'); ?></button>
+            <div align="left">
+                <a href="<?= base_url() ?>login/requestPass"><?= $this->lang->line('v3_login_forgot_password'); ?></a>
+            </div>
+        </form>
+    </div>
+    <div align="center">
+        <a href="<?= base_url() ?>login/register"><?= $this->lang->line('v3_login_signup'); ?></a>
+    </div>
+</div>			
+
+<div class="home" id="tutorial">
+<div class="container">
+ <div class="col-lg-6 col-md-6 col-sm-6">
+     <div class="col-lg-12 col-md-12 col-sm-12">
+         <iframe style="box-shadow: 3px 3px 5px #222;" width="100%" height="400" src="//www.youtube.com/embed/QqHFp0job9s" frameborder="0" allowfullscreen=""></iframe>
+     </div>
+ </div>
+ <div class="col-lg-6 col-md-6 col-sm-6" align="left" id="new_features">
+    <h3>Con el objetivo de mejorar tu experiencia, en base a tus dudas y comentarios, hemos hecho algunos cambios:</h3>
+    <ul>
+        <li>Una pantalla de inicio más ordenada y con información relevante a primera vista</li>
+        <li>Sistema de notificaciones instantáneo en órdenes, pagos y mensajes</li>
+        <li>Tienes la posibilidad de hacer cambios masivos a tus productos en precio y categoría</li>
+        <li>Un nuevo diseño amigable, fresco y funcional</li>
+    </ul>
+ </div>
+    
+ </div>
+</div>
+<div class="container" id="networks">
+    <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+        <a href="http://www.facebook.com/kichink" target="_blank"><h1 class="fa fa-facebook"></h1></a>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+        <a href="http://www.twitter.com/kichink" target="_blank"><h1 class="fa fa-twitter"></h1></a>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+        <a href="https://plus.google.com/u/1/+Kichink/posts" target="_blank"><h1 class="fa fa-google-plus-square"></h1></a>
+    </div>
+    <div class="col-lg-3 col-sm-3 col-md-3" align="center">
+        <a href="http://www.pinterest.com/kichink" target="_blank"><h1 class="fa fa-pinterest"></h1></a>
+    </div>
+</div>
+<?= $this->load->view('v2/layout/footer.php', array('sreen_code' => 'S_2_0.2')) ?>

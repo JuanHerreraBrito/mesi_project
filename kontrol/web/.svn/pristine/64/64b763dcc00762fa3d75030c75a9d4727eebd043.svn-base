@@ -1,0 +1,55 @@
+<?= $this->load->view('v2/layout/header_new.php', array('page_title' => 'Kichink | ' . $this->session->userdata('name'))); ?>
+<script type="text/javascript" src="/v2/js/users.js"></script>
+<div class="signin-card">
+    <div class="content">
+        <? if (isset($updatingProfile)) { ?>
+            <div class="alert alert-warning alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <b>Message:</b> <?= $updatingProfile ?>
+            </div>
+        <? } ?>
+        <h1><?= $this->lang->line('userProfile_title_text') ?></h1>
+        <div class="col-12">
+            <form id="my-account" class="form-stacked" method="POST">
+                <fieldset>
+                    <label for="name"><?= $this->lang->line('userProfile_label_name') ?></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" readonly="readonly" class="form-control text-validation" value="<?= $userProfile->name ?>" />
+                    </div>
+                    <br />
+                    <label for="name"><?= $this->lang->line('userProfile_label_username') ?></label>
+                    <div class="input-group">
+                        <span class="input-group-addon">@</span>
+                        <input type="text" readonly="readonly" class="form-control email-validation" value="<?= $userProfile->email ?>" />
+                    </div>
+                    <br />
+                    <label for="password"><?= $this->lang->line('userProfile_label_current_password') ?></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" data-content="Password no puede ser vacio" name="current_password" class="form-control address-validation" />
+                    </div>
+                    <br />
+                    <label for="password"><?= $this->lang->line('userProfile_label_password') ?></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                        <input type="password" data-content="Tu contrase&ntilde;a debe contener m&iacute;nimo una letra, m&iacute;nimo una letra may&uacute;scula, m&iacute;nimo un n&uacute;mero y debe de ser de al menos 10 caracteres" name="password" class="form-control password-validation samepassword2-validation" />
+                    </div>
+                    <br />
+                    <label for="password"><?= $this->lang->line('userProfile_label_password2') ?></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                        <input type="password" data-content="El nuevo password no coincide" name="password2" class="form-control samepassword-validation" />
+                    </div>
+                    <br />
+                    <div align="center">
+                        <button type="submit" class="btn btn-primary btn-large"><?= $this->lang->line('userProfile_submit_value') ?></button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+    </div>
+</div>
+<?=
+$this->load->view('v2/layout/footer.php')?>

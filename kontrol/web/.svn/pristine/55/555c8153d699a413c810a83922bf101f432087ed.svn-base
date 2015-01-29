@@ -1,0 +1,478 @@
+<? 
+$this->load->view('layout/header.php');
+$usrPref = getUsrPref($this->session->userdata('user_id'));
+$usrLang = $usrPref->usr_language;
+$store = $this->uri->segment(3);
+$cells_width=array('', '20%', '20%', '20%', '30%', '5%','5%');
+$nombre_tienda = false;
+?>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('stores_orders_page_title_text');?></h1>
+        </div>
+        <div class="row">
+          <div class="span12">
+            <? if(!empty($stores['stores'])){ ?>
+            <div class="span11 orders_header" id="step1">
+                <h4><?=$this->lang->line('stores_orders_stores_box');?></h4>
+                <select id="store_names" style="font-size:28px;width:340px;height:38px;">
+                    <? foreach($stores['stores'] as $item_store){ ?>
+                    <option <? if($store==$item_store->id){ echo 'selected="selected"'; $nombre_tienda = $item_store->name; } ?> value="<?=base_url().'orders/store/'.$item_store->id?>"><?=$item_store->name?></option>
+                    <? } ?>
+                </select>
+            </div> 
+            <? } ?>
+           
+            <? if(!isset($orders)){ ?>
+                <h4 class="span11" style="text-align:center;color:#868080;font-size:20px;font-weight:300;margin-left:10px"><?=$this->lang->line('stores_orders_stores_zero_orders');?></h4>
+            <? } ?>
+
+            <? if(!empty($orders['incomplete'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_incompleteorder_bar_title_text');?>
+                 <div class="section_orders_total" id="incomplete_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="incomplete_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+            <table class="span11 order_table" status="incomplete" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['incomplete'] as $valueI){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label incomplete"><?=$this->lang->line('stores_orders_incompleteorder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueI->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueI->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueI->units_total?> <?=$valueI->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueI->total_sale_price,2)?><br/><small><?=$valueI->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueI->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueI->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueI->id.'/'.$valueI->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueI->total_order_MXN.'_'.$valueI->total_order_USD?>" class="incomplete_t" />  
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+            <? if(!empty($orders['sin_fondos'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_sinFondosorder_bar_title_text');?>
+                <div class="section_orders_total" id="sin_fondos_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="sin_fondos_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+        
+            <table class="span11 order_table" status="sin_fondos" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['sin_fondos'] as $valueS){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label sin_fondos"><?=$this->lang->line('stores_orders_sinFondosorder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueS->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueS->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueS->units_total?> <?=$valueS->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueS->total_sale_price,2)?><br/><small><?=$valueS->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueS->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueS->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueS->id.'/'.$valueS->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueS->total_order_MXN.'_'.$valueS->total_order_USD?>" class="sin_fondos_t" />     
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+            <? if(!empty($orders['waiting_for_payment'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_waitingForPaymentorder_bar_title_text');?>
+                <div class="section_orders_total" id="waiting_for_payment_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="waiting_for_payment_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+            </h6>
+            <table class="span11 order_table" status="waiting_for_payment" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['waiting_for_payment'] as $valueW){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label waiting_for_payment"><?=$this->lang->line('stores_orders_waitingForPaymentorder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueW->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueW->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueW->units_total?> <?=$valueW->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueW->total_sale_price,2)?><br/><small><?=$valueW->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueW->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueW->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueW->id.'/'.$valueW->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueW->total_order_MXN.'_'.$valueW->total_order_USD?>" class="waiting_for_payment_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+            <? if(!empty($orders['new'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_neworder_bar_title_text');?>
+                <div class="section_orders_total" id="new_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="new_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+            <table class="span11 order_table" status="new" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['new'] as $value){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label new"><?=$this->lang->line('stores_orders_neworder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$value->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$value->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$value->units_total?> <?=$value->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($value->total_sale_price,2)?><br/><small><?=$value->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$value->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($value->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$value->id.'/'.$value->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$value->total_order_MXN.'_'.$value->total_order_USD?>" class="new_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+            
+            <? if(!empty($orders['pending'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_pendingorder_bar_title_text');?>
+                <div class="section_orders_total" id="pending_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="pending_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+             <table class="span11 order_table" status="pending" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['pending'] as $valueP){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label pending"><?=$this->lang->line('stores_orders_pendingorder_status_text');?></span></td>-
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueP->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueP->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueP->units_total?> <?=$valueP->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueP->total_sale_price,2)?><br/><small><?=$valueP->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueP->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueP->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueP->id.'/'.$valueP->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueP->total_order_MXN.'_'.$valueP->total_order_USD?>" class="pending_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+
+            <? if(!empty($orders['confirmed'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_confirmedorder_bar_title_text');?>
+                <div class="section_orders_total" id="confirmed_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="confirmed_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+             <table class="span11 order_table" status="confirmed" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['confirmed'] as $valueConfirmed){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label confirmed"><?=$this->lang->line('stores_orders_confirmedorder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueConfirmed->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueConfirmed->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueConfirmed->units_total?> <?=$valueConfirmed->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueConfirmed->total_sale_price,2)?><br/><small><?=$valueConfirmed->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueConfirmed->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueConfirmed->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueConfirmed->id.'/'.$valueConfirmed->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueConfirmed->total_order_MXN.'_'.$valueConfirmed->total_order_USD?>" class="confirmed_t" />                    
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+
+            <? if(!empty($orders['en_ruta'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_Rutaorder_bar_title_text');?>
+                <div class="section_orders_total" id="en_ruta_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="en_ruta_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+             <table class="span11 order_table" status="en_ruta" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['en_ruta'] as $valueRuta){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label en_ruta"><?=$this->lang->line('stores_orders_Rutaorder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueRuta->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueRuta->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueRuta->units_total?> <?=$valueRuta->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueRuta->total_sale_price,2)?><br/><small><?=$valueRuta->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueRuta->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueRuta->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueRuta->id.'/'.$valueRuta->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueRuta->total_order_MXN.'_'.$valueRuta->total_order_USD?>" class="en_ruta_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+            
+            <? if(!empty($orders['delivered'])){ ?>
+                        
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_deliveredorder_bar_title_text');?>
+                <div class="section_orders_total" id="delivered_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="delivered_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+                 <table class="span11 order_table" status="delivered" style="margin-left:10px;">
+                    <tbody>
+                        <? foreach($orders['delivered'] as $valueD){?>
+                        <tr>
+                            <td width="<?=$cells_width[6]?>"><span class="label delivered"><?=$this->lang->line('stores_orders_deliveredorder_status_text');?></span></td>
+                            <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueD->name?></td><? } ?>
+                            <td width="<?=$cells_width[1]?>">
+                                No. <?=$valueD->id?>
+                            </td>
+                            <td width="<?=$cells_width[2]?>"><?=$valueD->units_total?> <?=$valueD->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                            <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueD->total_sale_price,2)?><br/><small><?=$valueD->currency?></small></p></td>
+                            <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueD->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueD->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                            <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueD->id.'/'.$valueD->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                            <input type="hidden" value="<?=$valueD->total_order_MXN.'_'.$valueD->total_order_USD?>" class="delivered_t" />
+                        </tr>
+                        <?  } ?>
+                    </tbody>
+                </table>
+
+            <? } ?>
+
+            <? if(!empty($orders['to_be_canceled'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_ToBeCanceledorder_bar_title_text');?>
+                <div class="section_orders_total" id="to_be_canceled_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="to_be_canceled_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+            <table class="span11 order_table" status="to_be_canceled" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['to_be_canceled'] as $valueToBe){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label to_be_canceled"><?=$this->lang->line('stores_orders_pending_cancellation_order_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueToBe->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueToBe->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueToBe->units_total?> <?=$valueToBe->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueToBe->total_sale_price,2)?><br/><small><?=$valueToBe->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueToBe->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueToBe->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueToBe->id.'/'.$valueToBe->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueToBe->total_order_MXN.'_'.$valueToBe->total_order_USD?>" class="to_be_canceled_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+
+            <? if($store != 1033 AND !empty($orders['cancelled'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_Canceledorder_bar_title_text');?></h6>
+            <table class="span11" status="cancelled" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['cancelled'] as $valueCanceled){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label cancelled"><?=$this->lang->line('stores_orders_canceled_order_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueCanceled->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueCanceled->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueCanceled->units_total?> <?=$valueCanceled->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueCanceled->total_sale_price,2)?><br/><small><?=$valueCanceled->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueCanceled->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueCanceled->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueCanceled->id.'/'.$valueCanceled->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueCanceled->total_order_MXN.'_'.$valueCanceled->total_order_USD?>" class="cancelled_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+            
+            <? if(!empty($orders['closed'])){ ?>
+            <h6 class="status_orders" style="clear:both"><?=$this->lang->line('stores_orders_closedorder_bar_title_text');?>
+                <div class="section_orders_total" id="closed_section">
+                    <span><?=$this->lang->line('stores_orders_status_calc');?></span>
+                    <select id="closed_select" class="currency_select">
+                        <option value="mxn">MXN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </div>
+            </h6>
+             <table class="span11 order_table" status="closed" style="margin-left:10px;">
+                <tbody>
+                    <? foreach($orders['closed'] as $valueC){?>
+                    <tr>
+                        <td width="<?=$cells_width[6]?>"><span class="label closed"><?=$this->lang->line('stores_orders_closedorder_status_text');?></span></td>
+                        <? if ($cells_width[0]!=''){ ?><td width="<?=$cells_width[0]?>"><?=$valueC->name?></td><? } ?>
+                        <td width="<?=$cells_width[1]?>">No. <?=$valueC->id?></td>
+                        <td width="<?=$cells_width[2]?>"><?=$valueC->units_total?> <?=$valueC->units_total>1 ? $this->lang->line('stores_orders_articulo_plural') : $this->lang->line('stores_orders_articulo_singular')?></td>
+                        <td width="<?=$cells_width[3]?>"><p style="text-align:center">$<?=number_format($valueC->total_sale_price,2)?><br/><small><?=$valueC->currency?></small></p></td>
+                        <td width="<?=$cells_width[4]?>" style="text-align:center"><?=$valueC->time_left?><p><small>( <?=$this->lang->line('stores_orders_ordered').($usrLang=='es' ? ' '.$this->lang->line('stores_orders_ago'):'')?> <?=timeago($valueC->order_created).($usrLang=='en' ? $this->lang->line('stores_orders_ago').' ':'')?>)</small></p></td>
+                        <td width="<?=$cells_width[5]?>"><a href="<?=base_url().'orders/id/'.$valueC->id.'/'.$valueC->store_id?>"><?=$this->lang->line('stores_orders_view_orders');?></a></td>
+                        <input type="hidden" value="<?=$valueC->total_order_MXN.'_'.$valueC->total_order_USD?>" class="closed_t" />
+                    </tr>
+                    <?  } ?>
+                </tbody>
+            </table>
+            <? } ?>
+                      
+          </div>
+          <div class="span4">
+            <br />
+            <? if(isset($orders)){ ?>
+            <a href="javascript:void(0);" onclick="javascript:startIntro();" class="btn success large" style="margin:0 0 0 10px;padding:9px;width:160px;text-align:center;"><?=$this->lang->line('stores_orders_mostrar_tuto');?></a>
+            <br/><br/>
+            <? } ?>
+            <div id="step2">
+                <h3><?=$this->lang->line('stores_orders_solicitar_depo');?></h3>
+                <?  
+                $flag = false;
+                if($store!="" AND !empty($orders['delivered'])){ 
+                    foreach($orders['delivered'] as $item){
+                        if(!isset($item->payment_process)){
+                            $flag = true;
+                            break;
+                        }
+                    }
+                }
+                ?>
+                <? if($flag==true){ ?>
+                    <form action="/orders/deposit_request" style="margin-bottom:0px"  method="post">
+                    <? 
+                    foreach($orders['delivered'] as $deposit_request_orders){
+                        if(!isset($deposit_request_orders->payment_process)){ ?><input type="hidden" value="<?=$deposit_request_orders->id?>" name="orders_id[]" /><? }
+                    } 
+                    ?>
+                    <input type="submit" name="submit" value="<?=$this->lang->line('stores_orders_statusorder_title_text_3');?>" class="btn primary large" style="text-transform:none;padding:8px 9px;font-weight:normal;width:180px;text-align:center;margin:10px 0 10px 10px" />
+                    <input type="hidden" value="<?=$store?>" name="store_id" />            
+                    </form>
+                    <p><?=$this->lang->line('stores_orders_solicitar_depo_text');?> <span style="font-size:18px"><?=$this->lang->line('stores_orders_solicitar_depo_text_1');?></span> <?=$this->lang->line('stores_orders_solicitar_depo_text_2');?> <span style="font-size:18px"><?=$nombre_tienda?></span></p>
+                
+                <?  }else{ ?>
+                    <input value="<?=$this->lang->line('stores_orders_statusorder_title_text_3');?>" class="btn primary large disabled" style="text-transform:none;padding:8px 9px;font-weight:normal;width:180px;text-align:center;margin:10px 0 10px 10px" /><br/>
+                    <p><?=$this->lang->line('stores_orders_solicitar_depo_text_disabled');?> <span style="font-size:18px"><?=$this->lang->line('stores_orders_solicitar_depo_text_1');?></span> <?=$this->lang->line('stores_orders_solicitar_depo_text_disabled2');?> <span style="font-size:18px"><?=$nombre_tienda?></span></p>
+                <? } ?>
+            </div>
+            <br/>
+            <h3 id="step3"><?=$this->lang->line('stores_orders_statusorder_title_text_1');?></h3>
+            <p><span class="label incomplete"><?=$this->lang->line('stores_orders_statusorder_subtitle1_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle1_text_2');?></p>    
+            <p id="step4"><span class="label sin_fondos"><?=$this->lang->line('stores_orders_statusorder_subtitle8_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle8_text_2');?></p>
+            <p id="step5"><span class="label waiting_for_payment"><?=$this->lang->line('stores_orders_statusorder_subtitle7_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle7_text_2');?></p>
+            <p><span class="label new"><?=$this->lang->line('stores_orders_statusorder_subtitle2_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle2_text_2');?></p>
+            <p><span class="label pending"><?=$this->lang->line('stores_orders_statusorder_subtitle3_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle3_text_2');?></p>
+            <p><span class="label confirmed"><?=$this->lang->line('stores_orders_statusorder_subtitle6_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle6_text_2');?></p>
+            <p><span class="label en_ruta"><?=$this->lang->line('stores_orders_statusorder_subtitle11_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle11_text_2');?></p>
+            <p><span class="label delivered"><?=$this->lang->line('stores_orders_statusorder_subtitle4_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle4_text_2');?></p>
+            <p><span class="label to_be_canceled"><?=$this->lang->line('stores_orders_statusorder_subtitle9_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle9_text_2');?></p>
+            <p><span class="label cancelled"><?=$this->lang->line('stores_orders_statusorder_subtitle10_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle10_text_2');?></p>
+
+            <p><span class="label closed"><?=$this->lang->line('stores_orders_statusorder_subtitle5_text_1');?></span> <?=$this->lang->line('stores_orders_statusorder_subtitle5_text_2');?></p>
+            <br />
+            
+            <h3><?=$this->lang->line('stores_orders_statusorder_title_text_2');?></h3>
+            <p><?=$this->lang->line('stores_orders_statusorder_response_text_1');?></p>
+            <br /><br />
+            
+          </div>
+        </div>
+        
+      </div>
+
+      <script type="text/javascript">
+        function startIntro(){
+            var intro = introJs();
+            var default_steps = [
+                                  {
+                                    element: document.getElementById('step1'),
+                                    intro: "<?=$this->lang->line('stores_orders_setp1');?>"
+                                  },
+                                  {
+                                    element: document.getElementById('step2'),
+                                    intro: "<?=$this->lang->line('stores_orders_setp2');?>"
+                                  },
+                                  {
+                                    element: document.getElementById('step3'),
+                                    intro: "<?=$this->lang->line('stores_orders_setp3');?>"
+                                  },
+                                  {
+                                    element: document.getElementById('step4'),
+                                    intro: "<?=$this->lang->line('stores_orders_setp4');?>"
+                                  },
+                                  {
+                                    element: document.getElementById('step5'),
+                                    intro: "<?=$this->lang->line('stores_orders_setp5');?>"
+                                  }
+                                ];
+
+            intro.setOptions({ steps: default_steps, skipLabel: '<?=$this->lang->line('stores_orders_skip');?>', nextLabel:'<?=$this->lang->line('stores_orders_next');?> &rarr;', prevLabel:'&larr; <?=$this->lang->line('stores_orders_prev');?>', doneLabel: '<?=$this->lang->line('stores_orders_done');?>' });
+            intro.start();
+            intro.oncomplete(function(){ $.post("/stores/tutorials",{tuto:'orders'});
+            });
+        }
+
+        $(document).ready(function() {
+            <? if(isset($tuto) AND $tuto){ ?>
+                startIntro();
+            <? } ?>
+            var status = '';
+            $('.order_table').each(function() {
+                status = $(this).attr('status');
+                get_section_totals(status,'mxn');
+            });
+        });
+        $(".currency_select").val('mxn').attr('selected', true);
+        $(".currency_select").change(function () {
+            var select = $(this).attr('id');
+            var curr = $(this).val();
+            var status_ = select.split('_select');
+            var status = status_[0];
+            get_section_totals(status,curr);
+        })
+        $('#store_names').bind('change', function () {
+            var url = $(this).val();
+            if (url) { window.location = url; }
+            return false;
+        });
+        function get_section_totals(s,c){
+            var status_total = 0;
+            $('.'+s+'_t').each(function() {
+                var amounts = this.value;
+                var amounts_split = amounts.split('_');
+                if(c=='mxn'){
+                    var amount = amounts_split[0];
+                }else{
+                    var amount = amounts_split[1];
+                }
+                if(isNaN(amount) || amount==''){ amount=0; }
+                status_total = status_total + parseFloat(amount);
+            });
+            $('#'+s+'_section span').html('$ '+addCommas(status_total.toFixed(2)));
+            status_total = 0;
+        }
+        function addCommas(nStr) {  
+            nStr += ''; var x = nStr.split('.'); var x1 = x[0]; var x2 = x.length > 1 ? '.' + x[1] : ''; var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) { x1 = x1.replace(rgx, '$1' + ',' + '$2');}
+            return x1 + x2;
+        }
+      </script>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_4_0.2'))?>

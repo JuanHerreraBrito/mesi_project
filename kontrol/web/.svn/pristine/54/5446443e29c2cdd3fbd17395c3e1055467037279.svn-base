@@ -1,0 +1,234 @@
+<?=$this->load->view('layout/header_previews.php', array('page_title'=>$store->name.': '.(isset($item_data[0]->name) ? $item_data[0]->name : '').' @ Kichink.com', 
+											  	'page_description' => $item_data[0]->name, 
+											  	'text' => $store->itemsPrice_text, 
+                                                'back' => $store->itemsPrice_back))?>
+<?				
+$this->load->helper('text');
+//HEADER
+if(!empty($store->images['header']['default'])){ //Getting the header_image
+	$url_header = $store->images['header']['default'][0]->url.$store->images['header']['default'][0]->object_name.'_b.'.$store->images['header']['default'][0]->extension;
+	$resize_header = resize($url_header, 980 , 0, TRUE);
+	$scrollTo=100;
+}else{
+  	$background_noHeader= 'style="background:#EEEEEE;height:105px"';
+	$scrollTo=0;
+}
+ //LOGO
+ if(!empty($store->images['logo']['default'])){ 
+	$url_logo = $store->images['logo']['default'][0]->url.$store->images['logo']['default'][0]->object_name.'_b.'.$store->images['logo']['default'][0]->extension;
+ }else{
+	$url_logo = 'http://placehold.it/160x160';
+ }
+ //PRICES
+ if($this->session->userdata('currency') == 'USD'){
+ 	$price = isset($item_data[0]->priceUSD['price']) ? number_format($item_data[0]->priceUSD['price'],2) : '';
+ }else{
+ 	$price = isset($item_data[0]->priceMXN['price']) ? number_format($item_data[0]->priceMXN['price'],2) : '';
+ }
+?>
+    <div class="container">
+
+        <div id="imageCover" <?=isset($background_noHeader)?$background_noHeader:''?> >
+	    	<? if(!isset($background_noHeader)){ ?>
+	    		<img src="<?=$url_header?>" width="<?=$resize_header['height']?>" height="<?=$resize_header['width']?>" alt="imgHeader" />
+	        <? } ?>
+	    </div>
+        <div class="content">
+	        <div class="page-header" style="padding:20px 20px 0px;min-height:90px;background:#fff;border-bottom:none">
+	        	<div id="logoCover" class="logoCoverImageContainer borderProfile">
+	              <img src="<?=$url_logo?>" width="160" height="160" alt="imgLogo" />
+	            </div>
+	            <h1 style="float:left;margin:-50px 0 15px 190px;width:570px;line-height:22px"><a href="<?=base_url().'stores/preview/'.$item_data[0]->store_id?>" style="line-height:32px"><?=$item_data[0]->store_name?></a>
+	            	<br><small><?=$store->description?></small>
+	           	</h1>
+       	
+           		<div style="clear:both;"></div>
+           		
+        	</div>
+
+        <div class="row">
+          <div class="span12">
+          	 <? if($item_data[0]->units_availible < 1){ 
+	          		echo '<div class="ribbon"><p style="text-align:center;padding:0px;margin:0">'.$this->lang->line('www_store_ribbon').'</p></div>';
+          	 	} else {
+	          	 	if(isset($discount->id)){
+		          		echo '<div class="ribbon"><p style="text-align:center;padding:0px;margin:0">'.$discount->order_perc.'% off</p></div>'; 	
+	          	 	}
+          	 	} 
+          	 	?>
+          	 <div class="slide" style="position:relative; margin-bottom:10px; width:700px; height:500px; background-color:#eee">
+             	<? if(is_array($item_data[0]->image)){ 
+				 		$c=0;
+				 		for($i=0; $i<=count($item_data[0]->image); $i++){ 
+							if(!empty($item_data[0]->image[$i]->imageData['default'])){
+							$c=$c+1;?>
+	                        <img class="thumbnail" src="<?=$item_data[0]->image[$i]->imageData['default'][0]->url.$item_data[0]->image[$i]->imageData['default'][0]->object_name.'_b.'.$item_data[0]->image[$i]->imageData['default'][0]->extension?>" alt="<?=$item_data[0]->image[$i]->imageData['default'][0]->object_name?>" id="<?=$c.'-'.$item_data[0]->image[$i]->imageData['default'][0]->MediaID?>" width="<?=$item_data[0]->image[$i]->imageData['default'][0]->width?>" height="<?=$item_data[0]->image[$i]->imageData['default'][0]->height?>" style="max-width:700px; max-height:500px"/>
+	            <? 		}
+					} ?>
+             </div>
+             <div id="imageNav" style="float:right;">
+				<a class="btn default" id="prev" href="#">&larr;</a>
+				<a class="btn disabled"><span id="item_counter"></span> / <?=$c?></a>
+				<a class="btn default" id="next" href="#">&rarr;</a>
+			</div>
+            <? }else{ ?>
+                	<img class="thumbnail" src="http://placehold.it/700x500" style=""/>
+                </div>
+            <? } ?>
+           
+          </div>
+          <div class="span4" style="padding-left:9px;margin-left:9px">
+	
+			<h2 style="font-size:20px; font-weight:bold;line-height:22px;text-align:center"><?=(isset($item_data[0]->name) ? $item_data[0]->name : '')?></h2>
+			<h2 style="font-size:34px;font-weight:500;text-align:center;padding:20px 0">
+				<?='$ '.$price?>
+			</h2>
+			
+			<?=$item_data[0]->units_availible==1 ? '<h4 style="color:#b32723;text-align:center">'.$this->lang->line('www_store_uniqueItem').'</h4>' : ''?>
+			<br />
+			<a href="#" class="btn big primary disabled" id="buy_button" style="font-size:18px;width:200px;padding:10px;text-align:center;"><?=$this->lang->line('stores_itempagePreview_buy_button_text')?></a>
+          	<br />
+
+		   	<div class="share_controls" style="with:220px; height:40px; margin:20px auto; text-align:center;">
+				<!-- AddThis Button BEGIN -->
+				<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+					<a class="addthis_button_preferred_1"></a>
+					<a class="addthis_button_preferred_2"></a>
+					<a class="addthis_button_preferred_3"></a>
+					<a class="addthis_button_preferred_4"></a>
+
+					<a class="addthis_button_compact"></a>
+				</div>
+				<script type="text/javascript">var addthis_config = {"data_track_addressbar":false};</script>
+				<script type="text/javascript" src="https://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-504918e96b99753c"></script>
+				<!-- AddThis Button END -->					
+			</div>
+			<div id="my-tab-content" class="tab-content" style="clear:both;">
+        
+				<div id="details" class="active tab-pane settings_tab" style="overflow:auto;height:250px; text-align=left;">
+					<p style="text-align:left;"><?=(isset($item_data[0]->description) ? $item_data[0]->description : '')?></p>
+				</div>
+			
+			</div> 
+			
+          </div>
+        </div>
+   </div> 
+   <? 
+    if(isset($item_display_options['availible'][0])){ ?> 
+    <br />   <br />   <br />
+    <div class="container">
+		<div class="content">
+			<div class="page-header">
+        		<h2>M&aacute;s sobre el art&iacute;culo</h2>
+        	</div>
+			<div class="span16">
+				<div class="row">
+					<? 
+					$i = 0;
+					foreach($item_display_options['availible'] as $options){ ?> 
+									
+						<div class="span3"><b><?=$options->option_name?></b></div>
+						<div class="span13" style="height:110px;text-align:left;overflow:auto;margin-bottom:15px">
+							<? if(isset($item_display_options['exist'])){
+								foreach($item_display_options['exist'] as $value){
+									if($value->option_key == $options->option_key){
+										echo trim($value->option_values);
+									}
+								}
+							}?>
+						</div>
+					<? 
+					$i++;
+					} ?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<? } ?> 
+    <br />   <br />   <br />
+   
+    <div class="container">
+        <div class="content">
+        	<div class="page-header">
+        		<h2><?=$this->lang->line('stores_itempagePreview_bottom_header')?></h2>
+        	</div>
+        	<div class="span16">
+        		<div class="row" style="margin-left:0px">
+
+        		<? if(!empty($related_items)){ ?>
+
+        			<? foreach($related_items as $item){
+	                    if (is_array($item->image)){
+	                        $url = $item->image[0]->url.$item->image[0]->object_name.'_thumb.'.$item->image[0]->extension;
+	                    ?>
+							<div style="position:relative;float:left;margin:9px">
+								<div class="items_price_ribbon">
+	                                <p style="text-align:center;padding:0px;margin:0">$ <?=$this->session->userdata('currency') == 'MXN' ? number_format($item->priceMXN['price'],2) : number_format($item->priceUSD['price'],2) ?></p>
+	                            </div> 
+	                        	<?=$item->units_availible<1 ? '<div class="small_ribbon"><p style="text-align:center;padding:0px;margin:0">'.$this->lang->line('stores_itempagePreview_ribbon').'</p></div>'  : ''?>
+	                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="<?=$url?>" style="padding:4px; background:#F4F4F4;" /></a>  
+
+	                            <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+	                        </div>
+	                        
+	                	 <? }else{ ?>
+							
+							<div style="position:relative;float:left;margin:9px">
+								<div class="items_price_ribbon">
+	                                <p style="text-align:center;padding:0px;margin:0">$ <?=$this->session->userdata('currency') == 'MXN' ? number_format($item->priceMXN['price'],2) : number_format($item->priceUSD['price'],2) ?></p>
+	                            </div> 
+	                        	<?=$item->units_availible<1 ? '<div class="small_ribbon">'.$this->lang->line('stores_itempagePreview_ribbon').'</div>'  : ''?>
+	                            <a href="/items/preview/<?=$item->id?>"><img class="thumbnail" width="200" height="150" src="http://placehold.it/200x150" style="padding:4px; background:#F4F4F4;" /></a>
+                                <p class="items-name"><?=character_limiter($item->name, 50)?></p>
+	                        </div>
+	             	<? 	}
+                	} 
+               		?>
+
+        		<? }else{ ?>
+
+    				<div style="width:200px; height:150px; float:left; margin:9px; padding: 3px; border:1px solid #eee; background:#F4F4F4; text-align:center; font-size:50px;">
+                    <br /><br />
+                    <small style="font-size:14px;"><?=$this->lang->line('www_store_sinRelacionados')?></small>
+                    </div>
+
+        		<? } ?>
+        	
+            	</div>
+        	</div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+	    var reportLevel = 10; // 10  = todos.  0 = ninguno
+		$(document).ready(function() {
+			
+			var timeOnPage = 0;
+			var timeOnPageTimer = self.setInterval(function(){ timeOnPage++; },1000);
+
+			////Images carrousel plugin
+			$('.slide').cycle({
+				fx:     'fade', 
+	    		speed:  'fast', 
+	    		timeout: 0, 
+	    		next:   '#next', 
+	    		prev:   '#prev' ,
+	    		after:   onAfter
+			});
+
+		});
+		
+		var reloadModal = function(){
+			location.reload(true);
+		}
+	    /////Image carrousel function
+	    function onAfter() { 
+			var getId = $('.slide').children('img:visible').attr('id');
+			var id = getId.split('-');
+			$('#item_counter').html(id[0]);
+		}
+		
+    </script>
+
+<?=$this->load->view('layout/footer.php')?>

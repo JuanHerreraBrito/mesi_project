@@ -1,0 +1,52 @@
+/* 
+ * V2 Sell.Kichink
+ * Payment Details
+ */
+$(document).ready(function() {
+  call_api('/api/pagos/get_payment_order_details', 'post', {"store_id": store_id, "type": "general", "id": payment_id}, function(data) {
+        var ajax_request = jQuery.parseJSON(data.toString());
+        console.log(ajax_request);
+        var obj = ajax_request.data.pago;
+        $(".resumen").find(".res-item .payments").html(obj.stats.payments_count);
+        $(".resumen").find(".res-item .orders").html(obj.stats.orders_count)
+        $(".resumen").find(".res-item .items").html(obj.stats.items_count);
+
+        for (i in obj.items) {
+
+            var id = i;
+
+            var o = '<div class="panel panel-default">' +
+                    '<div class="panel-heading">' +
+                    '<a data-toggle="collapse" data-parent="#accordion-pagos" href="#collapse-' + i + '">' +
+                    '<div class="panel-title">' +
+                    '<b>No. ' + obj.items[i].id + '</b>' +
+                    '<i class="articulo">' + obj.items[i].name + '</i>' +
+                    '<span>' + obj.items[i].units + ' unidades</span>' +
+                    '</div>' +
+                    '</a>' +
+                    '</div>';
+            if (obj.items[i].purchase_options) {
+                o += '<div id="collapse-' + i + '" class="panel-collapse collapse">' +
+                        '<div class="panel-body">' +
+                        '<ul>';
+                for (k in obj.items[i].purchase_options) {
+                    o += '<li>' + k + ' - ' + obj.items[i].purchase_options[k] + ' unidades</li>';
+                }
+                o += '</ul>' +
+                        '</div>' +
+                        '</div>';
+            }
+            o += '</div>';
+
+            $("#accordion-pagos").append(o);
+
+        }
+
+        $(".resumen-pago .subtotal").html("$" + number_format(obj.pagos_resume.subtotal, 2, ".", ","));
+        $(".resumen-pago .comision").html("-$" + number_format(obj.pagos_resume.comision_k, 2, ".", ","));
+        $(".resumen-pago .total").html("$" + number_format(obj.pagos_resume.pago_total, 2, ".", ","));
+
+    });
+});
+
+

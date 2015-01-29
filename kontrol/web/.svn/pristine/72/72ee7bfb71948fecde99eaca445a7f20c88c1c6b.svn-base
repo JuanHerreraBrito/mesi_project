@@ -1,0 +1,73 @@
+<? $this->load->view('layout/header.php');?>
+
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('depositRequest_title')?></h1>
+          <a class="btn" href="<?=base_url().'orders'?>"><?=$this->lang->line('depositRequest_backButton')?></a>
+        </div>
+        <div class="row">
+         <? if(isset($flashMessage)){?>
+         
+              <div class="span16">
+             
+              	<p style="text-align:center"><?=$flashMessage?></p><br  /><br />
+                <p style="text-align:center"><a class="btn primary large" href="<?=base_url().'stores/settings/'.$store?>"><?=$this->lang->line('depositRequest_gotoStoreSettingsButton')?></a></p>
+                            
+              </div>
+             
+          <? }else{ ?>
+          
+              <div class="span12">
+                   <p><?=$this->lang->line('depositRequest_confirming')?></p><br  /><br />
+                   <form action="/orders/generate_order" style="margin-bottom:0px"  method="post">
+                      <table class="span11 zebra-striped" style="margin-left:20px;">
+                          <thead>
+                          <tr>
+                            <th>No.</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th></th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                              <? 
+                              $total=0;
+                              foreach($confirmation as $item){?>
+                              <tr>
+                                  <td width="20%" style="text-align:center"><?=$item->orderID?><input type="hidden" value="<?=$item->orderID?>" name="orders_id[]" /></td>
+                                  <td width="15%" style="text-align:center"><?=$item->units_total?></td>
+                                  <td width="25%" style="text-align:center">$<?=number_format($item->total_sale_price,2)?><? $total=$total+$item->total_sale_price ?></td>
+                                  <td width="40%" style="text-align:center">
+								  	              <?=$item->time_left?> <?=$this->lang->line('depositRequest_remaining')?>
+                                  <p><small> (<?=$this->lang->line('depositRequest_ordered')?> <?=timeago($item->order_created)?> <?=$this->lang->line('depositRequest_ago')?>)</small></p>
+                                  </td>
+                              </tr>
+                              <? 	} ?>
+                          </tbody>
+                      </table>
+              </div>
+              <div class="span4">
+                <br />
+                <h2 style="text-align:center">Total $<?=number_format($total,2)?><br/><?=$store_currency?></h2>
+                <br  /><br />
+                <p style="text-align:center">
+                <input type="hidden" name="amount" value="<?=$total?>" />
+                <input type="hidden" name="store_id" value="<?=$store?>" />
+                <input type="submit" name="submit" value="<?=$this->lang->line('depositRequest_depositButton')?>" class="btn primary large" />
+                </p>
+              </div>
+              
+             </form>
+             
+         <? } ?>
+
+        </div>
+        
+      </div>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_4.1.1_0.2'))?>

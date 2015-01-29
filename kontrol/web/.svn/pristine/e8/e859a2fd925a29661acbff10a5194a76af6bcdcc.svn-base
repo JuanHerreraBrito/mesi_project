@@ -1,0 +1,259 @@
+/* 
+ * V2 Sell.Kichink
+ * Orders
+ */
+$(document).ready(function() {
+
+    $("#new-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "bFilter": false,
+         "bInfo": false,
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }]
+    });
+
+    $("#previous-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "bFilter": false,
+         "bInfo": false,
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }],
+    });
+
+
+    $("#open-orders").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            total_price_USD: "money",
+            time_ago: "time_ago"
+        },
+        /*dataTable: {
+         "bFilter": false,
+         "bInfo": false,
+         "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+         "sPaginationType": "bootstrap",
+         "oLanguage": {
+         "sInfo": "_START_ - _END_ / _TOTAL_ records",
+         "sLengthMenu": "Show _MENU_",
+         "sPrevious": "",
+         "sNext": ""
+         }
+         },*/
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                type: "href",
+                href: '/orders/store/' + store_id + '/'
+            }]
+    });
+
+    $("#offset-new").on("change", function() {
+        get_orders("new", 1, $(this).val());
+    });
+
+    $("#offset-open").on("change", function() {
+        get_orders("open", 1, $(this).val());
+    });
+
+
+    function get_orders(status, page, limit) {
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: status, page: page, limit: limit}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#" + status + "-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#" + status + "-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#" + status + "-orders").data().DinamicTable.methods.drawTable();
+                var total_pages = Math.ceil(obj.data[0].total_count / limit);
+
+                var select = document.createElement("select");
+                $(select).attr("id", "offset-" + status);
+                $(select).append('<option value="10">10</option>');
+                if (obj.data[0].total_count > 25)
+                    $(select).append('<option value="25">25</option>');
+                if (obj.data[0].total_count > 50)
+                    $(select).append('<option value="50">50</option>');
+                if (obj.data[0].total_count > 100)
+                    $(select).append('<option value="100">100</option>');
+
+
+                $(select).on("change", function() {
+                    get_orders(status, 1, $(this).val());
+                });
+                
+                var div=document.createElement("div")
+                $(div).append("<b>Mostrando</b>&nbsp;");
+                $(div).append(select);
+                $(div).append("&nbsp;<b>resultados por p&aacute;gina</b>&nbsp;");
+                $(div).append("de un total de "+obj.data[0].total_count +" ordenes "+status+" en ");
+                
+                var select2 = document.createElement("select");
+                $(select2).append('<option value="USD">USD</option>');
+                $(select2).append('<option value="MXN">MXN</option>');
+                $(div).append(select2);
+
+                
+                $("#" + status + "-orders").prepend(div);
+                
+                if (page <= 0)
+                    page = 1;
+                if (page > total_pages)
+                    page = 1;
+
+                var from = 0, to = 5;
+                if (page <= 3) {
+                    from = 1;
+                }
+                else if (page > 3) {
+                    from = page - 2;
+                }
+
+                if ((page + 2) >= total_pages)
+                    from = total_pages - 5;
+
+                if (from < 0)
+                    from = 1;
+                to = from + 5;
+                if (to > total_pages)
+                    to = total_pages;
+
+                var pagination = document.createElement('ul');
+                $(pagination).addClass("pagination");
+                $(pagination).html('<li><a href="#">&laquo;</a></li>');
+
+
+                for (var i = from; i < to; i++) {
+                    var li = document.createElement("li");
+                    var a = document.createElement("a");
+
+                    $(a).html(i);
+                    $(a).attr("data-index", i);
+
+                    if (page == i) {
+                        $(li).addClass("active");
+                    } else {
+                        $(a).click(function() {
+                            get_orders(status, $(this).data().index, limit);
+                        });
+                    }
+                    $(li).html(a);
+                    $(pagination).append(li);
+                }
+                $(pagination).append('<li><a href="#">&raquo;</a></li>');
+
+                if (total_pages > 1) {
+                    var input = document.createElement("input");
+                    var form = document.createElement("form");
+                    $(input).attr("type", "text");
+                    $(input).attr("class", "form-control");
+                    $(form).addClass("input-group");
+                    $(form).addClass("goto-Page");
+                    $(form).html(input);
+                    $(form).append('<span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>');
+                    $(form).submit(function() {
+                        get_orders(status, parseInt($(this).val()), limit);
+                        $(this).val('');
+                    });
+                    $("#pagination-" + status).html(form);
+                    $("#pagination-" + status).append(pagination);
+                }
+                setTooltip($("#" + status + "-orders").find('.label.status'));
+            } else {
+                $("#" + status + "-orders").html("<span class='no'>" + kontrol_lang['orders_no_orders'] + "</span>");
+            }
+        });
+    }
+
+    function setTooltip(t) {
+        t.each(function() {
+            var title = "";
+            if ($(this).hasClass("without-founds")) {
+                title = kontrol_lang['orders_sin_fondos'];
+            }
+            if ($(this).hasClass("waiting-for-payment")) {
+                title = kontrol_lang['orders_waiting_for_payment'];
+            }
+            if ($(this).hasClass("new")) {
+                title = kontrol_lang['orders_new'];
+            }
+            if ($(this).hasClass("pending")) {
+                title = kontrol_lang['orders_pending'];
+            }
+            if ($(this).hasClass("confirmed")) {
+                title = kontrol_lang['orders_confirmed'];
+            }
+            if ($(this).hasClass("en-ruta")) {
+                title = kontrol_lang['orders_en_ruta'];
+            }
+            if ($(this).hasClass("delivered")) {
+                title = kontrol_lang['orders_delivered'];
+            }
+            if ($(this).hasClass("pendiente-cancelacion")) {
+                title = kontrol_lang['orders_pendiente_cancelacion'];
+            }
+            if ($(this).hasClass("closed")) {
+                title = kontrol_lang['orders_closed'];
+            }
+            $(this).popover({
+                content: title,
+                placement: "right",
+                trigger: "hover"
+            });
+        });
+
+    }
+
+    get_orders("new", 1, 10);
+    get_orders("open", 1, 10);
+    get_orders("previous", 1, 10);
+
+
+});

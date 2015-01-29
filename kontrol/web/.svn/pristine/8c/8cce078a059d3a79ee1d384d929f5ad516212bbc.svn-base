@@ -1,0 +1,37 @@
+
+	
+      <footer>
+        <p style="text-align:center"><?=$this->lang->line('footer_text_1');?> <small style="color:#999;"><?=$this->lang->line('footer_text_2');?> {elapsed_time} | </small><small id="version" style="color:#999;"><?=(isset ($sreen_code) ? $sreen_code : 'S_0')?></small></p>
+
+      </footer>
+
+    </div> <!-- /container -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32304914-1']);
+  _gaq.push(['_setDomainName', 'kichink.com']);
+  _gaq.push(['_setAllowLinker', true]);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+document.write(unescape("%3Cscript src='//www.snapengage.com/snapabug.js' type='text/javascript'%3E%3C/script%3E"));</script><script type="text/javascript">
+<?
+  if(!$this->session->userdata('lang')){
+    $lang=getLang();
+  }else{
+    $lang=$this->session->userdata('lang');
+  }
+?>
+SnapABug.setLocale("<?=$lang?>");
+SnapABug.addButton("762c21a3-1b44-4040-80fd-5cb6627631c8","1","55%");
+</script>
+</body>
+</html>

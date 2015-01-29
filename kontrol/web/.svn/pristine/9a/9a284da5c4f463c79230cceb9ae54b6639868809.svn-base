@@ -1,0 +1,16 @@
+<?php
+
+if(empty($size) AND empty($content))
+{
+    echo '<p>Error al cargar el archivo, favor de notificarlo...</p>';
+}
+else
+{
+    header("Content-Type: $type");
+    header('Content-Disposition: inline; filename="'.$name.'.'.$extension.'"');
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . $size);
+    header('Accept-Ranges: bytes');
+    readfile(html_entity_decode($content));
+}
+?>

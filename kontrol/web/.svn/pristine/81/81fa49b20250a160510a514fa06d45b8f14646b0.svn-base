@@ -1,0 +1,32 @@
+<?= $this->load->view('v2/layout/header_new.php') ?>
+
+
+
+<div class="signin-card">
+    <? if (isset($flashMessage)) { ?>
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong><?=$this->lang->language('v3_login_message')?>:</strong> <?=$flashMessage?>
+        </div>
+    <? } ?>
+    <div align="center" class="card">
+        <h1><?= $this->lang->line('v3_login_title'); ?>!</h1>
+        <div class="person img-circle"></div>
+        <form method="post" action="/login/doLogin" class="form-stacked">
+            <input type="text" class="form-control" name="username" placeholder="<?= str_replace(":", "", $this->lang->line('v3_login_email')) ?>" />
+            <input type="password" class="form-control" name="password" placeholder="<?= str_replace(":", "", $this->lang->line('v3_login_password')) ?>" />
+            <? if (isset($_SERVER['HTTP_REFERER'])) { ?> 
+                <input type="hidden" name="refer" value="<?= $_SERVER['HTTP_REFERER'] ?>" />
+            <? } ?>
+            <button type="submit" class="btn btn-primary btn-lg"><?= $this->lang->line('v3_login_button'); ?></button>
+            <div align="left">
+                <a href="<?= base_url() ?>login/requestPass"><?= $this->lang->line('v3_login_forgot_password'); ?></a>
+            </div>
+        </form>
+    </div>
+    <div align="center">
+        <a href="<?= base_url() ?>login/register"><?= $this->lang->line('v3_login_signup'); ?></a>
+    </div>
+</div>			
+
+<?= $this->load->view('v2/layout/footer.php', array('sreen_code' => 'S_2_0.2')) ?>

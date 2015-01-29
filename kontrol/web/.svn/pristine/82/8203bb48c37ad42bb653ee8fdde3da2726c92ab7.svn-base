@@ -1,0 +1,33 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class User extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function index()
+	{
+		$this->load->model('sell_model');
+		$data['userProfile'] = $this->sell_model->get_profile_user($this->session->userdata('user_id'));
+		$this->load->view('v2/user/index_view', $data);
+	}
+
+	public function newsletter(){
+		$this->load->view('../../../../shared_resources/views/newsletters/customer_newsletter');
+	}
+	
+	
+	
+}
+
+/* End of file user.php */
+/* Location: ./application/controllers/user.php */

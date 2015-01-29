@@ -1,0 +1,389 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<link href="/v2/css/settings.css" rel="stylesheet"/>
+<link href="/v2/css/jquery.minicolors.css" rel="stylesheet"/>
+<script type="text/javascript" src="/v2/js/settings.js"></script>
+<script type="text/javascript" src="/v2/js/pekeUpload.min.js"></script>
+<script type="text/javascript" src="/v2/js/jquery.minicolors.js"></script>
+
+<div class="col-lg-8 col-md-7 col-sm-7">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div id="settings">
+            <ul class="nav nav-pills nav-justified" id="settings-menu">
+                <li <?= ($option == "details" or $option == "") ? 'class="active"' : "" ?>><a href="#details" data-toggle="tab"><?=$this->lang->line('v3_settings_details')?></a></li>
+                <li <?= ($option == "categories") ? 'class="active"' : "" ?>><a href="#categories" data-toggle="tab"><?=$this->lang->line('v3_settings_categories')?></a></li>
+                <li <?= ($option == "users") ? 'class="active"' : "" ?>><a href="#users" data-toggle="tab"><?=$this->lang->line('v3_settings_users')?></a></li>
+                <li <?= ($option == "address") ? 'class="active"' : "" ?>><a href="#address" data-toggle="tab"><?=$this->lang->line('v3_settings_direcciones')?></a></li>
+                <li <?= ($option == "payments") ? 'class="active"' : "" ?>><a href="#payments" data-toggle="tab"><?=$this->lang->line('v3_settings_pagos')?></a></li>
+                <li <?= ($option == "design") ? 'class="active"' : "" ?>><a href="#design" data-toggle="tab"><?=$this->lang->line('v3_settings_design')?></a></li>
+
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div id="details" class="tab-pane <?= ($option == "details" or $option == "") ? 'fade in active' : 'fade' ?>  settings_tab">
+
+                    <!--div class="alert alert-warning alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <span class="glyphicon glyphicon-list"></span>
+                        <strong>Inventory, Inventory, Inventory.</strong> Remember, all of a sudden people can be interested in a specific product, so always keep this in mind and make sure you have enough products in your inventory in order to have happy customers.
+                    </div-->
+
+                    <h3 class="title"><?=$this->lang->line('v3_settingsStore_title')?></h3>
+
+                    <form id="details_store" method="post" role="form">
+
+                        <fieldset>
+                            <div id="step1_details" class="step">
+                                <label for="name"> <?= $this->lang->line('v3_settingsStore_nombre') ?> </label>
+                                <input maxlength="60" class="form-control address-validation" data-content="<?=$this->lang->line('v3_settingsStore_nombre_content')?>" type="text" id="name" name="name" value="" />
+                            </div>
+                            <div id="step2_details" class="step">
+
+                                <label for="description"> <?= $this->lang->line('v3_settingsStore_descripcion_es') ?> </label>
+                                <textarea class="form-control" name="description" id="description" class="form-control"></textarea>
+
+                                <label for="description_eng"> <?= $this->lang->line('v3_settingsStore_descripcion_en') ?> </label>
+                                <textarea class="form-control" name="description_eng" id="description_eng" class="form-control"></textarea>
+
+                                <label for="about"> <?= $this->lang->line('v3_settingsStore_about_es') ?> </label>
+                                <textarea class="form-control" name="about" id="about" class="form-control"></textarea>
+
+                                <label for="about_eng"> <?= $this->lang->line('v3_settingsStore_about_en') ?> </label>
+                                <textarea class="form-control" name="about_eng" id="about_eng" class="form-control"></textarea>
+                            </div>
+                            <div id="step3_details" class="step">
+                                <h3 class="title"><?= $this->lang->line('v3_settingsStore_opciones') ?></h3>
+                                <div class="row options">
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="checkbox" name="inventories" id="inventories" value="1" />
+                                            </span>
+                                            <input type="text" disabled="disabled" style="cursor: default;" value="<?= $this->lang->line('v3_settingsStore_inventarios_title') ?>" class="form-control">
+                                        </div>
+                                        <p><?= $this->lang->line('v3_settingsStore_inventarios_descripcion') ?></p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="checkbox" name="physical" id="physical" value="1" />
+                                            </span>
+                                            <input type="text" disabled="disabled" style="cursor: default;" value="<?= $this->lang->line('v3_settingsStore_entregables_title') ?>" class="form-control">
+                                        </div>
+                                        <p><?= $this->lang->line('v3_settingsStore_entregables_descripcion') ?></p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="checkbox" name="facturacion" id="facturacion" value="1" />
+                                            </span>
+                                            <input type="text" disabled="disabled" style="cursor: default;" value="<?=$this->lang->line('v3_settingsStore_facturacion_title')?>" class="form-control">
+                                        </div>
+                                        <p><?=$this->lang->line('v3_settingsStore_facturacion_description')?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="submit" id="submit_details" name="submit_details" class="btn btn-primary btn-large pull-right"><?=$this->lang->line('v3_settingsStore_save_button') ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div id="categories" class="tab-pane <?= ($option == "categories") ? 'fade in active' : 'fade' ?> settings_tab">
+
+                    <div class="categories">
+                        <h3 class="title"><?=$this->lang->line('v3_settingsCategorias_title')?></h3>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-10 col-sm-12">
+                                <form id="addCategories" method="POST" onsubmit="return false;">
+                                    <div class="input-group">
+                                        <input type="text" autocomplete="off" class="form-control"  name="category" id="add_category_input" placeholder="<?=$this->lang->line('v3_settingsCategorias_add_cat')?>"/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary" type="submit"><?=$this->lang->line('v3_settingsCategorias_add_button')?></button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                            <hr/>
+                            <div class="col-lg-10 col-md-10 col-sm-10" align="left">
+                                <button type="button" class="btn btn-default" onclick="demo_rename();"><i class="glyphicon glyphicon-pencil"></i> <?=$this->lang->line('v3_settingsCategorias_rename')?></button>
+                                <button type="button" class="btn btn-default" onclick="demo_delete();" id="delete_category"><i class="glyphicon glyphicon-trash"></i> <?=$this->lang->line('v3_settingsCategorias_delete')?></button>
+                            </div>
+                        </div>
+                        <br/>
+                         <div>
+                        <div class="treecontainer">
+                            <div id="jstree_demo">
+                                <ul>
+                                    <li data-jstree='{"opened":true}' class="jstree-open jstree-disabled"><?=$this->lang->line('v3_settingsCategorias_allCat')?>
+                                        <ul id="cats">
+
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                         </div>
+                    </div>
+                </div>
+                <div id="users" class="tab-pane <?= ($option == "users") ? 'fade in active' : 'fade' ?> settings_tab">
+
+                    <h3 class="title"><?=$this->lang->line('v3_settingsAdmins_add_admin')?></h3>
+
+                    <form id="addUser" method="post" role="form">
+                        <fieldset>
+                            <div class="input-group" id="step1_administrators">
+                                <input type="text" name="emailAdmin" class="form-control" autocomplete="off"
+                                       placeholder="<?= $this->lang->line('v3_settingsAdmins_email') ?>" />
+                                <span class="input-group-btn">
+                                    <input type="submit" name="submit_add_admin" class="btn btn-primary btn-large"
+                                           value="<?= $this->lang->line('v3_settingsAdmins_add') ?>" />
+                                </span>
+                            </div>
+                        </fieldset>
+                    </form>
+
+
+                    <!-- Default panel contents -->
+                    <h3><?=$this->lang->line('v3_settingsAdmins_list')?></h3>
+                    <form id="addRol" method="post" role="form">
+                        <fieldset>
+                            <label for="rol"><?=$this->lang->line('v3_settingsAdmins_perm')?>: </label>
+                            <div class="input-group">
+                                <select class="form-control" id="rol" name="rol">
+                                    <option value="1"><?=$this->lang->line('v3_settingsAdmins_items')?></option>
+                                    <option value="2"><?=$this->lang->line('v3_settingsAdmins_orders')?></option>
+                                    <option value="3"><?=$this->lang->line('v3_settingsAdmins_settings')?></option>
+                                    <option value="4"><?=$this->lang->line('v3_settingsAdmins_payments')?></option>
+                                </select>
+                                <span class="input-group-btn">
+                                    <input type="submit" name="submit_add_rol" class="btn btn-primary btn-large" value="<?=$this->lang->line('v3_settingsAdmins_assign_perm')?>" />
+                                </span>
+                            </div>
+                        </fieldset>
+                    </form>
+
+
+                    <div id="my-users"></div>
+
+                </div><!--End of administrators-->
+
+                <div id="address" class="tab-pane <?= ($option == "address") ? 'fade in active' : 'fade' ?> settings_tab">
+                    <h3 class="title"><?=$this->lang->line('v3_settingsAddress_title')?></h3>
+
+                    <form method="post" role="form" id="step1_pos">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <h4 class="semi-title"><?=$this->lang->line('v3_settingsAddress_address')?></h4>
+
+                                    <div class="col-lg-12">
+                                        <label for="direccion_calle"><?=$this->lang->line('v3_settingsAddress_street')?></label>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_street_content')?>" type="text" id="direccion_calle" name="calle" class="form-control address-validation" value="" />
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="direccion_numero"><?=$this->lang->line('v3_settingsAddress_number')?></label>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_number_content')?>" type="text" id="direccion_numero" name="numero" class="form-control numericorempty-validation" value="" />
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="direccion_interior"><?=$this->lang->line('v3_settingsAddress_int')?></label>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_int_content')?>" type="text" id="direccion_interior" name="interior" class="form-control numericorempty-validation" value="" />
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="direccion_colonia"><?=$this->lang->line('v3_settingsAddress_colonia')?></label>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_colonia_content')?>" type="text" id="direccion_colonia" name="colonia" class="form-control address-validation" value="" />
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="direccion_cp"><?=$this->lang->line('v3_settingsAddress_cp')?></label>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_cp_content')?>" type="text" MAXLENGTH="6" id="direccion_cp" name="cp" class="form-control numericonly-validation" value="" />
+                                    </div>
+
+                                    <div  class="col-lg-8">
+                                        <label for="direccion_ciudad"><?=$this->lang->line('v3_settingsAddress_ciudad')?></label>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_ciudad_content')?>" type="text" id="direccion_ciudad" name="ciudad" class="form-control text-validation" value=""/>
+                                    </div>
+
+                                    <div  class="col-lg-6">
+                                        <label for="direccion_pais"><?=$this->lang->line('v3_settingsAddress_pais')?></label>
+                                        <select id="direccion_pais" name="pais" class="form-control" onChange="javascript:getStates();">
+                                            <option value="112" selected>Mexico</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="direccion_estado"><?=$this->lang->line('v3_settingsAddress_estado')?></label>
+                                        <? if (isset($pos['post']['direccion_estado']) AND isset($pos['post']['direccion_pais']) AND $pos['post']['direccion_pais'] != 112) { ?>
+
+                                            <input type="text" class="form-control" id="direccion_estado" name="estado" value="<?= $pos['post']['direccion_estado'] ?>" />
+
+                                        <? } else { ?>
+
+                                            <select id="direccion_estado" name="estado" class="form-control">
+                                                <? foreach ($states_pos as $state) { ?>
+                                                    <option value="<?= $state->id ?>" <?= isset($pos['post']['direccion_estado']) ? ($pos['post']['direccion_estado'] == $state->id ? "selected" : '' ) : '' ?>>
+                                                        <?= $state->state_name ?>
+                                                    </option>
+                                                <? } ?>
+                                            </select>
+                                        <? } ?>
+                                        <img src="/img/creating_store.gif" width="20" height="20" id="loading_states" style="display:none;margin: 2px 0 0 70px" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <h4 class="semi-title"><?=$this->lang->line('v3_settingsAddress_contacto')?></h4>
+                                    <label for="nombre_contacto"><?=$this->lang->line('v3_settingsAddress_contacto_nombre')?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> <span class="glyphicon glyphicon-user"></span></span>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_contacto_nombre_content')?>" type="text" id="nombre_contacto" name="nombre_contacto"  class="form-control text-validation" value="" />
+                                    </div>
+                                    <label for="email_contacto"><?=$this->lang->line('v3_settingsAddress_contacto_email')?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> <span class="glyphicon glyphicon-envelope"></span></span>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_contacto_email_content')?>" type="text" id="email_contacto" name="email_contacto" class="form-control email-validation" value="" />
+                                    </div>
+                                    <label for="telefono_contacto"><?=$this->lang->line('v3_settingsAddress_contacto_telefono')?></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"> <span class="glyphicon glyphicon-earphone"></span></span>
+                                        <input data-content="<?=$this->lang->line('v3_settingsAddress_contacto_telefono_content')?>" MAXLENGTH="12" type="text" id="telefono_contacto" name="telefono_contacto" class="form-control phone-validation" value="" />
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div style="margin-top:15px;">
+                            <div class="col-lg-12">
+                                <button class="btn btn-primary btn-large" type="submit" id="submit_pos" name="submit_pos"><?=$this->lang->line('v3_settingsAddress_agregar')?></button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                    <h3><?=$this->lang->line('v3_settingsAddress_misdirecciones')?></h3>
+                    <div id="my-addr"></div>
+
+
+                </div><!--End of POS-->
+
+                <div id="payments" class="tab-pane <?= ($option == "payments") ? 'fade in active' : 'fade' ?>  settings_tab">
+                    <h3 class="title"><?=$this->lang->line('v3_settingsPayments')?></h3>
+                    <form method="post" id="step1_payments" role="form">
+
+                        <fieldset>
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <label for="bank_account_titular"> <?=$this->lang->line('v3_settingsPayments_titular')?></label>
+                                <input type="text" id="bank_account_titular" name="bank_account_titular" data-content='<?=$this->lang->line('v3_settingsPayments_titular_content')?>' placeholder="<?=$this->lang->line('v3_settingsPayments_titular')?>" class="form-control text-validation" value="<?= ( isset($payments['bank_account_titular']) ? $payments['bank_account_titular'] : (isset($store->bank_account_titular) ? $store->bank_account_titular : '') ) ?>" />
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="bank_account"> <?=$this->lang->line('v3_settingsPayments_clabe')?></label>
+                                <input maxlength='18' type="text" autocomplete='off' id="bank_account" name="bank_account" data-content='<?=$this->lang->line('v3_settingsPayments_clabe_content')?>' class="form-control clabe-validation" placeholder="<?=$this->lang->line('v3_settingsPayments_clabe')?>" value="<?= ( isset($payments['bank_account_post']) ? $payments['bank_account_post'] : (isset($store->bank_account) ? $store->bank_account : '') ) ?>" />
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="bank_accounts"> <?= $this->lang->line('v3_settingsPayments_bank') ?> </label>
+                                <select class="form-control" id="bank_id" name="bank_id">
+                                    <? foreach ($banks as $value) { ?>
+                                        <option value="<?= $value->id ?>" <?= (isset($store->bank_id) ? ($store->bank_id == $value->id ? 'selected="selected"' : '') : '') ?>><?= $value->bank_name ?></option>
+                                    <? } ?>
+                                </select>
+                            </div>
+
+                        </fieldset>
+                        <br/>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="submit" name="submit_payments" class="btn btn-primary btn-large pull-right" ><?= $this->lang->line('v3_settingsPayments_save') ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div><!--End of payments-->
+                <div id="design" class="tab-pane <?= ($option == "design") ? 'fade in active' : 'fade' ?>  settings_tab">
+                    <h3 class="title"><?=$this->lang->line('v3_settingsDesign')?></h3>
+                    <div class="col-lg-12">
+
+                        <div id="imageCover" class="img-container">
+                            <img src="http://placehold.it/980x275" width="100%" id="mycover">
+                            <div class="btn-group" id="edit-cover">
+                                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                                    <span class="fa fa-camera" style="margin-right:5px;"></span>&nbsp;<?=$this->lang->line('v3_settingsDesign_editCover')?>&nbsp;<span style="margin-left:5px;" class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#" data-id="<?= $store->id ?>" id="btn-edit-items"><?=$this->lang->line('v3_settingsDesign_editImage')?></a></li>
+                                    <li>
+                                        <input data-img="#mycover" data-table="stores" data-role="header" class="btn-add-foto" type="file" name="image" />
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="content">
+                            <div class="page-header" style="background:#fff">
+                                <div id="logoCover" class="fotoTienda">
+                                    <img src="http://placehold.it/160x160" class="img-responsive" id="mylogo">
+                                    <div class="btn-group" id="edit-foto">
+                                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                                            <span class="fa fa-picture-o"></span> <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="#" id="btn-edit-foto"><?=$this->lang->line('v3_settingsDesign_editImage')?></a></li>
+                                            <li>
+                                                <input data-img=".fotoTienda img" data-thumb="true" data-table="stores" data-role="logo" class="btn-add-foto" type="file" name="image" />
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <h1 class="currname" style="padding-left: 180px;margin: 0px;"></h1>
+                            </div>
+                            <div class="col-lg-12">
+                                <p class="curr" style="padding-left:170px"><?=$this->lang->line('v3_settingsDesign_description')?></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6" id="item-example">
+                                <div class="col-lg-6">
+                                    <ul class="box">
+                                        <li class="itemBox">
+                                            <span class="items-price">200.00</span>
+                                            <a href="#">
+                                                <div style="background-image:url(https://s3.amazonaws.com/kichink/items_42987_4220_20130927182407_thumb.jpg)" class="img"></div>
+                                                <p><?=$this->lang->line('v3_settingsDesign_item_name')?></p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div>
+                                        <button style="width:160px;margin:0 5px 20px 0" class="btn btn-default btn-lg my"><?=$this->lang->line('v3_settingsDesign_enviar')?></button>
+                                    </div>
+                                    </div>
+                                <div class="col-lg-6">
+                                    <div class="letrero"><?=$this->lang->line('v3_settingsDesign_colors')?></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" id="item-colours">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <b><?=$this->lang->line('v3_settingsDesign_texto')?></b>
+                                        <input type="text" id="itemsPrice_text" class="form-control color-picker" data-target="font" data-control="hue" value="">
+                                        <br/>
+                                        <b><?=$this->lang->line('v3_settingsDesign_back')?></b>
+                                        <input type="text" id="itemsPrice_back" class="form-control color-picker" data-target="background" data-control="hue" value="">
+                                        <br/>
+                                        <button class="btn btn-primary" id="senmycolours"><?=$this->lang->line('v3_settingsDesign_save')?></button>
+                                    </div>
+                                </div>
+                                <div>*<?=$this->lang->line('v3_settingsDesign_example')?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?
+$this->load->view('v2/layout/footer');
+?>

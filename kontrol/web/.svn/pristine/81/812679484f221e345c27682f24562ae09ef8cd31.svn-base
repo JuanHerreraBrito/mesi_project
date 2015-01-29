@@ -1,0 +1,660 @@
+var changed_flag = 0; // change in an onchange event or whatever, something like the below
+
+window.onbeforeunload = function() {
+    if (changed_flag) {
+        return 'You have unsubmitted changes.';
+    }
+};
+
+$(document).ready(function(){
+
+// calculate height 
+var screen_ht = $(window).height();
+var preloader_ht = 300;
+var padding =(screen_ht/2)-preloader_ht;
+
+$("#preloader").css("padding-top",padding+"px");
+
+    $('.allstores').on('show.bs.dropdown', function() {
+        $(".search").animate({width: '100%'}, 200, function() {
+            $(".search").find("input[type=text]").focus();
+        });
+    });
+
+    $('.allstores').on('hide.bs.dropdown', function() {
+        $(".search").animate({width: 0}, 200);
+        $(".search input").val("");
+    });
+
+    $('.allstores input').click(function(e) {
+        e.stopPropagation();
+    });
+
+    $("#solicitar-deposito-btn").click(function() {
+        $("#modal-pagos").modal("show");
+    });
+
+    $(".viewtoggle").find("button").each(function(i, e) {
+        $(e).click(function() {
+            if (!$(e).hasClass("active")) {
+                $(".viewtoggle").find("button").removeClass("active");
+                $(e).addClass("active");
+                if ($(e).data().setToggle == "itemList") {
+                    $(".itemBox").addClass("itemList");
+                    $(".itemList").removeClass("itemBox");
+                    $("#edit-menu").show();
+                    $(".guardar").show();
+                } else {
+                    $(".itemList").addClass("itemBox");
+                    $(".itemBox").removeClass("itemList");
+                    $("#edit-menu").hide();
+                    $(".guardar").hide();
+                }
+            }
+        });
+    });
+
+    $(".guardar").click(function() {
+        var arr = [];
+        $("li.itemList.changed").each(function() {
+            arr.push({live: $(this).data().live, id: $(this).data().id, price: $(this).data().price});
+        });
+        if (changed_flag) {
+            call_api('/api/items/update_items_properties', 'post', {store_id: store_id, json: JSON.stringify(arr)}, function(data) {
+                changed_flag = 0;
+                $(".itemList.changed").removeClass("changed");
+                $("#preloader").data().Preloader.methods.hide();
+            },null,function(){
+                $("#preloader").data().Preloader.methods.draw({issue:"Se actualizarán "+$(".itemList.changed").length+" items"})
+                $("#preloader").data().Preloader.methods.show();
+            });
+        }
+
+    });
+
+    $("#sortable_items").sortable({
+        update: function() {
+            var neworder = Array();
+            $('#sortable_items li').each(function() {
+                var id = $(this).attr('data-id');
+                neworder.push(id);
+            });
+            call_api('/api/items/update_items_order', 'post', {store_id: store_id, neworder: neworder}, function(data) {
+            });
+        }
+    });
+
+    $(".edit-attribute").change(function() {
+        if ($(".edit-attribute").val() == "live") {
+            $(".itemList .live").show();
+            $(".itemList .price").hide();
+        } else {
+            $(".itemList .live").hide();
+            $(".itemList .price").show();
+        }
+    });
+
+
+    $(".search input").focus(function() {
+        search("");
+    });
+
+    function search(val) {
+        call_api('/api/users/get_user_stores', 'post', {search: val}, function(data) {
+            $("#my-stores").html("");
+            var ajax_result = jQuery.parseJSON(data.toString());
+            $("#my-stores").append('<li role="presentation" class="dropdown-header">Mis tiendas</li>');
+            try {
+                var stores = ajax_result.data;
+                if (stores != undefined) {
+                    if (stores.length > 0) {
+                        for (var i = 0; i < stores.length; i++) {
+                            var item = stores[i];
+                            if (i < 10)
+                                $("#my-stores").append('<li><a href="/stores/id/' + item.store_id + '">' + item.store_name + '</a></li>');
+                        }
+                        $("#my-stores").append('<li role="presentation" class="divider"></li>');
+                    }
+                   
+                }
+                $("#my-stores").append('<li role="presentation" class="dropdown-header"><button type="button" href="/stores" class="btn btn-primary pull-right">Add Store</button></li>');
+                $('.allstores input').css("width", "95.5%");
+
+            } catch (e) {
+                console.log(e);
+            }
+        });
+    }
+
+    $(".search input").keyup(function() {
+        delay(function() {
+            search($(".search input").val());
+        }, 500);
+    });
+
+
+
+    call_api('/api/stores/get_store_items', 'post', {"store_id": store_id, "category": "all"}, function(data) {
+        var ajax_result = jQuery.parseJSON(data.toString());
+
+        try {
+
+            var storeItems = ajax_result.data;
+            if (storeItems != undefined) {
+
+                if (storeItems.length > 0) {
+
+                    //Llenar grid de items
+
+                    for (var i = 0; i < storeItems.length; i++) {
+
+                        var item = storeItems[i];
+                        var li = document.createElement("li");
+                        $(li).addClass("itemBox");
+                        $(li).attr("data-id", item.id);
+                        $(li).data("id", item.id);
+                        var rowItems = "<input type='checkbox'/>"
+                        if (item.thumb != "none" && item.thumb != "" && item.thumb != undefined) {
+                            rowItems += '<div style="background-image:url(' + item.thumb + ')" class="img"></div><a href="/items/id/' + item.id + '"><p>' + item.name + '</p></a>';
+                        }
+                        else {
+                            rowItems += '<div style="background-image:url(http://placehold.it/160x160)" class="img"></div><a href="/items/id/' + item.id + '"><p>' + item.name + '</p></a>';
+                        }
+                        
+                        rowItems += '<span class="live"><input class="switch-small" type="checkbox" ' + (item.live ? "checked" : "") + ' data-text-label="LIVE" data-on="primary" data-off="danger"/></span>';
+                        $(li).data("live", item.live);
+                        rowItems += '<span class="price">' + item.price + '</span>';
+                        $(li).data("originalprice", parseFloat(item.price));
+                        $(li).data("price", parseFloat(item.price));
+                        $(li).data("categories", item.categories);
+
+                        $(li).html(rowItems);
+                        $("#sortable_items").append(li);
+                    }
+
+                    $("#sortable_items").find("input[type=checkbox]").each(function(i, e) {
+                        $(e).click(function() {
+                            $(this).parent().toggleClass("checked");
+                            $("#treetotalitems").html($("#sortable_items li.checked").length);
+                        });
+                    });
+
+                    $('.live input[type="checkbox"].switch-small').bootstrapSwitch();
+
+                    $('.live input[type="checkbox"].switch-small').on('switch-change', function(e, data) {
+                        $(this).closest("li").data("live", ($(this).prop("checked")) ? 1 : 0);
+                        $(this).closest("li").addClass("changed");
+                        changed_flag++;
+                    });
+
+                    var switchToInput = function() {
+                        var $input = $("<input>", {
+                            val: $(this).text(),
+                            type: "text"
+                        });
+                        $input.addClass("price");
+                        $(this).replaceWith($input);
+                        $input.on("blur", switchToSpan);
+                        $input.select();
+                    };
+                    var switchToSpan = function() {
+                        var $span = $("<span>");
+                        $span.addClass("price");
+                        var v = number_format($(this).val(), 2, ".", ",");
+
+                        if (parseFloat(v.replace(",", "")) > 0) {
+                            if ($(this).closest("li").data().originalprice != $(this).val()) {
+                                $(this).closest("li").data("price", parseFloat(v.replace(",", "").replace(",", "")));
+                                $(this).closest("li").data("originalprice", parseFloat(v.replace(",", "").replace(",", "")));
+                                changed_flag++;
+                                $(this).closest("li").addClass("changed");
+                            }
+                        } else {
+                            $(this).closest("li").data("price", $(this).closest("li").data().originalprice);
+                            v = number_format($(this).closest("li").data().originalprice, 2, ".", ",");
+                        }
+
+                        $span.html(v);
+                        $(this).replaceWith($span);
+                        $span.on("click", switchToInput);
+
+
+                    }
+
+                    $("li .price").each(function(i, e) {
+                        $(e).on("click", switchToInput);
+                    });
+                    updatevitems();
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        //alert('aqui: ' + data);
+
+    });
+
+    call_api('/api/stores/get_store_details', 'post', {"store_id": store_id}, function(data) {
+        var ajax_request = jQuery.parseJSON(data.toString());
+        var response = ajax_request.data;
+        $("#menu-store .allstores span.currname").html(response.name);
+        $("#menu-store a.items").find(".badge").html(response.items_count);
+        $("#menu-store a.orders").find(".badge").html(response.orders_count);
+        var ep = response.estado_publicacion;
+        if (ep.status == "offline") {
+            var percentage = 0;
+            var step = 0;
+            var message = "", html = "";
+            if (ep.motivo_offline.header) {
+                percentage += 20;
+                step++;
+            } else {
+                message = (message != "") ? message : "Header image is required";
+            }
+            if (ep.motivo_offline.logo) {
+                percentage += 20;
+                step++;
+            } else {
+                message = (message != "") ? message : "Logo image is required";
+            }
+            if (ep.motivo_offline.item) {
+                percentage += 20;
+                step++;
+            } else {
+                message = (message != "") ? message : "Your store does not have any items";
+            }
+            if (ep.motivo_offline.pickup_data) {
+                percentage += 20;
+                step++;
+            } else {
+                message = (message != "") ? message : "Pickup data is empty";
+            }
+            if (ep.motivo_offline.bank_data) {
+                percentage += 20;
+                step++;
+            } else {
+                message = (message != "") ? message : "You must provide your bank account information";
+            }
+
+            if (percentage < 100) {
+                html = '<li id="incomplete-profile" data-toggle="tooltip" data-placement="bottom" data-title="' + message + '">' +
+                        '<a href="#">' +
+                        '<span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;' +
+                        '<span class="tip">' + step + ' / 5' + ' ' + message + '</span>' +
+                        '<div class="progress">' +
+                        '<div class="progress-bar" role="progressbar" aria-valuenow="' + percentage + '" aria-valuemin="0" aria-valuemax="100" style="width:' + percentage + '%;background-color: #3dc5f5;">' +
+                        '<span class="sr-only">' + percentage + '% Complete</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</a>' +
+                        '</li>';
+
+            } else {
+                html = '<li><a href="' + response.liga_preview + '" target="_blank" >Preview Store</a></li>';
+                html += '<li><a class="publish" href="#" target="_blank" >Request for publishing</a></li>';
+            }
+        } else {
+            html = '<li><a href="' + response.liga_preview + '" target="_blank" >Preview Store</a></li>';
+            html += '<li id="install-store" class="dropdown">' +
+                    '<a class="dropdown-toggle publish" data-toggle="dropdown" href="#">Install</a>' +
+                    '<ul class="dropdown-menu">' +
+                    '<li>' +
+                    '<a href="#" onclick="javascript:add_to_fb_page();">' +
+                    '<span class="glyphicon fa fa-facebook fa-2"></span>&nbsp;Install in Facebook' +
+                    '</a>' +
+                    '</li>' +
+                    '<li>' +
+                    '<a href="#" data-toggle="modal" data-target="#websiteModal">' +
+                    '<span class="glyphicon glyphicon-globe"></span>&nbsp;Install in website' +
+                    '</a>' +
+                    '</li>' +
+                    '</ul>' +
+                    '</li>';
+        }
+
+        $("#menu-store-status").html(html);
+        $("#incomplete-profile").tooltip();
+
+        if (response.logo != "" && response.logo != undefined)
+            $("#fotoTienda").attr("src", response.logo);
+        else
+            $("#fotoTienda").attr("src", "http://placehold.it/160x160");
+
+        if (response.sales > 0) {
+            set_sales(response.sales);
+            set_views(response.pageviews);
+            $("#stats #sales").html(response.sales);
+            $("#stats #pageviews").html(response.pageviews);
+        }
+    });
+
+    call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+        cats = jQuery.parseJSON(cats.toString());
+        if (addSubCat($("#jstree_categories #maincats"), cats.data)) {
+            doTree('#jstree_categories', ["wholerow", "state", "types", "checkbox", "sort"]);
+        }
+    });
+
+    $("#btn-delete-items").click(function() {
+        var tobedeleted = [];
+
+        $("#sortable_items li.checked").find('input[class!=switch-small]:checked').each(function() {
+            tobedeleted.push({deleted: 1, id: parseInt($(this).parent().data().id)});
+        });
+
+        call_api('/api/items/update_items_properties', 'post', {store_id: store_id, json: JSON.stringify(tobedeleted)}, function(data) {
+            $("#sortable_items li.checked").remove();
+            updatevitems();
+            $("#preloader").data().Preloader.methods.hide();
+        },null,function(){
+            $("#preloader").data().Preloader.methods.show();
+        });
+
+    });
+
+    $(".allcategoriesfilter").click(function() {
+        $("#sortable_items li.checked").removeClass("checked");
+        $("#sortable_items li input[class!=switch-small]").prop("checked", false);
+        $("#showcats").parent().find("a[data-toggle=dropdown]").html($(this).find("a").html());
+        $("#sortable_items li").show();
+        updatevitems();
+    });
+
+
+    $("#checkall").click(function() {
+        if ($(this).hasClass("btn-success")) {
+            $("#sortable_items").find("input[type=checkbox]").prop("checked", true);
+            $(this).removeClass("btn-success");
+            $(this).addClass("btn-danger");
+            $(this).html('<span class="glyphicon glyphicon-unchecked"></span>&nbsp;');
+            $(this).append($(this).data().uncheckedText);
+        } else {
+            $("#sortable_items").find("input[type=checkbox]").prop("checked", false);
+            $(this).removeClass("btn-danger");
+            $(this).addClass("btn-success");
+            $(this).html('<span class="glyphicon glyphicon-check"></span>&nbsp;');
+            $(this).append($(this).data().checkedText);
+        }
+    });
+
+    $("#btn-add-categories").click(function() {
+        var r = $("#jstree_categories").jstree(true);
+        if (r) {
+            r.deselect_all();
+
+            var arr = [];
+            $("li.checked").each(function() {
+                arr = arr.concat($(this).data().categories)
+            });
+            for (i in arr) {
+                if ($("li[data-id=" + arr[i].id + "]").length) {
+                    var node = r.get_node($("li[data-id=" + arr[i].id + "]"));
+                    r.select_node(node);
+                }
+            }
+            $("#jstree_categories").data("", arr);
+            $(".floatcategories").fadeIn("fast");
+        }
+    });
+
+    $("#btn-save-categories").click(function() {
+        var r = $("#jstree_categories").jstree(true);
+        var s = r.get_json(), a = [], b = [];
+        var agregar = assigncategories(s[0], "add");
+        var borrar = assigncategories(s[0], "delete");
+        ;
+
+        $("li.checked").each(function(i, e) {
+            for (var j in agregar) {
+                if (agregar[j]) {
+                    a.push({id: parseInt($(e).data().id), cat_id: agregar[j]});
+                }
+            }
+            $(e).data().categories = agregar;
+        });
+
+        $("li.checked").each(function(i, e) {
+            for (var k in borrar)
+                if (borrar[k])
+                    b.push({id: parseInt($(e).data().id), cat_id: borrar[k]});
+        });
+
+        $(".floatcategories").fadeOut("fast");
+        call_api('/api/items/remove_item_from_category', 'post', {"store_id": store_id, json: JSON.stringify(b)}, function() {            
+             call_api('/api/items/add_item_to_category', 'post', {"store_id": store_id, json: JSON.stringify(a)}, function() {
+                $("#preloader").data().Preloader.methods.hide();
+            },null,function(){
+                $("#preloader").data().Preloader.methods.show();    
+            });  
+        },null,function(){
+            $("#preloader").data().Preloader.methods.draw([{issue:"Se borraran "+b.length+" categorias de "+$("li.checked").length+" items"}, {issue:"Se asignaran "+a.length+" categorias a "+$("li.checked").length+" items"}]);
+        });
+
+    });
+
+    $(".closetree").on("click", function() {
+        $(".floatcategories").fadeOut("fast");
+    });
+
+    $(".floatcategories").on('mouseleave', function() {
+        var timer = self.setInterval(function() {
+            if ($(".floatcategories:hover").length < 1) {
+                $(".floatcategories").fadeOut("fast");
+            }
+            window.clearInterval(timer);
+        }, 3000);
+    });
+
+    $("#preloader").Preloader({});
+
+
+});
+
+function updatevitems() {
+    $("#totalitems").html($("#sortable_items").find("li:visible").length);
+}
+
+function assigncategories(cats, action) {
+    var agregar = [];
+    var borrar = [];
+    var categories = [];
+
+    for (var i in cats.children) {
+        if (cats.children[i].children.length > 0) {
+            agregar.concat(assigncategories(cats.children[i]), action);
+        }
+        else {
+            categories.push(cats.children[i].text);
+            if (cats.children[i].state.selected) {
+                agregar.push(cats.children[i].data.id);
+            }
+            else {
+                borrar.push(cats.children[i].data.id);
+            }
+        }
+
+    }
+    if (action == "add")
+        return agregar;
+    if (action == "delete")
+        return borrar;
+    return categories;
+}
+
+function set_views(endVal) {
+    var inc = 1;
+    if (!endVal)
+        endVal = 0;
+    var currentVal = 0;
+
+    if (endVal > 300)
+        inc = endVal / 300;
+
+
+    var i = setInterval(function()
+    {
+        if (currentVal >= endVal)
+        {
+            clearInterval(i);
+            $("#stats #views").text(Math.round(endVal));
+        }
+        else
+        {
+            currentVal += inc;
+            $("#stats #views").text(Math.round(currentVal));
+        }
+    }, 1);
+}
+
+function set_sales(endVal) {
+    var inc = 1;
+    var prefix = '$';
+    var currentVal = 0;
+    if (endVal > 300)
+        inc = endVal / 300;
+
+    var i = setInterval(function()
+    {
+        if (currentVal >= endVal)
+        {
+            clearInterval(i);
+            $("#stats #sales").text(prefix + number_format(endVal, 2, '.', ','));
+        }
+        else
+        {
+            currentVal += inc;
+            $("#stats #sales").text(prefix + number_format(currentVal, 2, '.', ','));
+        }
+    }, 1);
+}
+
+// Add to FB
+window.fbAsyncInit = function() {
+    // init the FB JS SDK
+    FB.init({
+        appId: '689942954354946', // App ID from the app dashboard
+        channelUrl: '//sell.kichink.com/utils/fb_channel_file', // Channel file for x-domain comms
+        status: true, // Check Facebook Login status
+        xfbml: true                                  // Look for social plugins on the page
+    });
+
+    // Additional initialization code such as adding Event Listeners goes here
+};
+
+// Load the SDK asynchronously
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {
+        return;
+    }
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+var pages = [];
+function add_to_fb_page() {
+    FB.ui(
+            {
+                method: 'pagetab'
+            },
+    function(response) {
+        if (response != null && response.tabs_added != null) {
+
+            $.each(response.tabs_added, function(pageid) {
+                save_fb_page_id(pageid);
+            });
+        }
+    }
+    );
+}
+function save_fb_page_id(page_id) {
+    call_api('/api/stores/associate_fb_page_id', 'post', {store_id: store_id, page_id: page_id}, function(data) {
+        alert('Se ha instalado tu tienda en tu pagina de facebook con exito');
+    });
+}
+
+function addSubCat(container, arr, callback) {
+    for (var i = 0; i < arr.length; i++) {
+        var obj = arr[i];
+        if (obj != undefined) {
+            var li = $(document.createElement("li"));
+            li.attr("data-id", obj.id);
+            li.html(obj.name);
+
+            var l = document.createElement("li");
+            $(l).attr("data-id", obj.id);
+            $(l).html("<a href='#'>" + obj.name + "</a>");
+            $(l).click(function() {
+                filterItems(this);
+                $("#sortable_items li.checked").removeClass("checked");
+                $("#sortable_items li input[class!=switch-small]").prop("checked", false);
+            });
+            $("#showcats").append(l);
+
+
+            if (obj.subcats.length > 0) {
+                var ul = $(document.createElement("ul"));
+                li.addClass("jstree-open");
+                li.append(addSubCat(ul, obj.subcats));
+            }
+            container.append(li);
+        }
+    }
+    if (callback != undefined)
+        callback();
+    return container;
+}
+
+function filterItems(element) {
+    $("#showcats").parent().find("a[data-toggle=dropdown]").html($(element).find("a").html());
+    $("#sortable_items li").hide();
+    $("#sortable_items li").each(function(i, e) {
+        if ($(e).data().categories)
+            for (var t = 0; t < $(e).data().categories.length; t++) {
+                if (parseInt($(e).data().categories[t]) == $(element).data().id) {
+                    $(e).show();
+                }
+            }
+    });
+    updatevitems();
+}
+
+function doTree(tree, plugins, update) {
+    if (plugins == undefined)
+        plugins = [];
+
+    $(tree).jstree({
+        "checkbox": {
+            real_checkboxes: true
+        },
+        "xml_data": {
+            "ajax": {
+                cache: false
+            }
+        },
+        "core": {
+            "animation": 0,
+            "check_callback": true,
+            "themes": {"dots": true, "stripes": true},
+        },
+        "types": {
+            "#": {"max_children": 1, "max_depth": 6, "valid_children": ["root"]},
+            "root": {"icon": "glyphicon glyphicon-tags", "valid_children": ["default"], "max_depth": 5},
+            "default": {"icon": "glyphicon glyphicon-tag", "valid_children": ["default", "file"]}
+        },
+        "plugins": plugins
+    }).bind("move_node.jstree", function(event, data) {
+        console.log(data);
+        update(data);
+    }).bind("rename_node.jstree", function(event, data) {
+        console.log(data);
+        update(data);
+    });
+
+}
+
+function manageCategory() {
+    $("#modal-categories").modal("show");
+}

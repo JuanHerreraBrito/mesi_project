@@ -1,0 +1,160 @@
+<style>
+    .resumen{
+        margin:15px 0;
+    }
+
+    .res-item {
+        display: inline-block;
+        border: 1px solid #e2e2e2;
+        text-align: center;
+        width: 30%;
+        padding: 15px 0;
+        margin: 0 10px;
+        border-radius: 5px;
+        box-shadow: 2px 2px 6px #ccc;
+        background: #ffffff;
+    }
+
+    .res-item span{
+        color:#bdbdbd;
+    }
+
+    .res-item h1{
+        padding:0;
+        margin:0
+    }
+    #accordion-pagos{
+        margin:15px 0;
+    }
+    #accordion-pagos a,#accordion-pagos a:hover{
+        color:#333;
+        text-decoration:none;
+    }
+
+    #accordion-pagos .panel-title b{
+        display: inline-block;
+        width:60px;
+    }
+    
+    #accordion-pagos .panel-title i{
+        font-weight: normal;
+        font-style: normal;
+    }
+    
+    #accordion-pagos .panel-title span{
+        float:right;
+        color: #999;
+    }
+    
+    #accordion-pagos .panel-title .articulo{
+        display: inline-block;
+        width:40%;
+        font-weight: 200;
+    }
+</style>
+<!-------------------container starts here---------------------->
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8 ">
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div class="item-container">
+            <div class="title">
+                <h3>Resumen</h3>
+                <span>Resumen general de pagos, ordenes y items</span>
+            </div>
+            <div class="resumen">
+                <div class="res-item">
+                    <h1>6</h1>
+                    <span>pagos</span>
+                </div>
+                <div class="res-item">
+                    <h1>6</h1>
+                    <span>articulos</span>
+                </div>
+                <div class="res-item">
+                    <h1>2</h1>
+                    <span>ordenes</span>
+                </div>
+            </div>
+
+            <div class="title">
+                <h3>Resumen por articulos</h3>
+                <span>Pagos agrupados por articulos</span>
+            </div>          
+            <div class="panel-group" id="accordion-pagos">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            <div class="panel-title">
+                                <b>No. 1</b>
+                                <i class="articulo">
+                                    Producto 1
+                                </i>
+                                <span>6 unidades</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <ul>
+                                <li>XL - 1 unidades</li>
+                                <li>G - 3 unidades</li>
+                                <li>M - 2 unidades</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                            <div class="panel-title">
+                                <b>No. 2</b>
+                                <i class="articulo">Producto 2</i>
+                                <span>1 unidad</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <ul>
+                                <li>De mano - 1</li>
+
+                            </ul>                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a>
+                            <div class="panel-title">
+                                <b>No. 3</b>
+                                <i class="articulo" >
+                                    Producto 3
+                                </i>
+                                <span>1 unidad</span>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+             <div class="title">
+                <h3>Resumen de pago</h3>
+                <span>Resumen de pago a detalle menos comisiones</span>
+            </div>
+            <table class="table">
+                <tr>
+                    <td align="right">Subtotal:</td><td align="right">$100,000.00</td>
+                </tr>
+                <tr>
+                    <td align="right">Comisi&oacute;n Kichink!:</td><td align="right"><span style="color:#900">-$50,000.00</span</td>
+                </tr>
+                <tr>
+                    <td align="right"><h3>Total:</h3></td><td align="right"><h3>$50,000.00</h3></td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

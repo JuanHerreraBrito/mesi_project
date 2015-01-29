@@ -1,0 +1,32 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Utils extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+		//checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 */
+	public function fb_channel_file()
+	{
+		
+		$cache_expire = 60*60*24*365;
+		 header("Pragma: public");
+		 header("Cache-Control: max-age=".$cache_expire);
+		 header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$cache_expire) . ' GMT');
+		 echo '<script src="//connect.facebook.net/en_US/all.js"></script>';
+
+	}
+	
+	
+	
+}
+
+/* End of file error.php */
+/* Location: ./application/controllers/error.php */

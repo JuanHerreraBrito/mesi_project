@@ -1,0 +1,139 @@
+/* 
+ * V2 Sell.Kichink
+ * Payments
+ */
+
+$(document).ready(function() {
+
+    $("#pending-payments").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_sale_price: "money",
+            time_ago: "time_ago"
+        },
+        dataTable: {
+            "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+            "sPaginationType": "bootstrap",
+            "bFilter": false,
+            "bInfo": false,
+            "oLanguage": {
+                "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                "sLengthMenu": "Show _MENU_",
+                "sPrevious": "",
+                "sNext": ""
+            }
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                icon: "",
+                onClick: function(obj) {
+                    window.location = '/stores/payments/' + store_id + '/' + obj.data.id;
+                }
+            }]
+    });
+
+    $("#closed-payments").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_sale_price: "money",
+            time_ago: "time_ago"
+        },
+        dataTable: {
+            "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+            "sPaginationType": "bootstrap",
+            "bFilter": false,
+            "bInfo": false,
+            "oLanguage": {
+                "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                "sLengthMenu": "Show _MENU_",
+                "sPrevious": "",
+                "sNext": ""
+            }
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                icon: "",
+                onClick: function(obj) {
+                    window.location = '/stores/payments/' + store_id + '/' + obj.data.id;
+                }
+            }],
+    });
+
+    $("#available-payments").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_sale_price: "money",
+            time_ago: "time_ago"
+        },
+        dataTable: {
+            "bFilter": false,
+            "bInfo": false,
+            "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                "sLengthMenu": "Show _MENU_",
+                "sPrevious": "",
+                "sNext": ""
+            }
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: "Ver Detalle",
+                icon: "",
+                onClick: function(obj) {
+                    window.location = '/stores/payments/' + store_id + '/' + obj.data.id;
+                }
+            }]
+    });
+
+    call_api('/api/pagos/get_pagos_sell', 'post', {store_id: store_id, status: "pending", page: 1, limit: 1000}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+        if (obj.data.length > 0) {
+            $("#pending-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#pending-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#pending-payments").data().DinamicTable.methods.drawTable();
+        } else {
+            $("#pending-payments").html("<span class='no'>Por ahora no hay pagos pendientes</span>");
+        }
+    });
+
+    call_api('/api/pagos/get_pagos_sell', 'post', {store_id: store_id, status: "closed", page: 1, limit: 1000}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+        if (obj.data.length > 0) {
+            $("#closed-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#closed-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#closed-payments").data().DinamicTable.methods.drawTable();
+        } else {
+            $("#closed-payments").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+        }
+    });
+
+
+    call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "available", page: 1, limit: 1000}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+        if (obj.data.length > 0) {
+            $("#available-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#available-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#available-payments").data().DinamicTable.methods.drawTable();
+        } else {
+            $("#available-payments").html("<span class='no'>No hay pagos disponibles</span>");
+        }
+    });
+
+
+});

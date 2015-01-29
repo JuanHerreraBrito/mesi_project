@@ -1,0 +1,132 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Stores extends CI_Controller {
+
+    var $sitio = 'SELL';
+
+    function __construct() {
+        parent::__construct();
+        checkForSession();
+        geoIP();
+    }
+
+
+    public function index(){
+
+        $this->db->where('user_id', $this->session->userdata('user_id'));
+        $this->db->where('(owner = 1 OR admin = 1)');
+        $q = $this->db->get('user_perm');
+
+        if($r = $q->result()){
+            redirect('stores/id/'.$r[0]->store_id);
+        }else{
+            page_not_found();
+            return false;
+        }
+
+    }
+
+    /*  Notificaciones */
+    public function notifications(){
+
+        // Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 1,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+        $data["store"] = new stdClass();
+        $data["store"]->id = $store_id;
+        $this->load->view('v2/stores/notifications_view', $data);        
+
+    }
+
+    /*  Vista principal de la tienda */
+    public function id() {
+
+        // Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 1,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+        $data["store"] = new stdClass();
+        $data["store"]->id = $store_id;
+        $this->load->view('v2/stores/id_view', $data);
+
+    }
+
+    /*  Vista apps de la tienda */
+    public function apps(){
+
+        // Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 3,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+        
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+            $data["store"] = new stdClass();
+            $data["store"]->id = $store_id;
+            $this->load->view('v2/stores/apps_view', $data);
+
+    }
+
+    /*  Vista preview de la tienda */
+    public function preview(){
+
+         // Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 3,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+        
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+        $this->load->model('sell_model');
+        $this->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+        $category = $this->uri->segment(4);
+
+        // Agregue un objeto que traiga los datos de la tienda para poder actualizar el titulo y descripcion
+        $data['store'] = $shared_model->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+        $data['items_store'] = $this->sell_model->get_all_store_items($store_id, $category);
+        $data['store_categories'] = $shared_model->shared_model->get_store_categories($store_id, $this->sitio);
+
+        $this->load->view('stores/id_preview_view_2', $data);
+
+    }
+
+    /*  Vista settings de la tienda */
+    public function settings() {
+
+         // Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 3,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+        
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+        
+        $this->load->model('sell_model');
+
+        $q = $this->db->get_where('states', array('country_id' => 112));
+        $r = $q->result();
+
+        $data["store"] = new stdClass();
+        $data["store"]->id = $store_id;
+        $data["banks"] = $this->sell_model->get_banks(); 
+        $data["states_pos"] = $r;    
+        $data["option"] = ($this->uri->segment(4));
+
+        $this->load->view('v2/stores/settings_view', $data);
+
+    }
+
+
+}
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

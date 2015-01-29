@@ -1,0 +1,41 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Test extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function index()
+	{
+		echo phpinfo();
+	}
+	
+	public function time()
+	{
+		echo date('Y-m-d H:i:s', time());
+		echo '<br/>';
+		$diff_client_requested_delivery_date      		= strtotime('2012-11-16 08:00:00 + 6 hours')-time();
+        $elapsed_time_client_requested_delivery_date  	= floor($diff_client_requested_delivery_date/60/60); 
+		echo $elapsed_time_client_requested_delivery_date;
+	}
+	
+	public function insert_weeks(){
+		for($i = 1; $i<13; $i++){
+			$this->db->insert('analytics_month', array('month'=>$i));
+		}
+	}
+	
+	
+}
+
+/* End of file user.php */
+/* Location: ./application/controllers/user.php */

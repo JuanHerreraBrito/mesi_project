@@ -1,0 +1,13 @@
+<nav class="navbar navbar-inverse navbar-fixed-top header-bottom" role="navigation">       
+    <ul class="nav navbar-nav pull-left" id="menu-store">
+        <li class="active">
+            <a class="items" href="#" >Login</a>						
+        </li>
+        <li>
+            <a class="items" href="#" >Tutorial</a>						
+        </li>
+        <li>
+            <a class="items" href="#" >Contacto</a>						
+        </li>
+    </ul>
+</nav>

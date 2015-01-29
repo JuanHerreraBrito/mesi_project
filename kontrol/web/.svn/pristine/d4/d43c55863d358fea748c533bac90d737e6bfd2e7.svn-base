@@ -1,0 +1,67 @@
+<div id="sidebar-right">
+    <a href="#" class="close close-help" aria-hidden="true">&times;</a>
+    <div class="col-lg-12">
+        <h3><?= $this->lang->line('header_menu_help_text'); ?></h3>
+        <ul>
+            <li><a href="https://kichink.desk.com/">Chat</a></li>
+            <li><a href="tel:5541607999">(55) 4160-7999</a></li>
+            <li><a href="mailto:contacto@kichink.com">contacto@kichink.com</a></li>
+            <li><a class="social" href="http://www.twitter.com/kichinkayuda" target="_blank"><i class="fa fa-twitter fa-2"></i>Twitter</a></li>
+            <!--li><a class="social" href="http://www.facebook.com/kichink" target="_blank"><i class="fa fa-facebook fa-2"></i>Facebook</a></li>
+            <li><a class="social" href=" https://plus.google.com/+Kichink/videos" target="_blank"><i class="fa fa-google-plus"></i>Google+</a></li-->
+        </ul>
+    </div>
+</div>
+<div id="preloader" data-rotate="0"></div>
+<footer>&copy; <?=@date("Y")?> Kichink!</footer>
+<script type='text/javascript'>
+(function (d, t) {
+  var bh = d.createElement(t), s = d.getElementsByTagName(t)[0];
+  bh.type = 'text/javascript';
+  bh.src = '//www.bugherd.com/sidebarv2.js?apikey=exmva9srbxrynrzfyy2saa';
+  s.parentNode.insertBefore(bh, s);
+  })(document, 'script');
+</script>
+<script type="text/javascript">
+    var kontrol_lang = {
+        layout_my_stores : "<?=$this->lang->line('v3_layout_my_stores')?>",
+        layout_add_store : "<?=$this->lang->line('v3_layout_add_store')?>",
+        layout_changes_will_be_made : "<?=$this->lang->line('v3_layout_changes_will_be_made')?>",
+        layout_store_fb_installed : "<?=$this->lang->line('v3_layout_store_fb_installed')?>",
+        layout_seconds_ago : "<?=$this->lang->line('v3_layout_seconds_ago')?>",
+        layout_minutes_ago : "<?=$this->lang->line('v3_layout_minutes_ago')?>",
+        layout_hours_ago : "<?=$this->lang->line('v3_layout_hours_ago')?>",
+        layout_days_ago : "<?=$this->lang->line('v3_layout_days_ago')?>",
+        layout_months_ago : "<?=$this->lang->line('v3_layout_months_ago')?>",
+        layout_years_ago : "<?=$this->lang->line('v3_layout_years_ago')?>",
+
+        layout_in_seconds : "<?=$this->lang->line('v3_layout_in_seconds')?>",
+        layout_in_minutes : "<?=$this->lang->line('v3_layout_in_minutes')?>",
+        layout_in_hours : "<?=$this->lang->line('v3_layout_in_hours')?>",
+        layout_in_days : "<?=$this->lang->line('v3_layout_in_days')?>",
+        layout_in_months : "<?=$this->lang->line('v3_layout_in_months')?>",
+        layout_in_years : "<?=$this->lang->line('v3_layout_in_years')?>",
+
+        layout_years : "<?=$this->lang->line('v3_layout_years')?>",
+        layout_months : "<?=$this->lang->line('v3_layout_months')?>",
+        layout_days : "<?=$this->lang->line('v3_layout_days')?>",
+        layout_hours : "<?=$this->lang->line('v3_layout_hours')?>",
+        layout_minutes : "<?=$this->lang->line('v3_layout_minutes')?>",
+        layout_seconds : "<?=$this->lang->line('v3_layout_seconds')?>",
+
+        layout_will_be_updated_1 : "<?=$this->lang->line('v3_layout_will_be_updated_1')?>",
+        layout_will_be_updated_2 : "<?=$this->lang->line('v3_layout_will_be_updated_2')?>",
+        layout_loading_items : "<?=$this->lang->line('v3_layout_loading_items')?>",
+        layout_loading_item_list : "<?=$this->lang->line('v3_layout_loading_item_list')?>",
+        layout_items_will_be_deleted_1 : "<?=$this->lang->line('v3_layout_items_will_be_deleted_1')?>",
+        layout_items_will_be_deleted_2 : "<?=$this->lang->line('v3_layout_items_will_be_deleted_2')?>",
+        layout_categories_will_be_assigned_1 : "<?=$this->lang->line('v3_layout_categories_will_be_assigned_1')?>",
+        layout_categories_will_be_assigned_2 : "<?=$this->lang->line('v3_layout_categories_will_be_assigned_2')?>",
+        layout_categories_will_be_assigned_3 : "<?=$this->lang->line('v3_layout_categories_will_be_assigned_3')?>",
+        layout_sending_publication_request : "<?=$this->lang->line('v3_layout_sending_publication_request')?>",
+        layout_all_categories_1 : "<?=$this->lang->line('v3_layout_all_categories_1')?>",
+        layout_all_categories_2 : "<?=$this->lang->line('v3_layout_all_categories_2')?>",
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<script type="text/javascript">
+    var order_id = '<?= @$order->id ?>';
+</script>
+<script type="text/javascript" src="/v2/js/order.js"></script>
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<!-------------------container starts here---------------------->
+<div class="col-lg-7 col-md-7 col-sm-7 ">
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div class="title">
+            <h3>Orden No. <b id="order_id"><?= $order->id ?></b></h3>
+            <span>Status:</span>&nbsp;<span id="order-status" class="label" style="color:white">None</span>
+        </div>     
+        <div class="col-lg-12">
+            <div id="consumidor" class="col-lg-6 col-sm-6">
+                <h4 align="center">Consumidor</h4>
+            </div>
+            <div id="datos-recoleccion" class="col-lg-6 col-sm-6">
+                <h4 align="center">Tienda</h4>
+                <br/>
+                <br/>
+                <br/>
+                <div class="recoleccion" style="padding-left:25px;">
+                    <b>Direcci&oacute;n: </b><span class="calle"></span>&nbsp;<span class="numero"></span>&nbsp;<span class="interior"></span><span class="colonia"></span>&nbsp;<span class="cp"></span>
+                    <span class="ciudad"></span><span class="estado_nombre"></span>&nbsp;<span class="pais_nombre"></span>
+                    <br/>
+                    <b>Tel&eacute;fono:</b> <span class="telefono"></span>
+                    <br/>
+                    <b>Contacto:</b> <span class="contacto"></span>
+                    <br/>
+                    <b>Email:</b> <span class="email"><a href="mailto:"></a></span>
+                    <br/>
+                    <b>Referencias:</b> <span class="referencias"></span>
+                </div>
+            </div>
+        </div>
+        <div id="items-order"></div>
+
+        <div class="col-lg-12 col-sm-12">
+                <div id="horario-recoleccion" class="res-item">
+                    <span>Horario de recolección</span>
+                    <h3 class="from">-</h3>
+                </div>
+            <div id="acciones" align="center" class="col-lg-6 col-sm-6">
+                <br/>
+                <button id="programar_recoleccion" class="btn btn-primary">Programar recolecci&oacute;n</button>
+            </div>
+        </div>
+        <br/>
+        <div id="facturacion">
+            <h4>Facturaci&oacute;n</h4>
+            <table class="table table-bordered facturacion">
+                <tr><td>Raz&oacute;n Social</td><td class="nombre_razon"></td></tr>
+                <tr><td>RFC</td><td class="rfc"></td></tr>
+                <tr><td>Colonia</td><td class="colonia"></td></tr>
+                <tr><td>CP</td><td class="cp"></td></tr>
+                <tr><td>Ciudad</td><td class="ciudad"></td></tr>
+                <tr><td>Estado</td><td class="estado"></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="chat">
+    <div id="messenger" class="row">
+        <form method="post" name="addComment" onsubmit="return false;" class="col-lg-12 col-md-12 col-sm-12">
+            <div class="title" style="margin-bottom: 0">
+                <h3><i class="fa fa-group"></i>&nbsp;Contactar cliente</h3>
+            </div>
+            <textarea id="msg" class="form-control" placeholder="Escriba su comentario aqu&iacute;"></textarea>
+            <input type="hidden" value="<?= @$this->session->userdata('name'); ?> <?= @$this->session->userdata('lastname'); ?>" name="user">
+            <button class="btn btn-danger">Enviar</button>
+        </form>
+    </div>
+    <div id="conversation" class="col-lg-12 col-md-12 col-sm-12">
+        <div class="bubble me">
+            <span>Los datos de envío de la orden han sido actualizados por el equipo Kichink: GUIA:7367645294 MENSAJERIA:dhl ENTREGADO:OK</span>
+            <span class="author">Jorge Aguero [kichink]</span>
+        </div>
+        <div class="bubble you">
+            <span>Los datos de envío de la orden han sido actualizados por el equipo Kichink: GUIA:7367645294 MENSAJERIA:dhl</span>
+            <span class="author">Liliana Fernandez</span>
+        </div>
+    </div>
+</div>
+<?
+$this->load->view('v2/layout/footer');
+?>

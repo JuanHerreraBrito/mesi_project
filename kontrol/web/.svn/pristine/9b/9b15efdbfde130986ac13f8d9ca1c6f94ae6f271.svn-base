@@ -1,0 +1,41 @@
+<?php
+
+class Api extends CI_Controller {
+
+	private $sitio = 'sell';
+
+	function __construct()
+	{
+		parent::__construct();
+		checkForSession();
+	}
+	
+	public function route(){
+		
+		if($function = $this->uri->segment(2)){
+			switch($function){
+				default:
+					$this->api_call();
+					break;
+			} 
+		} else {
+			echo "API";
+		}
+	}
+	
+	public function index(){
+		echo "Kichink Api v3";
+	}
+	
+	public function api_call(){
+
+		include('../../../shared_resources/v3/libraries/Kichink_Api.php');
+		$api = new kichink_api;
+		$api->execute_call($this->sitio);
+		
+	}
+	
+}
+
+/* End of file welcome.php */
+/* Location: ./system/application/controllers/welcome.php */

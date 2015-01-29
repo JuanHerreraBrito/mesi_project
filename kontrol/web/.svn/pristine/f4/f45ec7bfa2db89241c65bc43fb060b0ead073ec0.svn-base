@@ -1,0 +1,24 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Importante extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+        //checkForSession();
+		geoIP();
+	}
+	/**
+	 * Index Page for this controller.
+	 *
+	 */
+	public function index()
+	{	
+		$this->load->view('v2/importante/index');
+	}
+
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

@@ -1,0 +1,404 @@
+/* 
+ * V2 Sell.Kichink
+ * Default
+ */
+
+var pages = [];
+
+var delay = (function() {
+    var timer = 0;
+    return function(callback, ms) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
+
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+$(document).ready(function() {
+    // calculate height 
+
+    $("#sidebar-right").find(".close-help").click(function() {
+        $("#sidebar-right").animate({"width": 0}, 300);
+        $(this).fadeOut("fast");
+    });
+
+    $('#languagedrowdown').find("a").each(function(i, e) {
+        $(e).click(function() {
+            //var pais = $('#pais-options').val();
+            if (!$(this).hasClass("selected")) {
+                var lang = $(this).data().value;
+                $.post("/login/usrPref", {lang: lang},
+                function(data) {
+                    location.reload();
+                });
+            }
+        });
+    });
+
+    $('.allstores').on('show.bs.dropdown', function() {
+        search("");
+        $('.allstores').find(".dropdown-toggle").css("visibility", "hidden");
+        $(".search").animate({width: '97.5%'}, 200, function() {
+            $(".search").find("input[type=text]").focus();
+        });
+    });
+
+    $('.allstores').on('hide.bs.dropdown', function() {
+        $('.allstores').find(".dropdown-toggle").css("visibility", "visible");
+        $(".search").animate({width: 0}, 200);
+        $(".search input").val("");
+    });
+
+    $('.allstores input').click(function(e) {
+        e.stopPropagation();
+    });
+    
+    $(".stats-box").tooltip({html:true, trigger:"hover"});
+    
+
+     $(".add-item").click(function() {
+        call_api('/api/items/add_item', 'post', {"store_id": store_id}, function(r) {
+            var data = jQuery.parseJSON(r.toString());
+            window.location = "/items/id/" + data.data;
+        });
+    });
+
+
+    function search(val) {
+        call_api('/api/users/get_user_stores', 'post', {search: val}, function(data) {
+            $("#my-stores").html("");
+            var ajax_result = jQuery.parseJSON(data.toString());
+            try {
+                $("#my-stores").append('<li role="presentation" class="dropdown-header">' + kontrol_lang['layout_my_stores'] + '</li>');
+
+                var stores = ajax_result.data;
+                if (stores != undefined) {
+                    if (stores.length > 0) {
+                        for (var i = 0; i < stores.length; i++) {
+                            var item = stores[i];
+                            if (i < 10)
+                                $("#my-stores").append('<li><a href="/stores/id/' + item.store_id + '">' + item.store_name + '</a></li>');
+                        }
+                        $("#my-stores").append('<li role="presentation" class="divider"></li>');
+                    }
+
+                }
+                $("#my-stores").append('<li role="presentation" class="dropdown-header"><a href="javascript:add_store()" class="btn btn-default pull-right">' + kontrol_lang['layout_add_store'] + '</a></li>');
+                $('.allstores input').css("width", "95.5%");
+
+            } catch (e) {
+                console.log(e);
+            }
+        });
+    }
+
+    $(".search input").keyup(function() {
+        delay(function() {
+            search($(".search input").val());
+        }, 500);
+    });
+
+    $("#preloader").Preloader({text: '' + kontrol_lang['layout_changes_will_be_made'] + ''});
+
+
+});
+
+function set_views(endVal) {
+    var inc = 1;
+    if (!endVal)
+        endVal = 0;
+    var currentVal = 0;
+
+    if ($.cookie('get_views_' + store_id) == undefined) {
+
+        if (endVal > 300)
+            inc = endVal / 300;
+
+
+        var i = setInterval(function()
+        {
+            if (currentVal >= endVal)
+            {
+                clearInterval(i);
+                $("#stats #views").text(Math.round(endVal));
+            }
+            else
+            {
+                currentVal += inc;
+                $("#stats #views").text(Math.round(currentVal));
+            }
+        }, 1);
+        $.cookie('get_views_' + store_id, endVal, {expires: 1, path: '/'});
+
+    } else {
+        $("#stats #views").text(number_format(parseFloat(endVal), 0, '.', ','));
+    }
+}
+
+function set_sales(endVal) {
+    var inc = 1;
+    var prefix = '\$';
+    var currentVal = 0;
+    if ($.cookie('get_sales_' + store_id) == undefined) {
+
+        if (endVal > 300)
+            inc = endVal / 300;
+
+        var i = setInterval(function()
+        {
+            if (currentVal >= endVal)
+            {
+                clearInterval(i);
+                $("#stats #sales").text(prefix + number_format(endVal, 2, '.', ','));
+            }
+            else
+            {
+                currentVal += inc;
+                $("#stats #sales").text(prefix + number_format(currentVal, 2, '.', ','));
+            }
+        }, 1);
+
+        $.cookie('get_sales_' + store_id, endVal, {expires: 1, path: '/'});
+    } else {
+        $("#stats #sales").text(prefix + number_format(parseFloat(endVal), 2, '.', ','));
+    }
+
+}
+
+function convertToSlug(text)
+{
+    var acentos = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç";
+    var original = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc";
+    for (var i = 0; i < acentos.length; i++) {
+        text = text.replace(acentos.charAt(i), original.charAt(i));
+    }
+    return text
+            .toLowerCase()
+            .replace('ñ', 'n')
+            .replace(/ /g, '-')
+            .replace(/[^\w-]+/g, '')
+            ;
+}
+
+
+// Add to FB
+window.fbAsyncInit = function() {
+    // init the FB JS SDK
+    FB.init({
+        appId: '689942954354946', // App ID from the app dashboard
+        channelUrl: '//sell.kichink.com/utils/fb_channel_file', // Channel file for x-domain comms
+        status: true, // Check Facebook Login status
+        xfbml: true                                  // Look for social plugins on the page
+    });
+
+    // Additional initialization code such as adding Event Listeners goes here
+};
+
+// Load the SDK asynchronously
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {
+        return;
+    }
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+function add_to_fb_page() {
+    FB.ui(
+            {
+                method: 'pagetab'
+            },
+    function(response) {
+        if (response != null && response.tabs_added != null) {
+
+            $.each(response.tabs_added, function(pageid) {
+                save_fb_page_id(pageid);
+            });
+        }
+    }
+    );
+}
+function save_fb_page_id(page_id) {
+    call_api('/api/stores/associate_fb_page_id', 'post', {store_id: store_id, page_id: page_id}, function(data) {
+        alert('' + kontrol_lang['layout_store_fb_installed'] + '');
+    });
+}
+
+function help() {
+    $("#sidebar-right").show().animate({"width": 300}, 300, function() {
+        $("#sidebar-right").find(".close-help").fadeIn(300);
+    });
+}
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+    var n = !isFinite(+number) ? 0 : +number,
+            prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+            sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+            dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+            s = '',
+            toFixedFix = function(n, prec) {
+        var k = Math.pow(10, prec);
+        return '' + Math.round(n * k) / k;
+    };
+    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+    s = (prec ? toFixedFix(n, prec) : '' + Math.floor(n)).split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+}
+
+function addSubCat(container, arr, callback) {
+    for (var i = 0; i < arr.length; i++) {
+        var obj = arr[i];
+        if (obj != undefined) {
+            var li = $(document.createElement("li"));
+            li.attr("data-id", obj.id);
+            li.html(obj.name);
+
+            if (obj.subcats.length > 0) {
+                var ul = $(document.createElement("ul"));
+                li.addClass("jstree-open");
+                li.append(addSubCat(ul, obj.subcats));
+            }
+            container.append(li);
+        }
+    }
+    if (callback != undefined)
+        callback();
+    return container;
+}
+
+function doTree(tree, plugins, update) {
+    if (plugins == undefined)
+        plugins = [];
+
+    $(tree).jstree({
+        "checkbox": {
+            real_checkboxes: true
+        },
+        "xml_data": {
+            "ajax": {
+                cache: false
+            }
+        },
+        "core": {
+            "animation": 0,
+            "check_callback": true,
+            "themes": {"dots": true, "stripes": true},
+        },
+        "types": {
+            "#": {"max_children": 1, "max_depth": 6, "valid_children": ["root", "default"]},
+            "root": {"icon": "glyphicon glyphicon-tags", "valid_children": ["default"], "max_depth": 3},
+            "default": {"icon": "glyphicon glyphicon-tag", "valid_children": ["default", "file"]}
+        },
+        "plugins": plugins
+    }).bind("move_node.jstree", function(event, data) {
+        update(data);
+    }).bind("rename_node.jstree", function(event, data) {
+        update(data);
+    });
+
+}
+
+
+function date_ago(value) {
+    try {
+        var date_formats = {
+            past: [
+                {ceiling: 60, text: kontrol_lang['layout_seconds_ago']},
+                {ceiling: 3600, text: kontrol_lang['layout_minutes_ago']},
+                {ceiling: 86400, text: kontrol_lang['layout_hours_ago']},
+                {ceiling: 2629744, text: kontrol_lang['layout_days_ago']},
+                {ceiling: 31556926, text: kontrol_lang['layout_months_ago']},
+                {ceiling: null, text: kontrol_lang['layout_years_ago']}
+            ],
+            future: [
+                {ceiling: 60, text: kontrol_lang['layout_in_seconds']},
+                {ceiling: 3600, text: kontrol_lang['layout_in_minutes']},
+                {ceiling: 86400, text: kontrol_lang['layout_in_hours']},
+                {ceiling: 2629744, text: kontrol_lang['layout_in_days']},
+                {ceiling: 31556926, text: kontrol_lang['layout_in_months']},
+                {ceiling: null, text: kontrol_lang['layout_in_years']}
+            ]
+        };
+        var time_units = [
+            [31556926, 'years'],
+            [2629744, 'months'],
+            [86400, 'days'],
+            [3600, 'hours'],
+            [60, 'minutes'],
+            [1, 'seconds']
+        ];
+        var t = value.toString().split(/[- :]/);
+        var date = new Date(t[0], t[1] - 1, t[2], t[3], t[4], t[5]);
+        var ref_date = new Date();
+        var seconds_difference = (ref_date - date) / 1000;
+        var tense = 'past';
+        if (seconds_difference < 0) {
+            tense = 'future';
+            seconds_difference = 0 - seconds_difference;
+        }
+
+        function get_format() {
+            for (var i = 0; i < date_formats[tense].length; i++) {
+                if (date_formats[tense][i].ceiling == null || seconds_difference <= date_formats[tense][i].ceiling) {
+                    return date_formats[tense][i];
+                }
+            }
+            return null;
+        }
+
+        function get_time_breakdown() {
+            var seconds = seconds_difference;
+            var breakdown = {};
+            for (var i = 0; i < time_units.length; i++) {
+                var occurences_of_unit = Math.floor(seconds / time_units[i][0]);
+                seconds = seconds - (time_units[i][0] * occurences_of_unit);
+                breakdown[time_units[i][1]] = occurences_of_unit;
+            }
+            return breakdown;
+        }
+
+        function render_date(date_format) {
+            var breakdown = get_time_breakdown();
+            var time_ago_text = date_format.text.replace(/\$(\w+)/g, function() {
+                return breakdown[arguments[1]];
+            });
+            return depluralize_time_ago_text(time_ago_text, breakdown);
+        }
+
+        function depluralize_time_ago_text(time_ago_text, breakdown) {
+            for (var i in breakdown) {
+                if (breakdown[i] == 1) {
+                    var regexp = new RegExp("\\b" + i + "\\b");
+                    time_ago_text = time_ago_text.replace(regexp, function() {
+                        return arguments[0].replace(/s\b/g, '');
+                    });
+                }
+            }
+            return time_ago_text;
+        }
+
+        return render_date(get_format());
+    } catch (e) {
+        console.log(e);
+    }
+    return "";
+}

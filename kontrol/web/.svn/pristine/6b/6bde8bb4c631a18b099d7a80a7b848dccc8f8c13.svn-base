@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <!-- Bootstrap -->
+        <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/v2/themes/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+        <link href="/v2/themes/css/magnifier.css" rel="stylesheet" media="screen"/>
+        <link href="/v2/themes/css/default<?= @$_GET["v"] ?>.css?v=<?= @strtotime("now") ?>" rel="stylesheet" media="screen"/>
+        <link href="/v2/themes/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/v2/themes/img/apple-touch-icon.png"/>
+        <script type="text/javascript" src="/v2/themes/js/magnifier.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/event.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/jquery.min.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/jquery.infinitescroll.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/jquery.carouFredSel.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/default.js"></script>
+    </head>
+    <body>
+        <?php if (empty($_GET["noheader"])) { ?>
+            <header>
+                <div class="container">
+                    <div class="col-lg-12 col-md-12 col-sm-12" id="header">
+                        <div id="menu-settings">
+                            <ul class="nav nav-right nav-pills pull-right">
+                                <li data-toggle="tooltip" data-placement="bottom" title="Mi cuenta">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <img src="/v2/themes/img/account_icon.png"/><!--i class="fa fa-user"></i-->&nbsp;<span>Mi cuenta</span> <span class="caret"></span>
+                                    </a>
+                                    <div class="dropdown-menu pull-right" role="menu">
+                                        <div align="center" id="login" class="card">
+                                            <h3>Login</h3>
+                                            <div class="person img-circle"></div>
+                                            <form method="post" action="/login/doLogin" class="form-stacked">
+                                                <input type="text" class="form-control" name="username" placeholder="Correo electr&oacute;nico">
+                                                <input type="password" class="form-control" name="password" placeholder="Contrase&ntilde;a">
+                                                <br/>
+                                                <button type="submit" class="btn btn-primary form-control">Entrar</button> 
+                                                <button type="submit" class="btn btn-success form-control">Registrarse</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li data-toggle="tooltip" data-placement="bottom" title="Idioma / Moneda" class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <img src="/v2/themes/img/preferences_icon.png"/><!--i class="fa fa-comment"></i-->&nbsp;<span>Idioma / Moneda</span> <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu " role="menu">
+                                        <li><a href="#">Ingl&eacute;s / USD</a></li>
+                                        <li><a href="#">Espa&ntilde;ol / MXN</a></li>
+                                    </ul>
+                                </li>
+                                <li data-toggle="tooltip" data-placement="bottom" title="Ayuda" >
+                                    <a href="#">
+                                        <img src="/v2/themes/img/help_icon.png"/><!--i class="fa fa-question-circle"></i-->&nbsp;<span>Ayuda</span>
+                                    </a></li>
+                            </ul>
+                        </div>
+                        <div class="row">
+                            <div class="image-cover" style="background-image:url('https://s3.amazonaws.com/kichink/stores_22_11108_20131127115727_b.jpg')"></div>
+                            <div class="store-logo">
+                                <a href="<?= $_SERVER["PHP_SELF"] ?>">
+                                    <img src="https://s3.amazonaws.com/kichink/stores_22_11108_20131017112523_b.jpg"/>
+                                </a>
+                            </div>  
+                            <div class="page-header">
+                                <h1>Pink Magnolia</h1>
+                                <p>girls in the city dress up pretty</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        <?php } ?>
+        <article>
+            <div class="main-container">
+                <div class="container" id='middle'> 
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="row" id="navigation">
+
+                            <nav class="navbar navbar-inverse navbar-static-top" id="menu-shopping">
+                                <div class="container-fluid" style="background:#ffffff;width:360px">
+                                    <ul class="nav nav-pills nav-justified">
+                                        <li class="home">
+                                            <a href="<?= $_SERVER["PHP_SELF"] ?>" data-toggle="dropdown"><span class="fa fa-home"></span></a>
+                                        </li>
+                                        <li class="search">
+                                            <a href="#"><i class="fa fa-search"></i></a>
+                                        </li>
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-shopping-cart"></i>&nbsp;<span class="badge">0</span></a>
+                                            <ul class="dropdown-menu pull-right shopping-cart" role="menu">
+                                                <li role="presentation" class="dropdown-header">Hay 3 productos en tu orden</li>
+                                                <li role="presentation" class="divider"></li>
+                                                <li role="presentation">
+                                                    <div class="col-lg-12 col-sm-12 col-md-12">
+                                                        <button class="btn btn-primary form-control">Pagar mi orden</button>
+                                                    </div>
+                                                </li>
+                                                <li role="presentation">
+                                                    <a class="menuitem" role="menuitem" tabindex="-1" href="#">
+                                                        <img class="pull-left" src="http://placehold.it/40x40" alt="" height="40px" width="40px"/>
+                                                        <div class="item-cart-data">
+                                                            <b>Nombre de articulo</b>
+                                                            <span>$600.00</span>
+                                                        </div>
+                                                    </a>
+                                                    <button class='fa fa-pencil'></button>
+                                                </li>
+                                                <li role="presentation">
+                                                    <a class="menuitem" role="menuitem" tabindex="-1" href="#">
+                                                        <img class="pull-left" src="http://placehold.it/40x40" alt="" height="40px" width="40px"/>
+                                                        <div class="item-cart-data">
+                                                            <b>Nombre de articulo</b>
+                                                            <span>$600.00</span>
+                                                        </div>
+                                                    </a>
+                                                    <button class='fa fa-pencil'></button>
+                                                </li>
+                                                <li role="presentation">
+                                                    <a class="menuitem" role="menuitem" tabindex="-1" href="#">
+                                                        <img class="pull-left" src="http://placehold.it/40x40" alt="" height="40px" width="40px"/>
+                                                        <div class="item-cart-data">
+                                                            <b>Nombre de articulo</b>
+                                                            <span>$600.00</span>
+                                                        </div>
+                                                    </a>
+                                                    <button class='fa fa-pencil'></button>
+                                                </li>
+                                                <li role="presentation">
+                                                    <div align="center">Subtotal $100.00</div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img height="20px" src="/v2/themes/img/share.png" style="margin-top: -2px;">&nbsp;<b class="caret"></b></a>
+                                            <ul class="dropdown-menu pull-right" role="menu">
+                                                <li><a href="#"><i class="fa fa-facebook fa-2"></i> Compartir</a></li>
+                                                <li><a href="#"><i class="fa fa-twitter fa-2"></i> Compartir</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="row" id="categories">
+                            <nav class="navbar navbar-default navbar-static-top" role="navigation">
+                                <div class="container-fluid">
+                                    <!-- Brand and toggle get grouped for better mobile display -->
+                                    <div class="navbar-header">
+                                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                                            <span class="sr-only">Toggle navigation</span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Collect the nav links, forms, and other content for toggling -->
+                                    <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+                                        <ul class="nav nav-pills nav-justified">
+                                            <li class="active"><a href="#">Todos</a></li>
+                                            <li><a href="#">Minnie's ABC</a></li>
+                                            <li><a href="#">Prom Heaven</a></li>
+                                            <li><a href="#">Baby Light My Fire</a></li>
+                                            <li><a href="#">Madeline Rocks!</a></li>
+                                        </ul>
+                                    </div><!-- /.navbar-collapse -->
+                                </div><!-- /.container-fluid -->
+                            </nav>
+                        </div>
+                        <div id="items">
+                            <?php
+                            $total = isset($_GET["total"]) ? $_GET["total"] : 5;
+                            for ($i = 0; $i < $total; $i++) {
+                                ?>
+                                <div class="item"><!-- Nombre, Carrusel, Prechekout -->
+                                    <div class="item-detail">
+                                        <h1 class="title">Cute Denim Dress</h1>
+                                        <div class="col-lg-12 col-md-12 col-sm-12" align="left">
+                                            <div align="center" class="magnifier-thumb-wrapper" id="preview">
+                                                <img id="thumb" src="https://s3.amazonaws.com/kichink/items_8484_11108_20131030161149_b.jpg" alt="items_8484_11108_20131030161149"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 col-md-8 col-sm-8">
+                                            <div class="description">
+                                                <h4>Descripción</h4>
+                                                <p class="des"><span style="color: #00cccc;">Tatuajes temporales.</span> ¡Planilla de los instrumentitos de Odisseo!&nbsp;</p>
+                                                <br/>
+                                                <div>Tócalos todos en tu brazo, ¿Cuál es tu canción favorita?<br>
+                                                    <div>www.odisseo.mx</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4">
+                                            <div class="options">
+                                                <p class="precio" style="padding-bottom:0">$700.<sup>00</sup></p>
+                                                <button class="btn btn-primary btn-lg checkout-btn" id="buy_button"> Lo quiero</button>
+                                                <div align="center"><span>Compra segura con</span>&nbsp;<a href="#">Garant&iacute;a Kichink!</a></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+<? } ?>
+                        </div>
+                        <div align="center">
+                            <a id="next_content"  href="/stores/pom-pom?page=2" style="display:none;">Cargar m&aacute;s art&iacute;culos</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </article>
+        <footer><!-- Footer -->
+            <div id="footer" class="container">
+                <div class="footer-data">
+                    <p>Esta tienda en l&iacute;nea est&aacute; protegida y encriptada con SSL de 256 bits y es operada por <a href="https://www.kichink.com"><img class="imgmini" src="/img/logo_powered_by_kichink.png"></a><small>&copy; <?= @date("Y") ?> Kichink Servicios SA de CV</small></p>
+                    <ul id="listres">
+                        <li><a href="/home/terms">T&eacute;rminos del servicio</a></li>
+                        <li><a href="/home/privacy_policy">Pol&iacute;tica de Privacidad</a></li>
+                        <li><a href="http://sell.kichink.com/login/register#section-6"></a></li>
+                    </ul>
+                </div>
+            </div>
+            <a href="#" class="scrollup btn-kichink" style="display: block;">Desplazarse hacia arriba</a>
+            <!-- Modal -->
+<div class="modal fade" id="checkout" tabindex="-1" role="dialog" aria-labelledby="checkoput" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <iframe src="https://www.kichink.com/checkout/add_item/?item=87126" frameborder="0" width="917" height="662"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+        </footer>
+    </body>
+<!-- Bugherd script -->
+<script type='text/javascript'>
+(function (d, t) {
+  var bh = d.createElement(t), s = d.getElementsByTagName(t)[0];
+  bh.type = 'text/javascript';
+  bh.src = '//www.bugherd.com/sidebarv2.js?apikey=exmva9srbxrynrzfyy2saa';
+  s.parentNode.insertBefore(bh, s);
+  })(document, 'script');
+</script>
+</html>

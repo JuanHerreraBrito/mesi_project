@@ -1,0 +1,30 @@
+<?php
+
+class Tutorials extends CI_Controller {
+
+    var $sitio = 'SELL';
+    var $method = 'post';
+    var $function;
+
+    function __construct() {
+        parent::__construct();
+        geoIP();
+    }
+
+    public function index() {
+        $this->load->view('v2/tutorials/index_view');
+    }
+
+    public function enterprise(){
+
+        if(strpos($this->session->userdata('username'), '@kichink.com')){
+            $this->load->view('v2/tutorials/index_view_enterprise');
+        }else{
+            redirect('/');
+        }
+
+    }
+
+}
+
+?>

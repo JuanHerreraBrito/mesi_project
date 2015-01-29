@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <!-- Bootstrap -->
+        <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/v2/themes/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+        <link href="/v2/themes/css/magnifier.css" rel="stylesheet" media="screen"/>
+        <link href="/v2/themes/css/default.css" rel="stylesheet" media="screen"/>
+        <link href="/v2/themes/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/v2/themes/img/apple-touch-icon.png"/>
+        <script type="text/javascript" src="/v2/themes/js/magnifier.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/event.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/jquery.min.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/jquery.carouFredSel.js"></script>
+        <script type="text/javascript" src="/v2/themes/js/default.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="col-lg-12 col-md-12 col-sm-12" id="header">
+                    <div id="menu-settings">
+                        <ul class="nav nav-right nav-pills pull-right">
+                            <li>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <img src="/v2/themes/img/account_icon.png"/><!--i class="fa fa-user"></i-->&nbsp;Mi cuenta <span class="caret"></span>
+                                </a>
+                                <div class="dropdown-menu pull-right" role="menu">
+                                    <div align="center" id="login" class="card">
+                                        <h3>Login</h3>
+                                        <div class="person img-circle"></div>
+                                        <form method="post" action="/login/doLogin" class="form-stacked">
+                                            <input type="text" class="form-control" name="username" placeholder="Correo electr&oacute;nico">
+                                            <input type="password" class="form-control" name="password" placeholder="Contrase&ntilde;a">
+                                            <br/>
+                                            <button type="submit" class="btn btn-primary form-control">Entrar</button> 
+                                            <button type="submit" class="btn btn-success form-control">Registrarse</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <img src="/v2/themes/img/preferences_icon.png"/><!--i class="fa fa-comment"></i-->&nbsp;Idioma / Moneda <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu " role="menu">
+                                    <li><a href="#">Ingl&eacute;s / USD</a></li>
+                                    <li><a href="#">Espa&ntilde;ol / MXN</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#"><img src="/v2/themes/img/help_icon.png"/><!--i class="fa fa-question-circle"></i-->&nbsp;Ayuda</a></li>
+                        </ul>
+                    </div>
+                    <div class="row">
+                        <div class="image-cover" style="background-image:url('https://s3.amazonaws.com/kichink/stores_22_11108_20131127115727_b.jpg')">
+                        </div>
+                        <div class="store-logo">
+                            <img class="img-responsive" src="https://s3.amazonaws.com/kichink/stores_22_11108_20131017112523_b.jpg">
+                        </div>  
+                        <div class="page-header">
+                            <h1>Pink Magnolia</h1>
+                            <p>girls in the city dress up pretty</p>
+                        </div>
+                        <nav class="navbar navbar-inverse navbar-static-top" id="menu-shopping">
+                            <div class="container-fluid">
+                                <ul>
+                                    <li>
+                                        <form role="search">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" placeholder="Search"/>
+                                                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                                            </div>                                        
+                                        </form>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-shopping-cart"></i>&nbsp;<span class="badge">0</span></a>
+                                        <ul class="dropdown-menu pull-right" role="menu">
+                                            <li role="presentation" class="dropdown-header">Hay 3 productos en tu orden</li>
+                                            <li role="presentation" class="divider"></li>
+                                            <li role="presentation">
+                                                <div class="col-lg-12 col-sm-12 col-md-12">
+                                                    <button class="btn btn-primary form-control">Pagar mi orden</button>
+                                                </div>
+                                            </li>
+                                            <li role="presentation">
+                                                <a role="menuitem" tabindex="-1" href="#">
+                                                    <img src="http://placehold.it/40x40" alt="" height="40px" width="40px"/>
+                                                    <b>Nombre de articulo</b>
+                                                    <span>$600.00</span>
+                                                    <span class='fa fa-pencil'></span>
+                                                </a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a role="menuitem" tabindex="-1" href="#">
+                                                    <img src="http://placehold.it/40x40" alt="" height="40px" width="40px"/>
+                                                    <b>Nombre de articulo</b>
+                                                    <span>$600.00</span>
+                                                    <span class='fa fa-pencil'></span>
+                                                </a>
+                                            </li>
+                                            <li role="presentation">
+                                                <a role="menuitem" tabindex="-1" href="#">
+                                                    <img src="http://placehold.it/40x40" alt="" height="40px" width="40px"/>
+                                                    <b>Nombre de articulo</b>
+                                                    <span>$600.00</span>
+                                                    <span class='fa fa-pencil'></span>
+                                                </a>
+                                            </li>
+                                            <li role="presentation" class="divider"></li>
+                                            <li role="presentation">
+                                                <div align="center">Subtotal $100.00</div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img height="20px" src="/v2/themes/img/share.png" style="margin-top: -2px;">&nbsp;<b class="caret"></b></a>
+                                        <ul class="dropdown-menu pull-right" role="menu">
+                                            <li><a href="#"><i class="fa fa-facebook fa-2"></i> Compartir en facebook</a></li>
+                                            <li><a href="#"><i class="fa fa-twitter fa-2"></i> Compartir en twitter</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="main-container">
+            <div class="container" id='middle'> 
+
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="row" id="categories">
+                        <nav class="navbar navbar-default navbar-static-top" role="navigation">
+                            <div class="container-fluid">
+                                <!-- Brand and toggle get grouped for better mobile display -->
+                                <div class="navbar-header">
+                                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                                        <span class="sr-only">Toggle navigation</span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </button>
+                                </div>
+
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+                                    <ul class="nav nav-pills nav-justified">
+                                        <li class="active"><a href="#">Home</a></li>
+                                        <li><a href="#">Todos</a></li>
+                                        <li><a href="#">Minnie's ABC</a></li>
+                                        <li><a href="#">Prom Heaven</a></li>
+                                        <li><a href="#">Baby Light My Fire</a></li>
+                                        <li><a href="#">Madeline Rocks!</a></li>
+                                    </ul>
+                                </div><!-- /.navbar-collapse -->
+                            </div><!-- /.container-fluid -->
+                        </nav>
+                    </div>
+                    <div id="items">
+                        <? for ($i = 0; $i < 20; $i++) { ?>
+                            <div class="item" data-id="<?= $i + 1 ?>">         
+                                <div class="ribbon">30% off</div>                
+                                <img height="150" src="https://s3.amazonaws.com/kichink/items_64035_11108_20131030145623_thumb.jpg">                 
+                                <div class="items_price ribbon">$ 1,600.00</div> 
+                                <div class="items-name">Must Have Leggings</div>
+                            </div>
+                        <? } ?>
+                    </div>
+                    <div id="item-container"><!-- Nombre, Carrusel, Prechekout -->
+                        <section>
+                            <div id="item-detail">
+                                <button type="button" class="close pull-right" data-dismiss="item-container" aria-hidden="true">&times;</button>
+                                <h1 class="title">Cute Denim Dress</h1>
+                                <div class="col-lg-8 col-md-8 col-sm-8" align="left">
+                                    <div class="magnifier-thumb-wrapper" id="preview">
+                                        <img class="img-responsive" id="thumb" src="https://s3.amazonaws.com/kichink/items_8484_11108_20131030161149_b.jpg" alt="items_8484_11108_20131030161149"/>
+                                    </div>
+                                    <div class="caroufred">
+                                        <div class="posuno">
+                                            <a id="prev"><i class="fa fa-chevron-left"></i></a>
+                                        </div>
+                                        <div class="inner">
+                                            <div id="thumbs" class="col-lg-10 col-md-10 col-sm-10">
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_8484_11108_20131030161149_b.jpg" alt="items_96405_40791_20140115122233" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212040212_b.jpg" alt="items_5601_1060_20130212040212" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212040212_b.jpg" alt="items_5601_1060_20130212040212" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212034720_b.jpg" alt="items_5601_1060_20130212034720" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212040212_b.jpg" alt="items_5601_1060_20130212040212" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212040212_b.jpg" alt="items_5601_1060_20130212040212" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212034720_b.jpg" alt="items_5601_1060_20130212034720" width="110" height="80"/>
+                                                <img class="thumbnail" src="https://s3.amazonaws.com/kichink/items_5601_1060_20130212035800_b.jpg" alt="items_5601_1060_20130212035800" width="110" height="80"/>
+                                            </div>
+                                        </div>
+                                        <div class="posdos">
+                                            <a id="next"><i class="fa fa-chevron-right"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="description">
+                                        <h4>Descripción</h4>
+                                        <p class="des"><span style="color: #00cccc;">Tatuajes temporales.</span> ¡Planilla de los instrumentitos de Odisseo!&nbsp;</p>
+                                        <br/>
+                                        <div>Tócalos todos en tu brazo, ¿Cuál es tu canción favorita?<br>
+                                            <div>www.odisseo.mx</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div  class="col-lg-4 col-md-4 col-sm-4">
+                                    <section>
+                                        <div class="options">
+                                            <h3>Opciones</h3>
+                                            <table width="100%">
+                                                <tr><td width="50%">Formas de pago</td><td width="50%">Tarjeta de cr&eacute;dito y efectivo</td></tr>
+                                                <tr><td width="50%">Disponibilidad</td><td width="50%">Disponible en 2 d&iacute;as</td></tr>
+                                            </table>
+                                        </div>
+                                        <div class="options">
+                                            <p class="precio" style="padding-bottom:0">$700.<sup>00</sup></p>
+                                            <button class="btn btn-primary btn-lg" id="buy_button"> Lo quiero</button>
+                                            <div align="center"><span>Compra segura con</span>&nbsp;<a href="#">Garant&iacute;a Kichink!</a></div>
+                                        </div>
+
+                                        <ul class="share-controls" id="btnshare">
+                                            <!-- AddThis Button BEGIN -->
+                                            <li class="col-lg-3 col-md-3 col-sm-3"><a href="#" id="popoverLoQuiero" rel="popover" data-original-title="" title=""><i class="fa fa-star"></i></a></li>
+                                            <li class="col-lg-3 col-md-3 col-sm-3"><a href="http://www.addthis.com/bookmark.php" class="addthis_button_facebook at300b" title="Facebook"><i class="fa fa-facebook fa-2"></i></a></li>
+                                            <li class="col-lg-3 col-md-3 col-sm-3"><a href="http://www.addthis.com/bookmark.php" class="addthis_button_twitter at300b" title="Tweet"><i class="fa fa-twitter fa-2"></i></a></li>
+                                            <li class="col-lg-3 col-md-3 col-sm-3"><a href="http://www.addthis.com/bookmark.php" class="addthis_button_email at300b" target="_blank" title="Email"><i class="fa fa-envelope"></i></a></li>
+                                            <!--li><a style="display: inline-block;padding: 2px 0;opacity: 0;" href="http://www.addthis.com/bookmark.php" class="addthis_button_pinterest"><i class="fa fa-pinterest"></i></a><i class="fa fa-pinterest"></i></li-->
+                                            <script type="text/javascript">var addthis_config = {"data_track_addressbar": true};</script>
+                                            <script type="text/javascript" src="https://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-504918e96b99753c"></script>
+                                            <div id="_atssh" style="visibility: hidden; height: 1px; width: 1px; position: absolute; z-index: 100000;">
+                                                <iframe id="_atssh911" title="AddThis utility frame" style="height: 1px; width: 1px; position: absolute; z-index: 100000; border: 0px; left: 0px; top: 0px;" src="//ct1.addthis.com/static/r07/sh149.html#iit=1392317948819&amp;tmr=load%3D1392317948227%26core%3D1392317948649%26main%3D1392317948815%26ifr%3D1392317948823&amp;cb=0&amp;cdn=1&amp;chr=UTF-8&amp;kw=&amp;ab=-&amp;dh=www.kichink.com&amp;dr=https%3A%2F%2Fwww.kichink.com%2Fbuy%2F96405%2Fremate%2Fpaquete-de-5-memorias-usb-de-16gb&amp;du=https%3A%2F%2Fwww.kichink.com%2Fbuy%2F96405%2Fremate%2Fpaquete-de-5-memorias-usb-de-16gb&amp;dt=Remate%20de%20computadoras%3A%20Paquete%20de%205%20Memorias%20USB%20de%2016GB%20%40%20Kichink.com&amp;dbg=0&amp;md=0&amp;cap=tc%3D0%26ab%3D1&amp;inst=1&amp;vcl=1&amp;jsl=37&amp;prod=undefined&amp;lng=en-US&amp;ogt=image%2Cdescription%2Ctitle&amp;pc=men&amp;pub=ra-504918e96b99753c&amp;ssl=1&amp;sid=52fd15fc59fdc532&amp;srpl=1&amp;srcs=1&amp;srd=1&amp;srf=1&amp;srx=1&amp;ver=300&amp;xck=0&amp;xtr=0&amp;og=title%3DRemate%2520de%2520computadoras%253A%2520Paquete%2520de%25205%2520Memorias%2520USB%2520de%252016GB%2520%2540%2520Kichink.com%26description%3DPaquete%2520de%25205%2520Memorias%2520USB%2520de%252016GB%2520de%2520Remate%2520de%2520computadoras%2520%257C%2520C%25C3%25B3mpralo%2520en%2520l%25C3%25ADnea%2520aqu%25C3%25AD.%2520Aceptamos%2520tarjetas%2520de%2520cr%25C3%25A9dito%2520internacionales%252C%2520pagos%2520en%2520ventanilla%2520de%2520banco%2520y%2520enviamos%2520a%2520cualquier%2520lugar%2520del%2520mundo%26image%3Dhttps%253A%252F%252Fs3.amazonaws.com%252Fkichink%252Fitems_96405_40791_20140115122233_thumb.jpg&amp;aa=0&amp;rev=126596&amp;ct=1&amp;xld=1&amp;xd=1"></iframe>
+                                            </div>
+                                            <script type="text/javascript" src="https://ct1.addthis.com/static/r07/core122.js"></script>
+                                            <!--AddThis Button END -->         
+                                        </ul>
+                                    </section>
+                                </div>
+                                <hr/>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <footer><!-- Footer -->
+                <div id="footer" class="container">
+                    <p>Esta tienda en l&iacute;nea est&aacute; protegida y encriptada con SSL de 256 bits y es operada por <a href="https://www.kichink.com"><img class="imgmini" src="/v2/themes/img/logo_powered_by_kichink.png"></a><small>&copy; <?= @date("Y") ?> Kichink Servicios SA de CV</small></p>
+                    <ul id="listres">
+                        <li><a href="/home/terms">T&eacute;rminos del servicio</a></li>
+                        <li><a href="/home/privacy_policy">Pol&iacute;tica de Privacidad</a></li>
+                        <li><a href="http://sell.kichink.com/login/register#section-6"></a></li>
+                    </ul>
+                </div>
+            </footer>
+    </body>
+<!-- Bugherd script -->
+<script type='text/javascript'>
+(function (d, t) {
+  var bh = d.createElement(t), s = d.getElementsByTagName(t)[0];
+  bh.type = 'text/javascript';
+  bh.src = '//www.bugherd.com/sidebarv2.js?apikey=exmva9srbxrynrzfyy2saa';
+  s.parentNode.insertBefore(bh, s);
+  })(document, 'script');
+</script>
+</html>

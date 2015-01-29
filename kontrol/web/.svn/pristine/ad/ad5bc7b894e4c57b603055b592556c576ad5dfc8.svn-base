@@ -1,0 +1,10 @@
+RewriteEngine on
+php_value memory_limit 254M
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
+php_value max_execution_time 1000
+php_value max_input_time 1000
+
+RewriteCond $1 !^(index\.php|img|flash|bootstrap|v2|css|js|robots\.txt)
+RewriteRule ^(.*)$ /index.php/$1 [L]
+

@@ -1,0 +1,196 @@
+/* 
+ * V2 Sell.Kichink
+ * Orders
+ */
+ $(document).ready(function() {
+
+        $("#new-orders").DinamicTable({
+            tableClass: "table table-responsive transparent",
+            numered: false, //Si va numerada
+            selectable: false, //Si lleva checkboxes o no
+            types: {
+                status: "label",
+                total_sale_price: "money",
+                time_ago: "time_ago"
+            },
+            dataTable: {
+                "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+                "sPaginationType": "bootstrap",
+                "bFilter": false,
+                "bInfo": false,
+                "oLanguage": {
+                    "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                    "sLengthMenu": "Show _MENU_",
+                    "sPrevious": "",
+                    "sNext": ""
+                }
+            },
+            actions: [//Tpdas las acciones que quiero agregar
+                {
+                    label: "Ver Detalle",
+                    icon: "",
+                    onClick: function(obj) {
+                        var frm = document.createElement("form");
+                        frm.method="post"
+                        frm.action = '/orders/store/' + store_id + '/' + obj.data.id;
+                        frm.submit();
+                    }
+                }]
+        });
+
+        $("#previous-orders").DinamicTable({
+            tableClass: "table table-responsive transparent",
+            numered: false, //Si va numerada
+            selectable: false, //Si lleva checkboxes o no
+            types: {
+                status: "label",
+                total_sale_price: "money",
+                time_ago: "time_ago"
+            },
+            dataTable: {
+                "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+                "sPaginationType": "bootstrap",
+                "bFilter": false,
+                "bInfo": false,
+                "oLanguage": {
+                    "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                    "sLengthMenu": "Show _MENU_",
+                    "sPrevious": "",
+                    "sNext": ""
+                }
+            },
+            actions: [//Tpdas las acciones que quiero agregar
+                {
+                    label: "Ver Detalle",
+                    icon: "",
+                    onClick: function(obj) {
+                        var frm = document.createElement("form");
+                        frm.method="post"
+                        frm.action = '/orders/store/' + store_id + '/' + obj.data.id;
+                        frm.submit();
+                    }
+                }],
+        });
+
+
+        $("#open-orders").DinamicTable({
+            tableClass: "table table-responsive transparent",
+            numered: false, //Si va numerada
+            selectable: false, //Si lleva checkboxes o no
+            types: {
+                status: "label",
+                total_sale_price: "money",
+                time_ago: "time_ago"
+            },
+            dataTable: {
+                "bFilter": false,
+                "bInfo": false,
+                "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                    "sLengthMenu": "Show _MENU_",
+                    "sPrevious": "",
+                    "sNext": ""
+                }
+            },
+            actions: [//Tpdas las acciones que quiero agregar
+                {
+                    label: "Ver Detalle",
+                    icon: "",
+                    onClick: function(obj) {
+                        var frm = document.createElement("form");
+                        frm.method="post"
+                        frm.action = '/orders/store/' + store_id + '/' + obj.data.id;
+                        frm.submit();
+                    }
+                }]
+        });
+
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "open", page: 1, limit: 10}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#open-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#open-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#open-orders").data().DinamicTable.methods.drawTable();
+            } else {
+                $("#open-orders").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+            }
+            setTooltip($("#open-orders").find('.label.status'));
+
+
+        });
+
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "previous", page: 1, limit: 10}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#previous-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#previous-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#previous-orders").data().DinamicTable.methods.drawTable();
+            } else {
+                $("#previous-orders").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+            }
+            setTooltip($("#previous-orders").find('.label.status'));
+
+        });
+
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "new", page: 1, limit: 10}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "items_count", "total_price", "currency", "time_ago"];
+            if (obj.data.length > 0) {
+                $("#new-orders").data().DinamicTable.methods.setContent(obj.data);
+                $("#new-orders").data().DinamicTable.methods.setVisibleFields(visible);
+                $("#new-orders").data().DinamicTable.methods.drawTable();
+            } else {
+                $("#new-orders").html("<span class='no'>No hay pagos que hayan sido depositados</span>");
+            }
+            setTooltip($("#new-orders").find('.label.status'));
+        });
+
+        function setTooltip(t) {
+            t.each(function() {
+                var title = "";
+                if ($(this).hasClass("incomplete")) {
+                    title = "Warning! The order has not been completed, check out what is happening";
+                }
+                if ($(this).hasClass("without-founds")) {
+                    title = "The order could not be programmed because there was a problem when generating the TC payment. We must wait for customer to update their payment method";
+                }
+                if ($(this).hasClass("waiting-for-payment")) {
+                    title = "Waiting for customer to make payment in cash";
+                }
+                if ($(this).hasClass("new")) {
+                    title = "Your customer has just placed an order. See what they liked from your store!";
+                }
+                if ($(this).hasClass("pending")) {
+                    title = "An order was placed, but no action has been taken.";
+                }
+                if ($(this).hasClass("confirmed")) {
+                    title = "The order has been confirmed and scheduled by the store";
+                }
+                if ($(this).hasClass("en-ruta")) {
+                    title = "La orden está en proceso de entrega";
+                }
+                if ($(this).hasClass("delivered")) {
+                    title = "The order was delivered successfully";
+                }
+                if ($(this).hasClass("pendiente-cancelacion")) {
+                    title = "Se ha solicitado la cancelación de la orden";
+                }
+                if ($(this).hasClass("closed")) {
+                    title = "The cycle is complete, the item was delivered and we deposited your money";
+                }
+                $(this).popover({
+                    content: title,
+                    placement: "right",
+                    trigger: "hover"
+                });
+            });
+
+        }
+
+
+
+    });

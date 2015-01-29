@@ -1,0 +1,100 @@
+/* 
+ * Spanish langugage for javascript
+ * 05022014
+ */
+var kontrol_lang = {
+        layout_my_stores : "Mis tiendas",
+        layout_add_store : "Agregar tienda",
+        layout_changes_will_be_made : "Los cambios se aplicarán a tu configuración",
+        layout_store_fb_installed : "Tu tienda se ha instalado con éxito en tu página de Facebook",
+        layout_seconds_ago : "Hace $seconds segundos",
+        layout_minutes_ago : "Hace $minutes minutos",
+        layout_hours_ago : "Hace $hours horas",
+        layout_days_ago : "Hace $days dias",
+        layout_months_ago : "Hace $months meses",
+        layout_years_ago : "Hace $years a&ntilde;os",
+
+        layout_in_seconds : "en $seconds segundos",
+        layout_in_minutes : "en $minutes minutos",
+        layout_in_hours : "en $hours horas",
+        layout_in_days : "en $days dias",
+        layout_in_months : "en $months meses",
+        layout_in_years : "en $years a&ntilde;os",
+
+        layout_will_be_updated_1 : "Se actualizarán ",
+        layout_will_be_updated_2 : " artículos",
+        layout_loading_items : "Cargando artículos",
+        layout_loading_item_list : "Cargando lista artículos",
+        layout_items_will_be_deleted_1 : "Se eliminarán ",
+        layout_items_will_be_deleted_2 : " artículos ",
+        layout_categories_will_be_assigned_1 : "Se asignarán ",
+        layout_categories_will_be_assigned_2 : " categorías a ",
+        layout_categories_will_be_assigned_3 : "artículos",
+        layout_sending_publication_request : "Enviando solicitud de publicación",
+        layout_all_the :"Todas las",
+        layout_all_categories_1 : "categorías",
+        layout_all_categories_2 : "subcategorías",
+
+        payments_view_detail : "Ver detalle",
+        payments_no_pending : "Por ahora no hay pagos pendientes",
+        payments_no_deposits : "No hay pagos que hayan sido depositados",
+        payments_no_payments: "No hay pagos disponibles",
+        payments_requests_1: "Ha solicitado un pago de ordenes. Este se realizar&aacute; a m&aacute;s tardar el d&iacute;a ",
+        payments_requests_2: " v&iacute;a transferencia bancaria a la cuenta ",
+        payments_requests_3: " a nombre de ",
+
+        payment_order : "Orden",
+        payment_items : "Artículos",
+        payment_units : "unidades",
+        payment_with_units : "con",
+
+        orders_no_orders: "No hay ordenes disponibles",
+        orders_sin_fondos: "La orden no pudo ser programa porque hubo un problema al momento de generar el pago con TC. Tenemos que esperar que nuestro cliente actualice su medio de pago",
+        orders_waiting_for_payment: "En espera que el cliente realice su pago en efectivo",
+        orders_new: "Ordenes nuevas",
+        orders_pending: "Se hizo un pedido, pero no ha realizado ninguna acci&oacute;n.",
+        orders_confirmed: "La orden ha sido confirmada y programada por la tienda",
+        orders_en_ruta: "La orden est&aacute; en proceso de entrega",
+        orders_delivered: "La orden fue entregada exitosamente",
+        orders_pendiente_cancelacion: "Se ha solicitado la cancelaci&oacute;n de la orden",
+        orders_closed: "El ciclo est&aacute; completo, el art&iacute;culo fue entregado y te depositamos tu dinero",
+        
+           
+        o_sin_fondos: "sin fondos",
+        o_waiting_for_payment: "en espera",
+        o_new: "nueva",
+        o_pending: "pendiente",
+        o_confirmed: "confirmada",
+        o_en_ruta: "en ruta",
+        o_delivered: "entregada",
+        o_pendiente_cancelacion: "pendiente cancelaci&oacute;n",
+        o_closed: "cerrada",
+
+        order_envio_programado : "Este envio ha sido programado",
+        order_no_items : "No hay items",
+
+        settings_paleta_colores : "Modificando la paleta de colores de la tienda",
+        settings_nueva_imagen : "Agregando nueva imagen a la galeria",
+        settings_asigna_imagen : "Asignando imagen a la tienda",
+        settings_problema : "Ocurrio un problema, intente de nuevo más tarde",
+        settings_updating_details : "Modificando detalles de la tienda",
+        settings_updating_bankdata : "Actualizando datos bancarios",
+        settings_delete : "Borrar",
+        settings_loading : "Se está cargando su configuración",
+
+        store_preview_store : 'Ver tienda',
+        store_request_pub : 'Solicitar publicación',
+        store_install : 'Instalar',
+        store_fb_install : 'Instalar en Facebook',
+        store_web_install : 'Instalar en website',
+        store_perc_completed : 'Completado',
+        store_reason_1 : 'Debes de subir una imagen para el header.',
+        store_reason_2 : 'Se necesita un logo.',
+        store_reason_3 : 'La tienda no tiene art&iacute;culos AL AIRE.',
+        store_reason_4 : 'Faltan datos de recolecci&oacute;n.',
+        store_reason_5 : 'Faltan los datos bancarios.',
+
+        notificacions_ver_info : 'Ver información',
+
+
+    }

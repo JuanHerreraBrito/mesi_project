@@ -1,0 +1,46 @@
+/* 
+ * V2 Sell.Kichink
+ * Payment Details
+ */
+$(document).ready(function() {
+  call_api('/api/pagos/get_payment_order_details', 'post', {"store_id": 22, "type": "general", "id": 414}, function(data) {
+        var ajax_request = jQuery.parseJSON(data.toString());
+        console.log(ajax_request);
+        var obj = ajax_request.data.pago;
+     
+        for (i in obj.items) {
+
+            var id = i;
+
+            var o = '<div class="panel panel-default">' +
+                    '<div class="panel-heading">' +
+                    '<a data-toggle="collapse" data-parent="#accordion-pagos" href="#collapse-' + i + '">' +
+                    '<div class="panel-title">' +
+                    '<b><i class="fa fa-link"></i></b>' +
+                    '<i class="articulo">' + obj.items[i].name + '</i>' +
+                    '<span>' + obj.items[i].units + ' unidades</span>' +
+                    '</div>' +
+                    '</a>' +
+                    '</div>';
+            if (obj.items[i].purchase_options) {
+                o += '<div id="collapse-' + i + '" class="panel-collapse collapse">' +
+                        '<div class="panel-body">' +
+                        '<ul>';
+                for (k in obj.items[i].purchase_options) {
+                    o += '<li>' + k + ' - ' + obj.items[i].purchase_options[k] + ' unidades</li>';
+                }
+                o += '</ul>' +
+                        '</div>' +
+                        '</div>';
+            }
+            o += '</div>';
+
+            $("#accordion-notifications").append(o);
+
+        }
+
+     
+    });
+});
+
+

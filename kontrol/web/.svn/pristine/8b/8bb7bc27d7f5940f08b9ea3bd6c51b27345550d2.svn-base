@@ -1,0 +1,552 @@
+<link href="/css/custom-theme/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+<link href="/v2/css/item_details.css" rel="stylesheet" />
+<!--Necesario para jquery.cycle.all, porque tiene funciones obsoletos-->
+<script type="text/javascript" src="/v2/js/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="/v2/js/jquery.cycle.all.js"></script>
+<script type="text/javascript" src="/v2/js/autoNumeric-1.7.4.js"></script>
+<script type="text/javascript" src="/v2/js/item_details.js"></script>
+
+<script type="text/javascript">
+    /* Var necesarias */
+    var store_id = <?= $store->id ?>;
+    var item_id = <?= $item_id ?>;
+    var base_url = "<?= base_url() ?>";
+    var lang = "<?= $usr_language ?>";
+    var lang_txt = {
+        'stores_itempage_discounts_code': "<?= $this->lang->line('stores_itempage_discounts_code'); ?>",
+        'stores_itempage_discounts_del': "<?= $this->lang->line('stores_itempage_discounts_del'); ?>",
+        'stores_itempage_discounts_units': "<?= $this->lang->line('stores_itempage_discounts_units'); ?>",
+        'stores_itempage_discounts_expiration': "<?= $this->lang->line('stores_itempage_discounts_expiration'); ?>",
+        'stores_itempage_onair_text': "<?= $this->lang->line('stores_itempage_onair_text'); ?>",
+        'stores_itempage_offair_text': "<?= $this->lang->line('stores_itempage_offair_text'); ?>",
+    }
+</script>
+
+<!--Agregar nueva imagen al item-->
+<div class="modal fade" id="pictureModal" style="display:none">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal" href="#">×</a>
+                <h3><?= $this->lang->line('item_modal_header'); ?></h3>
+            </div>
+            <form method="post" action="/media/save" enctype="multipart/form-data" style="margin-bottom:0px;">
+                <div class="modal-body">
+                    <input type="file" name="image" />
+                    <img src="/img/ajax-loader.gif" alt="progressbar" id="progressbar" style="display:none;margin:0 auto; margin-top:10px"/>
+                    <input type="hidden" name="table" value="items" />
+                    <input type="hidden" name="from" value="<?= uri_string() ?>" />
+                    <input type="hidden" name="tableID" value="" /><br /><br  />
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" name="submit" value="<?= $this->lang->line('item_modal_upload'); ?>" class="btn" id="pictureModalButton" />
+                    <a class="btn" data-dismiss="modal" href="#"><?= $this->lang->line('item_modal_close'); ?></a>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!--Eliminar imagen del item-->
+<div class="modal fade" id="deletePictureModal" style="display:none">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal" href="#">×</a>
+                <h3><?= $this->lang->line('stores_imageadmin_deleteModal_header'); ?></h3>
+            </div>
+            <form action="/media/delete_image"  style="margin-bottom:0px;" method="post">
+                <div class="modal-body" style="text-align:center">
+                    <input type="hidden" name="image_id" value="" id="image_id" />
+                    <input type="hidden" name="object_name" id="object_name" value="" />
+                    <h5><?= $this->lang->line('stores_imageadmin_deleteModal_text'); ?></h5>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" name="submit_delete" value="<?= $this->lang->line('stores_imageadmin_deleteModal_delete'); ?>" class="btn" />
+                    <a class="btn" data-dismiss="modal" href="#"><?= $this->lang->line('stores_imageadmin_deleteModal_close'); ?></a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div><!--Modal-->
+
+<div class="col-lg-9 col-md-9 col-sm-9">
+    <div id="settings" class="row">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" id="item-submenu">
+            <ul class="nav nav-tabs pull-right">
+                <li class="active"><a href="#articulo"><?= $this->lang->line('stores_itempage_settings_title_text'); ?></a></li>
+                <li><a href="#categorias"><?= $this->lang->line('stores_itempage_categories'); ?></a></li>
+                <li><a href="#inventario">Inventario</a></li>
+                <li><a href="#opciones_envio"><?= $this->lang->line('stores_itempage_shipment_options'); ?></a></li>
+                <li><a href="#descuentos"><?= $this->lang->line('stores_itempage_discounts'); ?></a></li>
+                <li><a href="#compartir"><?= $this->lang->line('stores_itempage_share'); ?></a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12">
+		<div class="alert alert-success" style="display: none;"></div>
+        <div class="alert alert-danger" style="display: none;"></div>
+        <div class="settings-content" data-offset="0">
+            <!--Tab Articulo-->
+            <div id="articulo" >
+                <h2><?= $this->lang->line('stores_itempage_settings_title_text'); ?></h2>
+                <button type="button" class="btn btn-primary btn-items" id="update_articulos">Actualizar</button>
+                <br/>
+                <form name="articulo_form" id="articulo_form">
+                    <div class="row">
+
+                        <div class="col-lg-8" id="imgcontainer">
+                            <!--Slide-->
+                            <div class="slide imageBox" style="position:relative; width: inherit; height: inherit; background-color:#eee">
+                                <img class="img-responsive" src="http://placehold.it/700x500" />
+                            </div>
+                            <!--Buttons actions-->
+                            <div id="imageEdit" align="right">
+                                <!--Add-->
+                                <a class="btn btn-success" data-toggle="modal" href="#pictureModal" id="step1"
+                                   data-toggle="tooltip" data-placement="top" title="" data-original-title="<?= $this->lang->line('stores_itempage_picture_button_text_add'); ?>">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+
+                                </a>
+                                <!--Edit-->
+                                <a class="btn btn-warning" id="editPicture" href="#"
+                                   data-toggle="tooltip" data-placement="top" title="" data-original-title="<?= $this->lang->line('stores_itempage_picture_button_text_edit'); ?>">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+
+                                </a>
+                                <!--Delete-->
+                                <a class="btn btn-danger" id="deletePicture" data-toggle="modal" href="#deletePictureModal"
+                                   data-toggle="tooltip" data-placement="top" title="" data-original-title="<?= $this->lang->line('stores_itempage_picture_button_text_delete'); ?>">
+                                    <span class="glyphicon glyphicon-trash"></span>
+
+                                </a>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-4">
+                            <!--<br/>
+                            <a href="javascript:void(0);" onclick="javascript:startIntro();" class="btn success large" style="margin:0 0 0 20px;padding:9px;width:160px;text-align:center;"><?= $this->lang->line('stores_orders_mostrar_tuto'); ?></a>
+                            <br/><br/>-->
+                            <div class="col-lg-12" id="step4" style="height:45px">
+                                <div class="row">
+                                    <div class="pull-right">
+                                        <input id="toggle-button" type="checkbox" name="live_item" class="switch-small" data-text-label="<?= strtoupper($this->lang->line('stores_itempage_onair')) ?>" data-on="primary" data-off="danger">
+                                    </div>
+                                    <div class="pull-left" id="live_text"><?= $this->lang->line('stores_itempage_onair_text'); ?></div>
+                                </div>
+                            </div>
+                            <ul class="nav nav-tabs nav-justified">
+                                <li class="<?= $usr_language == 'es' ? 'active' : '' ?>"><a data-toggle="tab" href="#spanish"><?= $this->lang->line('stores_itempage_spanish_tab'); ?></a></li>
+                                <li class="<?= $usr_language == 'en' ? 'active' : '' ?>"><a data-toggle="tab" href="#english"><?= $this->lang->line('stores_itempage_english_tab'); ?></a></li>
+                            </ul>
+                            <div id="step2">
+                                <div id="my-tab-content" class="tab-content">
+                                    <div id="spanish" class="<?= $usr_language == 'es' ? 'active' : '' ?> fade in tab-pane item-details-tab">
+                                        <textarea class="form-control" style="font-size:20px; font-weight:bold; height:50px; line-height:22px;" name="name" id="item_name"></textarea>
+                                        <br />
+                                        <textarea class="form-control" id="description" name="description"></textarea>
+                                    </div>
+
+                                    <div id="english" class="<?= $usr_language == 'en' ? 'active' : '' ?> fade in tab-pane item-details-tab">
+                                        <textarea class="form-control" style="font-size:20px; font-weight:bold; height:50px; line-height:22px;" name="name_eng"
+                                                  id="item_name_eng"></textarea>
+                                        <br />
+                                        <textarea class="form-control" id="description_eng"
+                                                  name="description_eng"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Precio del articulo-->
+                            <h4 style="margin-top:20px; margin-bottom: 0px; color:#666;">Precio</h4>
+                            <div class="col-lg-12" style="margin-top:10px">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">MXN $</span>
+                                        <div id="step3">
+                                            <input class="form-control" type="text" value="" name="price" id="price" style="font-size:15px; font-weight:300; text-align:right" />
+                                        </div>
+                                    </div>
+                                     <div class="input-group">
+                                        <span class="input-group-addon">USD $</span>
+                                        <input class="form-control" type="text" value="" id="priceUSD" style="float: left;font-size:15px; font-weight:300;text-align:right" />
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="col-lg-9">
+                            <!--Thumbnails images-->
+                            <ul id="nav-slider" style="display: none;" class="nav-slider">
+
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!--END Tab Articulo-->
+            <!--Tab Categorias-->
+            <div id="categorias">
+                <h2><?= $this->lang->line('stores_itempage_categories'); ?></h2>
+                <div style="height: 45px"><button class="btn btn-primary btn-items" id="update_categorias">Actualizar</button></div>
+                <div id="jstree_categories_items" style="padding-bottom:15px;border-bottom: 1px solid #e2e2e2; margin-bottom: 10px;">
+                    <ul>
+                        <li data-jstree='{"opened":true}' class="jstree-open">All
+                            <ul id="maincats"></ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!--END Tab Categorias-->
+            <!--Tab Inventario-->
+            <div id="inventario">
+                <h2>Inventario</h2>
+                <div style="height: 45px"><button class="btn btn-primary btn-items" id="update_inventario">Actualizar</button></div>
+                <form name="inventario_form" id="inventario_form">
+                    <div class="row">
+                        <div class="col-lg-4">
+
+                            <div id="step5">
+                                <h4><?= $this->lang->line('stores_itempage_settings_sku_text_1'); ?> <small> <?= $this->lang->line('stores_itempage_settings_sku_text_2'); ?></small></h4>
+                                <input type="text" class="form-control" id="sku" name="sku"  value=""  />
+                            </div>
+                            <br />
+
+                            <div id="step6">
+
+                                <div id="inventories_kichink_units">
+                                    <h5 style="line-height:20px">Inventarios<br />administrados por Kichink</h5>
+                                    <input class="form-control" type="text" class="span2" id="units_availible_read" disabled="disabled"
+                                           value="" />
+                                </div>
+
+                                <div id="manager_inventories">
+                                    <div class="checkbox-label">
+                                        <input class="form-control" type="radio" name="inventories" id="inventories_unique" value="inventories_unique" />
+                                        <label for="inventories_unique" style="text-align:left">
+                                            <strong> <?= $this->lang->line('stores_itempage_settings_unique_text_1'); ?></strong>
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-label">
+                                        <input class="form-control" type="radio" name="inventories" id="inventories_num" value="inventories_num" />
+                                        <label for="inventories_num" style="text-align:left">
+                                            <strong> <?= $this->lang->line('stores_itempage_settings_Inventories_text_1'); ?> </strong>
+                                        </label>
+                                    </div>
+
+                                    <?= $this->lang->line('stores_itempage_settings_Inventories_text_1.2'); ?><br/><br/>
+                                    <input type="text" class="form-control" size="5" id="units_availible" name="units_availible"  value="" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8" style="background:#F9F9F9;">
+                            <h4 style="margin-top:10px;line-height:16px;padding:0 10px" id="step7">
+
+                                <div id="purchase_options_title">
+                                    <!--Si ya hay campos personalizados creados, se muestra este container para agregar nuevos campos-->
+                                    <div>
+                                        <input class="form-control" style="width: initial; float: left; margin-right: 5px;height: initial;" type="checkbox" id="settings_opts_check_1"
+                                               onchange="show_setting_options(1)" />
+                                               <?= $this->lang->line('stores_itempage_purchase_options'); ?>
+                                    </div>
+                                    <small><?= $this->lang->line('stores_itempage_purchase_options_text'); ?></small><br/>
+                                </div>
+
+                                <div id="purchase_options_init">
+                                    <!--Imagen de introduccion-->
+                                    <img style="margin-top:0;cursor:pointer;" src="/img/mensaje.png" alt="plantillas_msg" onclick="javascript:$('#new_options_item').slideToggle('slow');" /><br/>
+                                    <small><?= $this->lang->line('stores_item_purchase_options_alert'); ?></small><br/>
+
+                                </div>
+                            </h4>
+                            <div id="inventories_kichink_options_purcharse">
+
+                                <!--No disponible porque se maneja por kichink-->
+                                <div style="width:auto;height:auto;clear:both;text-align:center;">
+                                    <h5>Inventarios administrados por Kichink</h5>
+                                </div>
+                            </div>
+
+                            <!--Panel 1 (Crear campo personalizado, si ya existe despliega las opciones para colocar el inventario)-->
+                            <div style="width:auto;height:auto;clear:both;" id="settings_opts_panel_1">
+
+                                <!--Group Name y Options de cada grupo-->
+                                <div id="option_item"></div>
+
+                                <!--Si no existe ya un campo personalizado se pide crear uno al item-->
+                                <div id="new_options_item">
+                                    <div id="options-items">
+
+                                        <div class="input-group">
+                                            <div class="title">
+                                                Nombre del grupo
+                                                <small class="description" style="color:#999;font-size:12px;">Ej. Tallas, Colores, etc.</small></label>
+                                            </div>
+                                            <input type="text" class="grupo_opt form-control" id="group_name" />
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="title">Tipo de opciones</div>
+                                            <select class="form-control select_opt" id="select_opt">
+                                                <option value="select">Select</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <div class="title">Opci&oacute;n</div>
+                                            <input type="text" class="opcion_opt form-control" />
+                                        </div>
+                                    </div>
+                                    <div style="padding:10px 0; text-align:center;">
+                                        <button type="button" id="boton_append_1" class="btn badd">Agregar opci&oacute;n</button>
+                                        <button type="button" class="btn btn-big btn-primary bg" id="save_purchase_opts">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--Panel 2 (ISBN, Autor). Campos creados, disponibles para agregar informacion -->
+                            <div style="width:auto; height:auto;clear:both;padding-top:15px;" id="settings_opts_panel_2_display">
+                                <h4 style="margin-top:20px;line-height:16px;padding:0 10px;">
+                                    <input type="checkbox" id="settings_opts_check_2" onchange="show_setting_options(2)" />
+                                    <?= $this->lang->line('stores_itempage_display_options'); ?> <br />
+                                    <small><?= $this->lang->line('stores_itempage_display_options_text'); ?></small><br/>
+                                </h4>
+
+                                <div id="settings_opts_panel_2"></div>
+
+                                <div id="item_without_options" style="display: none;">
+                                    <p style="padding:10px;text-align:center"><?= $this->lang->line('stores_itempage_without_display_options'); ?></p>
+                                </div>
+
+                            </div>
+                            <br/><br/>
+
+                        </div>
+
+                        <script type="text/javascript">
+    function show_setting_options(name) {
+        var id = 'settings_opts_check_' + name;
+        if (!$('#' + id).is(':checked')) {
+            $('#settings_opts_panel_' + name).slideUp();
+        } else {
+            $('#settings_opts_panel_' + name).slideDown();
+        }
+    }
+                        </script>
+
+                    </div>
+                </form>
+            </div>
+            <!-- END Tab Inventario-->
+            <!--Tab Opciones de envio-->
+            <div id="opciones_envio">
+                <h2><?= $this->lang->line('stores_itempage_shipment_options'); ?></h2>
+                <div style="height: 45px"><button class="btn btn-primary btn-items" id="update_pos">Actualizar</button></div>
+                <form name="envio_form" id="envio_form">
+                    <div>
+                        <div id="step8">
+                            <h4><?= $this->lang->line('stores_itempage_ava'); ?></h4>
+
+                            <!--Disponibilidad del producto-->
+                            <div class="checkbox-label">
+                                <input  class="form-control" name="availible_item" type="radio" id="ava_inme" value="ava_inme" />
+                                <div class="description">&nbsp;<?= $this->lang->line('stores_itempage_ava_inme'); ?></div>
+                            </div>
+                            <div class="checkbox-label">
+                                <input class="form-control" name="availible_item" type="radio" id="ava_days" value="ava_days" />
+                                <div class="description">&nbsp;<?= $this->lang->line('stores_itempage_ava_in'); ?>
+                                    <input type="text" class="form-control" value="" name="ava_days" class="span1" />
+                                    <?= $this->lang->line('stores_itempage_ava_in_text'); ?>
+                                </div>
+                            </div>
+                            <div class="checkbox-label">
+                                <input class="form-control" name="availible_item" type="radio" id="ava_date" value="ava_date" />
+                                <div class="description">&nbsp;<?= $this->lang->line('stores_itempage_ava_date'); ?>
+                                    <input class="form-control" type="text" value="" name="ava_date" class="span2" />
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            $(function() {
+                                $("input[name='ava_date']").datepicker({dateFormat: 'yy/mm/dd'});
+                            });
+                        </script>
+
+                        <!--Tipo de venta-->
+                        <h4><?= $this->lang->line('stores_itempage_shipment_type'); ?></h4>
+                        <p style="color:#666;" id="step9"><?= $this->lang->line('stores_itempage_shipping_text'); ?></p>
+                        <div style="background:url('/img/opacity.png') repeat;display:none;position:absolute;width:270px;z-index:999" id="shipment_onload">
+                            <p style="color:#532E63;font-size:18px;font-weight:500;padding:5px;text-align:center;margin-top:20px"></p>
+                            <div style="width:220px;margin:0 auto" id="shipment_onload_img"><img src="/img/ajax-loader.gif" /></div>
+                        </div>
+
+                        <div id="shipping_types"></div>
+
+                        <!--Nacional o internacional (debe de ser fisico)-->
+                        <div id="shipment_locations">
+                            <div class="alert-danger" id="shipment_locations_no_display" style="display: none;">
+                                <h5><?= $this->lang->line('stores_itempage_shipment_locations_msg'); ?></h5><?= $this->lang->line('stores_itempage_shipment_locations_msg_2'); ?>
+                            </div>
+                            <div id="shipment_locations_display">
+                                <h4><?= $this->lang->line('stores_itempage_shipment_locations'); ?></h4>
+
+                                <div class="checkbox-label">
+                                    <input class="form-control" type="checkbox" name="location_id[]" id="local" value="local">
+                                    <label for="local" style="text-align:left">
+                                        <strong>Local</strong>
+                                    </label>
+                                </div>
+                                <div class="checkbox-label">
+                                    <input class="form-control" type="checkbox" name="location_id[]" id="local_express" value="local_express">
+                                    <label for="local_express" style="text-align:left">
+                                        <strong>Local Express</strong>
+                                    </label>
+                                </div>
+                                <div class="checkbox-label">
+                                    <input class="form-control" type="checkbox" name="location_id[]" id="nac" value="nac">
+                                    <label for="nac" style="text-align:left">
+                                        <strong>Nacional</strong>
+                                    </label>
+                                </div>
+                                <div class="checkbox-label">
+                                    <input class="form-control" type="checkbox" name="location_id[]" id="nac_express" value="nac_express">
+                                    <label for="nac_express" style="text-align:left">
+                                        <strong>Nacional Express</strong>
+                                    </label>
+                                </div>
+                                <div class="checkbox-label">
+                                    <input class="form-control" type="checkbox" name="location_id[]" id="inter" value="inter">
+                                    <label for="inter" style="text-align:left">
+                                        <strong>Internacional</strong>
+                                    </label>
+                                </div>
+                                <div class="checkbox-label">
+                                    <input class="form-control" type="checkbox" name="location_id[]" id="inter_express" value="inter_express">
+                                    <label for="inter_express" style="text-align:left">
+                                        <strong>Internacional Express</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div><!--End of POS-->
+            <!--END Tab Opciones de envio-->
+            <!--Tab Descuentos-->
+            <div id="descuentos">
+                <h2><?= $this->lang->line('stores_itempage_discounts'); ?></h2>
+                <div style="height: 45px"><button class="btn btn-primary btn-items" id="update_discounts">Actualizar</button></div>
+                <form name="descuentos_form" id="descuentos_form">
+                    <p style="color:#666;">
+                        <?= $this->lang->line('stores_itempage_discounts_text'); ?>
+                    </p>
+                    <h3 style="font-weight:300;margin-bottom:20px">
+
+                        <div id="step10">
+                            <!--Discount-->
+                            <div class="checkbox-label">
+                                <div class="description"><?= $this->lang->line('stores_itempage_discounts_disc'); ?>
+                                    <input type="text" value=""
+                                           name="discount_amount" id="discount_amount" class="form-control"
+                                           style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:90px;" />
+                                    <select name="discount_type" id="" class="form-control" style="font-size:18px;">
+                                        <option value="percentage">%</option>
+                                        <option value="money">$</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!--Start-->
+                            <div class="checkbox-label">
+                                <div class="description">
+                                    <?= $this->lang->line('stores_itempage_discounts_starts'); ?>
+                                    <input type="text" value="" name="discount_start"
+                                           id="discount_start" class="form-control"
+                                           style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+                                           <?= $this->lang->line('stores_itempage_discounts_expire'); ?>
+                                    <input type="text" value="" placeholder="Opcional"
+                                           name="discount_expiration" id="discount_expiration" class="form-control"
+                                           style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+                                           <?= $this->lang->line('stores_itempage_discounts_stock'); ?>
+                                    <input type="text" value="" placeholder="Opcional"
+                                           name="discount_existencias" id="discount_existencias" class="form-control"
+                                           style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="step11">
+                            <p style="margin-top:20px"><?= $this->lang->line('stores_itempage_discounts_msg'); ?></p>
+                            <!--Code-->
+                            <div class="checkbox-label">
+                                <div class="description"><?= $this->lang->line('stores_itempage_discounts_code'); ?>
+                                    <input type="text" name="coupon_code" id="coupon_code" value=""
+                                           placeholder="Opcional" class="form-control"
+                                           style="font-size:15px; font-weight:300; margin-top:5px;height:28px;text-align:right; width:120px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+
+                            $(function() {
+                                $("#discount_start").datepicker({dateFormat: 'mm/dd/yy'});
+                                $("#discount_expiration").datepicker({dateFormat: 'mm/dd/yy'});
+                            });
+                        </script>
+                    </h3>
+
+                    <div id="discounts_display">
+                        <h6 style="margin-top:10px; color:#666;">
+                            <?= $this->lang->line('stores_itempage_discounts_ava'); ?>
+                        </h6>
+                        <table class="bordered-table zebra-stripped" id="discount_table">
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                <div id="item_discounts_without">
+                    <p style="padding:10px;border:1px solid #CCCCCC;text-align:center;font-weight:bold"><?= $this->lang->line('stores_itempage_discounts_without'); ?></p>
+                </div>
+            </div><!--End of payments-->
+            <!--END Tab Descuentos-->
+            <!--Tab Compartir-->
+            <div id="compartir">
+                <h2><?= $this->lang->line('stores_itempage_share'); ?></h2>
+                <p><?= $this->lang->line('stores_itempage_share_text'); ?></p>
+                <div id="step12">
+                    <a href="https://www.facebook.com/dialog/feed?app_id=421452251236177&link=https://www.kichink.com/buy/<?= $item_id ?>?lang=<?= ($usr_language == 'en' ? 'eng' : 'spa') ?>&redirect_uri=http://www.kichink.com"
+                       target="_blank" title="Share to facebook">
+                        <img src="http://cdn3.iconfinder.com/data/icons/socialmediabookmark/buttons/facebook_button.png" style="float:left;margin-right:5px"/>
+                    </a>
+                    <a href="http://twitter.com/home?status=https://www.kichink.com/buy/<?= $item_id ?>" title="Share to facebook" target="_blank">
+                        <img src="http://cdn3.iconfinder.com/data/icons/socialmediabookmark/buttons/twitter_button.png" />
+                    </a><br /><br />
+                </div>
+                <pre style="word-wrap:normal">
+						<code style="background:none;">&lt;script type=&quot;text/javascript&quot; src=&quot;http://files.kichink.com/kichink_v1.js&quot;&gt;&lt;/script&gt;
+						&lt;script type=&quot;text/javascript&quot;&gt;
+						kichink_insert_buy_button({
+						&nbsp;&nbsp;&nbsp;	item_id:<?= $item_id ?>,
+						&nbsp;&nbsp;&nbsp;	label: 'Comprar',
+						&nbsp;&nbsp;&nbsp;	show_tarjetas:false,
+						&nbsp;&nbsp;&nbsp;	img:false
+							}); &lt;/script&gt;
+						</code>
+                </pre>
+            </div><!--End of payments-->
+            <!--END Tab Compartir-->
+        </div>
+    </div>
+</div>
+
+<!--<script type="text/javascript" src="/js/nicEdit-latest.js"></script>-->
+<script type="text/javascript" src="/js/jquery.toggle.buttons.js"></script>
+<script type="text/javascript" src="/js/tinymce/tinymce.min.js"></script>
+<script type="text/javascript" defer="defer">
+
+    //<![CDATA[
+    /*bkLib.onDomLoaded(function() {
+     new nicEditor({buttonList : ['fontSize','bold','italic','underline','forecolor','html'],maxHeight : 200}).panelInstance('description');
+     new nicEditor({buttonList : ['fontSize','bold','italic','underline','forecolor','html'],maxHeight : 200}).panelInstance('description_eng');
+     });*/
+    //]]>
+</script>

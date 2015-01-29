@@ -1,0 +1,59 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('login_page_title_text')?> <small><?=$this->lang->line('login_page_subtitle_text')?></small></h1>
+        </div>
+        <div class="row">
+          <div class="span16">
+
+            <? if(isset($signup_user['flashMessage'])){ ?>
+                <div class="alert-message warning">
+                     <a class="close" href="#">×</a>
+                     <?=$signup_user['flashMessage']?>
+                </div>
+			<? } ?>
+		
+			<h1><?=$this->lang->line('signup_title_text');?></h1>
+			
+			<form class="form-stacked" method="post" action="">
+				<fieldset>
+					<div class="clearfix">
+						<label for="name"> <?=$this->lang->line('signup_name_text');?> </label>
+						<input type="text" name="name"  class="span7" value="<?=isset($signup_user['name'])?$signup_user['name']:''?>" />
+					</div>
+					<br />
+					<div class="clearfix">
+						<label for="email"> <?=$this->lang->line('signup_email_text');?> </label>
+						<input type="text" name="email" class="span7" value="<?=isset($signup_user['email'])?$signup_user['email']:''?>" />
+					</div>
+                    <br />
+
+                    <? if(isset($exists)){ ?>
+	                    <? if(!$exists){ ?>
+						<div class="clearfix">
+							<label for="store"> <?=$this->lang->line('signup_password_text');?> </label>
+							<input type="password" name="password" class="span7" />
+						</div>
+	                    <br />
+	                    <div class="clearfix">
+							<label for="store"> <?=$this->lang->line('signup_password2_text');?> </label>
+							<input type="password" name="password2" class="span7" />
+						</div>
+						<br />
+						<? } ?>
+					<? } ?>
+					<div class="clearfix">
+						<input type="submit" name="submit" class="btn large" value="<?=$this->lang->line('signup_button_signup');?>" />
+					</div>
+				</fieldset>
+			</form>
+			
+          </div>
+     
+        </div>
+      </div>
+
+<?=$this->load->view('layout/footer.php')?>

@@ -1,0 +1,588 @@
+<?=$this->load->view('layout/header.php', array('page_title'=>$store_name.': '.(isset($item_data[0]->name) ? $item_data[0]->name : '')))?>
+<?php $usrPref = getUsrPref($this->session->userdata('user_id')); ?>
+<script type="text/javascript" src="/bootstrap/js/bootstrap-twipsy.js"></script>
+<script type="text/javascript" src="/bootstrap/js/bootstrap-popover.js"></script>
+   <h1>New</h1>
+   <div class="modal hide fade" id="pictureModal" style="display:none">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal" href="#">×</a>
+        <h3><?=$this->lang->line('item_modal_header');?></h3>
+        </div>
+        <form method="post" action="/media/save" enctype="multipart/form-data" style="margin-bottom:0px;">
+        <div class="modal-body">
+                <input type="file" name="image" />
+                <img src="/img/ajax-loader.gif" alt="progressbar" id="progressbar" style="display:none;margin:0 auto; margin-top:10px"/>
+                <input type="hidden" name="table" value="items" />
+                <input type="hidden" name="from" value="<?=uri_string()?>" />
+                <input type="hidden" name="tableID" value="<?=(isset($item_data[0]->id) ? $item_data[0]->id : '')?>" /><br /><br  />
+        </div>
+        <div class="modal-footer">
+            <input type="submit" name="submit" value="<?=$this->lang->line('item_modal_upload');?>" class="btn" id="pictureModalButton" />
+            <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('item_modal_close');?></a>
+        </form>
+        </div>
+    </div>
+    
+    <div class="modal hide fade" id="deleteModal" style="display:none">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal" href="#">×</a>
+        <h3><?=$this->lang->line('item_deleteModal_header');?></h3>
+        </div>
+        <form action="/items/delete_item"  style="margin-bottom:0px;" method="post">
+        <div class="modal-body" style="text-align:center">
+                <input type="hidden" name="item_id" value="<?=(isset($item_data[0]->id) ? $item_data[0]->id : '')?>" />
+                <input type="hidden" name="store_id" value="<?=(isset($item_data[0]->store_id) ? $item_data[0]->store_id : '')?>" />
+                <h5><?=$this->lang->line('item_deleteModal_text');?></h5>
+        </div>
+        <div class="modal-footer">
+            <input type="submit" name="submit_delete" value="<?=$this->lang->line('item_deleteModal_delete');?>" class="btn" />
+            <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('item_deleteModal_close');?></a>
+        </form>
+        </div>
+    </div>
+    
+     <div class="modal hide fade" id="deletePictureModal" style="display:none">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal" href="#">×</a>
+        <h3><?=$this->lang->line('stores_imageadmin_deleteModal_header');?></h3>
+        </div>
+        <form action="/media/delete_image"  style="margin-bottom:0px;" method="post">
+        <div class="modal-body" style="text-align:center">
+                <input type="hidden" name="image_id" value="" id="image_id" />
+                <input type="hidden" name="object_name" id="object_name" value="" />
+                <h5><?=$this->lang->line('stores_imageadmin_deleteModal_text');?></h5>
+        </div>
+        <div class="modal-footer">
+            <input type="submit" name="submit_delete" value="<?=$this->lang->line('stores_imageadmin_deleteModal_delete');?>" class="btn" />
+            <a class="btn" data-dismiss="modal" href="#"><?=$this->lang->line('stores_imageadmin_deleteModal_close');?></a>
+        </form>
+        </div>
+    </div><!--Modal-->
+  
+    <div class="container">
+    <form action="" method="post">
+      <div class="content">
+        <div class="page-header">
+          <h1 style="float:left;"><?=$item_data[0]->store_name?> <small>Editing item</small></h1>
+          <div style="float:right;text-align:center;padding-top:20px;" >
+          		<!-- <input type="submit" name="submit_update" class="btn big primary" id="submit_button" style="text-align:center;" value="<?=$this->lang->line('stores_itempage_save_button_text');?>" /> -->
+				<!--<a href="/items/update_item/<?=$this->uri->segment(3)?>" class="btn big primary" id="buy_button" style=" text-align:center;">
+					Save changes
+				</a>-->
+				<a class="btn big danger" data-toggle="modal" href="#deleteModal"><?=$this->lang->line('stores_itempage_delete_button_text');?></a>
+				<br />
+				<input type="checkbox" name="live_item" <?=isset($postValues['live_item']) ? ($postValues['live_item'] ? 'checked="cheked"' : '') : $item_data[0]->live==1 ? 'checked="cheked"': '' ?> /> 
+								<strong> <?=$this->lang->line('stores_itempage_settings_live_text_1');?> </strong>
+			</div>
+            <a style="clear:both;float:left" id="buy_button" class="btn" href="<?=base_url().'stores/id/'.$item_data[0]->store_id?>"><?=$this->lang->line('stores_itempage_back_button_text');?></a>
+          <div style="clear:both;"></div>
+        </div>
+        <div class="row">
+		  <? if(isset($flashMessage)){ ?>
+          	<div class="span16"><div class="alert-message warning"><a class="close" href="#">×</a><?=$flashMessage?></div></div>
+          <? } ?>
+          
+          <div class="span12">
+          	 
+          	 <div style="width:700px; height:500px; position:relative; margin-bottom:10px;">
+		      	 <div class="slide" style="position:relative;  width:700px; height:500px; background-color:#eee">
+		         <? if(is_array($item_data[0]->image)){ 
+				 		$c=0;
+				 		for($i=0; $i<=count($item_data[0]->image); $i++){ 
+							if(!empty($item_data[0]->image[$i]->imageData['default'])){
+							$c = $c + 1;
+							?>
+		                    <img class="thumbnail <?=$item_data[0]->image[$i]->imageData['original'][0]->extension?>" src="<?=$item_data[0]->image[$i]->imageData['default'][0]->url.$item_data[0]->image[$i]->imageData['default'][0]->object_name.'_b.'.$item_data[0]->image[$i]->imageData['default'][0]->extension?>" alt="<?=$c.'-'.$item_data[0]->image[$i]->imageData['default'][0]->object_name?>" id="<?=$item_data[0]->image[$i]->imageData['default'][0]->MediaID.'&items&'.$item_data[0]->image[$i]->imageData['default'][0]->object_name?>" width="<?=$item_data[0]->image[$i]->imageData['default'][0]->width?>" height="<?=$item_data[0]->image[$i]->imageData['default'][0]->height?>" style="max-width:700px; max-height:500px"/>
+		                    
+		                <? 	}
+						
+						} ?>
+						
+		         </div>
+		         <div id="imageMove_options" style="position:absolute; bottom:10px; left:10px; width:400px; text-align:left;">
+		         	<a class="btn default" id="prev" href="#">&larr; Mover atras</a>
+		         	<a class="btn default" id="next" href="#">Mover adelante &rarr;</a>
+		         </div>
+		         <div id="imageEdit_options" style="position:absolute; bottom:10px; right:10px; width:400px; text-align:right;">
+                	<a class="btn warning" id="editPicture" href="#" >
+	                	<img src="/img/pencil.png" width="14" hiehgt="14" style="margin-top:0px; margin-right:5px"/><?=$this->lang->line('stores_itempage_picture_button_text_edit');?>
+	                </a>
+					<a class="btn danger" data-toggle="modal" href="#deletePictureModal"><?=$this->lang->line('stores_itempage_picture_button_text_delete');?></a>
+                </div>
+          	</div>
+		    <div id="imageNav" style="float:left;">
+				<a class="btn default" id="prev" href="#">&larr;</a>
+				<a class="btn disabled"><span></span> / <?=$c?></a>
+				<a class="btn default" id="next" href="#">&rarr;</a>
+			</div>
+            <div id="imageEdit" style="float:right;">
+            	
+                
+            <? }else{ ?>
+
+                <img class="thumbnail" src="http://placehold.it/700x500" style=""/>
+                </div>
+                <div id="imageEdit" style="float:right;">
+             
+            <? } ?>
+           				
+				<a class="btn" data-toggle="modal" href="#pictureModal"><?=$this->lang->line('stores_itempage_picture_button_text_add');?></a>
+                
+			</div>
+			
+			<div style="width:700px; height:auto;  clear:both; margin-top:15px; padding-top:25px;">
+				<div id="custom_form" style="display:none;">
+					<h4 style="margin-top:10px; color:#666;">
+						Campo personalizado
+					</h4>
+					<h2 style="font-weight:300;margin-bottom:20px"> 
+					<div style="width:90px;float:left"><small>Nombre: </small></div>
+					<input type="text" value="" name="display_option_field_name" id="display_option_field_name_1" class="span2" style="width:150px; margin-top:5px;height:20px;text-align:right" /> 
+					<br />
+					<div style="width:90px;float:left"><small>Contenido: </small></div>
+					<textarea name="display_option_field_value" id="display_option_field_value_1" class="span2" style="width:550px; margin-top:5px;height:60px;text-align:left" > </textarea>
+					</h2>
+				</div>
+				<a href="javascript:$('#custom_form').toggle();" style="font-size:15px;">+ Agregar campo personalizado</a>
+			</div>
+          </div>
+          <div class="span4" style="border-left:none;">
+	        <ul class="tabs" data-tabs="tabs">
+			    <li class="<?=$usrPref->usr_language == 'es' ? 'active' : ''?>"><a href="#spanish"><?=$this->lang->line('stores_itempage_spanish_tab');?></a></li>
+			    <li class="<?=$usrPref->usr_language == 'en' ? 'active' : ''?>"><a href="#english"><?=$this->lang->line('stores_itempage_english_tab');?></a></li>
+		    </ul>
+		    
+			<div id="my-tab-content" class="tab-content">
+				<div id="spanish" class="<?=$usrPref->usr_language == 'es' ? 'active' : ''?> tab-pane settings_tab">
+
+					<textarea style="font-size:20px; font-weight:bold; height:50px; line-height:22px;" name="name" id="item_name"><?=(isset($postValues['name']) ? $postValues['name'] : $item_data[0]->name)?></textarea>
+					<br /><br />
+                    <input type="hidden" name="store_id" value="<?=(isset($item_data[0]->store_id) ? $item_data[0]->store_id : '')?>" class="span1" />
+                    <input type="hidden" name="id" value="<?=(isset($item_data[0]->id) ? $item_data[0]->id : '')?>" class="span1" />
+					<textarea style="height:270px;" id="description" name="description"><?=(isset($postValues['description']) ? $postValues['description'] : $item_data[0]->description)?></textarea>
+				</div>
+
+				<div id="english" class="<?=$usrPref->usr_language == 'en' ? 'active' : ''?> tab-pane settings_tab">
+					<textarea style="font-size:20px; font-weight:bold; height:50px; line-height:22px;" name="name_eng" id="item_name_eng"><?=(isset($postValues['name_eng']) ? $postValues['name_eng'] : $item_data[0]->name_eng)?></textarea>
+					<br /><br />
+           			<textarea style="height:270px;" id="description_eng" name="description_eng"><?=(isset($postValues['description_eng']) ? $postValues['description_eng'] : $item_data[0]->description_eng)?></textarea>
+				</div>
+			</div>
+			<h4 style="margin-top:10px; color:#666;">
+				Precio
+			</h4>
+          	<h2 style="font-weight:300;margin-bottom:20px"> 
+	            <div style="width:50px;float:left"><small>MX $</small></div>
+	            <input type="text" value="<?=(isset($postValues['price']) ? number_format($postValues['price'],2) : number_format($item_data[0]->price,2))?>" name="prices" id="price" class="span3" style="font-size:24px; font-weight:300; margin-top:5px;height:28px;text-align:right" />
+	            <div style="width:50px;float:left"><small>USD $</small></div>
+	            <?
+		            // Para mostrar el precio en USD
+		            if(isset($postValues['price'])){
+		            	$valuePricesUSD = number_format(round(($postValues['price']/$x_rate->price),2),2);
+		            	//$valuePricesUSD < 1 ? $valuePricesUSD = number_format(1,2) : $valuePricesUSD;
+		            }else{
+		            	$valuePricesUSD = number_format(round(($item_data[0]->price/$x_rate->price),2),2);
+		            	//$valuePricesUSD < 1 ? $valuePricesUSD = number_format(1,2): $valuePricesUSD;
+		            } 
+	            ?>
+	            <input type="text" value="<?=$valuePricesUSD?>" name="pricesUSD" id="priceUSD" class="span3" style="font-size:24px; font-weight:300; margin-top:5px;height:28px;text-align:right" />
+	            <input type="hidden" name="price" value="" id="priH" />
+            </h2>
+            
+            <a href="javascript:$('#discount_form').toggle();" style="font-size:15px;">+ Configurar descuento</a>
+            <div id="discount_form" style="display:none;">
+				<h4 style="margin-top:10px; color:#666;">
+					Descuento
+					
+				</h4>
+				
+				<h2 style="font-weight:300;margin-bottom:20px"> 
+					<div style="width:50px;float:left"><small>Desc.</small></div>
+					<input type="text" value="<?=(isset($postValues['discount']) ? number_format($postValues['discount'],2) : 0)?>" name="discount_amount" id="discount_amount" class="span2" style="font-size:24px; font-weight:300; margin-top:5px;height:28px;text-align:right" /> 
+					<select class="span1" style="width:55px; font-size:16px; height:25px;">
+						<option value="percentage">%</option>
+						<option value="money">$</option>
+					</select><br />
+					
+					<div style="width:50px;float:left"><small>Num.</small></div>
+		            <input type="text" value="<?=(isset($postValues['discount_units']) ? number_format($postValues['discount_units'],2) : 0)?>" name="discount_units" id="discount_units" class="span3" style="font-size:24px; font-weight:300; margin-top:5px;height:28px;text-align:right" />
+		            
+		            <div style="width:50px;float:left"><small>Expira</small></div>
+		            <input type="text" value="<?=(isset($postValues['discount_units']) ? number_format($postValues['discount_units'],2) : 0)?>" name="discount_units" id="discount_units" class="span3" style="font-size:24px; font-weight:300; margin-top:5px;height:28px;text-align:right" />
+				</h2>
+				
+	          </div>
+          </div>
+        </div>
+   </div>  
+   <br />   <br />   <br />
+   
+    <div class="container">
+
+ 
+        <div class="content">
+        	
+        	<div class="row">
+        		<div class="span8">
+		        	
+		        	<div class="page-header">
+		        		<h3>Item Options</h3>
+		        	</div>
+		        	<table class="zebra-striped span7" style="border:none; color:#FFF; color:#333;" cellpadding="15">
+					
+					<tr>
+						
+						<td>
+							<label for="sku" class="item_details_label">
+								<strong> <?=$this->lang->line('stores_itempage_settings_sku_text_1');?> </strong> <?=$this->lang->line('stores_itempage_settings_sku_text_2');?>
+							</label>
+						</td>
+						
+						<td colspan="2" style="padding:10px; font-size:12px; color:#AAA;">
+							<input type="text" class="span3" name="sku"  value="<?=(isset($postValues['sku']) ? $postValues['sku'] : $item_data[0]->sku)?>" style="float:left" />
+						</td>
+					</tr>
+	
+	
+					
+					
+					<tr>
+	
+						
+						<td style="text-align:left;">
+							<h4><?=$this->lang->line('stores_itempage_settings_Inventories_text_1');?></h4>
+							
+						</td>
+						
+						<td colspan="2" style="padding:10px; font-size:12px; color:#AAA; ">
+							
+							
+							 <input type="text" class="span2" size="5" name="units_availible"  value="<?=(isset($postValues['units_availible']) ? $postValues['units_availible'] : $item_data[0]->units_availible)?>" /> <?=$this->lang->line('stores_itempage_settings_Inventories_text_1.2');?>
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							<h4>Peso</h4>
+						</td>
+						
+						<td colspan="2" style="padding:10px; font-size:12px; color:#AAA;">
+							<? if(isset($item_data[0]->shipment)){
+								$shipment = json_decode($item_data[0]->shipment);
+								}
+								foreach($shipments as $value){ ?>
+								<a href="#" rel="popover" data-content="And here's some amazing content. It's very engaging. right?" data-original-title="A title">
+	                			<input type="radio" name="shipment_options[]" value="<?=$value->id?>" <?=isset($postValues['shipment_options']) ? (isChecked($postValues['shipment_options'],$value->id) ? "disabled='checked'" : '') : in_array($value->id , $shipment)?"checked='checked'":''?>  /> 
+	                    		<strong><?=$value->group_type?></strong><br/>
+	                    		</a>
+	               		
+                      
+	                    		<div id="shipment_costs" style="display:none;">
+	                    		Local: <?=number_format($value->local, 2)?><br />
+		                		Local Express:<?=number_format($value->local_express, 2)?><br />
+		                		Nacional 1:<?=number_format($value->nac_1, 2)?><br />
+		                		Nacional 2:<?=number_format($value->nac_2, 2)?><br />
+		                		Nacional 3:<?=number_format($value->nac_3, 2)?><br />
+		                		Nacional 4:<?=number_format($value->nac_4, 2)?><br />
+		                		Internacional 1:<?=number_format($value->nac_express, 2)?><br />
+		                		Internacional 2:<?=number_format($value->inter_1, 2)?><br />
+		                		Internacional 3:<?=number_format($value->inter_2, 2)?><br />
+		                		Internacional 4:<?=number_format($value->inter_3, 2)?><br />
+	                    		</div>
+	                    		
+	                    		<? } ?>
+	                    		<script type="text/javascript">
+	        
+							    $(function () {
+							      $("a[rel=popover]").popover({
+							          offset: 10
+							        })
+							        .click(function(e) {
+							          e.preventDefault()
+							        })
+							    })
+							  
+							    </script>  
+	                		</td>
+						</td>
+					</tr>
+		            
+		           
+					<? if($item_data[0]->store_id != 51){ ?>
+		            <tr>
+						<td>
+		                	<h4><?=$this->lang->line('stores_itempage_sizes_subtitle_text');?></h4>
+		                    <? 
+							if(isset($item_data[0]->sizes)){
+								$sizes = json_decode($item_data[0]->sizes);
+								$sizeOption = array();
+								foreach ($sizes as $value) {
+									$sizeOption[$value->type] = $value->units;
+								}
+							}else{
+								$sizes = array();	
+							}
+							?>
+							<label for="xsmall" class="item_details_label sizes">
+								<div style="float:left;width:80px">
+									<input type="checkbox" name="sizes_options[]" value="xs" <?=isset($postValues['sizes_options']) ? (isChecked($postValues['sizes_options'],'xs') ? "checked='checked'" : '') : isset($sizeOption['xs'])?"checked='checked'":''?> /> 
+									<strong><?=$this->lang->line('stores_itempage_sizesoptions_text_1');?></strong>
+								</div>
+								<div style="float:right">
+									<input type="text" class="span2" name="inventories_xs" value="<?=(isset($postValues['inventories_xs']) ? $postValues['inventories_xs'] : (isset($sizeOption['xs']) ? $sizeOption['xs'] : ''))?>" />
+								</div>
+							</label>
+							<br />
+							<label for="small" class="item_details_label sizes">
+								<div style="float:left;width:80px">
+									<input type="checkbox" name="sizes_options[]" value="s"  <?=isset($postValues['sizes_options']) ? (isChecked($postValues['sizes_options'],'s') ? "checked='checked'" : '') : isset($sizeOption['s'])?"checked='checked'":''?> /> 
+									<strong><?=$this->lang->line('stores_itempage_sizesoptions_text_2');?></strong>
+								</div>
+								<div style="float:right">
+									<input type="text" class="span2" name="inventories_s" value="<?=(isset($postValues['inventories_s']) ? $postValues['inventories_s'] : (isset($sizeOption['s']) ? $sizeOption['s'] : ''))?>" />
+								</div>
+							</label>
+		                    <br />
+							<label for="medium" class="item_details_label sizes">
+								<div style="float:left;width:80px">
+									<input type="checkbox" name="sizes_options[]" value="m"  <?=isset($postValues['sizes_options']) ? (isChecked($postValues['sizes_options'],'m') ? "checked='checked'" : '') : isset($sizeOption['m'])?"checked='checked'":''?> />
+									<strong><?=$this->lang->line('stores_itempage_sizesoptions_text_3');?></strong>
+								</div>
+								<div style="float:right">
+									<input type="text" class="span2" name="inventories_m" value="<?=(isset($postValues['inventories_m']) ? $postValues['inventories_m'] : (isset($sizeOption['m']) ? $sizeOption['m'] : ''))?>" />
+								</div>
+							</label>
+		                    <br />
+							<label for="large" class="item_details_label sizes">
+								<div style="float:left;width:80px">
+									<input type="checkbox" name="sizes_options[]" value="l" <?=isset($postValues['sizes_options']) ? (isChecked($postValues['sizes_options'],'l') ? "checked='checked'" : '') : isset($sizeOption['l'])?"checked='checked'":''?> />
+									<strong><?=$this->lang->line('stores_itempage_sizesoptions_text_4');?></strong>
+								</div>
+								<div style="float:right">
+									<input type="text" class="span2" name="inventories_l" value="<?=(isset($postValues['inventories_l']) ? $postValues['inventories_l'] : (isset($sizeOption['l']) ? $sizeOption['l'] : ''))?>" />
+								</div>
+							</label>
+		                    <br />
+							<label for="xlarge" class="item_details_label sizes">
+								<div style="float:left;width:80px">
+									<input type="checkbox" name="sizes_options[]" value="xl" <?=isset($postValues['sizes_options']) ? (isChecked($postValues['sizes_options'],'xl') ? "checked='checked'" : '') : isset($sizeOption['x'])?"checked='checked'":''?> />
+									<strong><?=$this->lang->line('stores_itempage_sizesoptions_text_5');?></strong>
+								</div>
+								<div style="float:right">
+									<input type="text" class="span2" name="inventories_xl" value="<?=(isset($postValues['inventories_xl']) ? $postValues['inventories_xl'] : (isset($sizeOption['xl']) ? $sizeOption['xl'] : ''))?>" />
+								</div>
+							</label>
+		                    <br />
+							<label for="xxlarge" class="item_details_label sizes">
+								<div style="float:left;width:80px">
+									<input type="checkbox" name="sizes_options[]" value="xxl" <?=isset($postValues['sizes_options']) ? (isChecked($postValues['sizes_options'],'xxl') ? "checked='checked'" : '') : isset($sizeOption['xxl'])?"checked='checked'":''?> />
+									<strong><?=$this->lang->line('stores_itempage_sizesoptions_text_6');?></strong>
+								</div>
+								<div style="float:right">
+									<input type="text" class="span2" name="inventories_xxl" value="<?=(isset($postValues['inventories_xxl']) ? $postValues['inventories_xxl'] : (isset($sizeOption['xxl']) ? $sizeOption['xxl'] : ''))?>" />
+								</div>
+							</label>
+						</td>
+						
+						<td colspan="2" style="padding:50px 10px; font-size:12px; color:#AAA;">
+							<?=$this->lang->line('stores_itempage_sizes_text');?>
+						</td>
+		            
+					</tr>
+					<? } ?>
+					
+				</table>
+			</div>
+			<div class="span8" style="float:left; margin-left:20px;">
+		        	
+		        	<div class="page-header">
+		        		<h3>Publish Options</h3>
+		        	</div>
+		        	<table class="zebra-striped span4" style="border:none; color:#FFF; color:#333;" cellpadding="15">
+					
+					<tr>
+						
+						<td>
+							<label for="sku" class="item_details_label">
+								<strong> Categorias </strong> 
+							</label>
+						</td>
+						
+						<td colspan="2" style="padding:10px; font-size:12px; color:#AAA;">
+							<h4></h4>
+						        <? if(!empty($item_data[0]->store_categories)){ 
+						        		(isset($item_data[0]->categories) ? $catArray = json_decode($item_data[0]->categories) : $catArray = array());
+						        		foreach($item_data[0]->store_categories as $value){ ?>
+						        			<label for="<?=$value->name?>" style="text-align:left">
+				                            <input type="checkbox" name="category_options[]" value="<?=$value->id?>" <?=isset($postValues['category_options']) ? (isChecked($postValues['category_options'],$value->id) ? "checked='checked'" : '') : in_array($value->id , $catArray)?"checked='checked'":''?> /> 
+				                            <?=$value->name?>
+				                        	</label>
+				                        	<div style="clear:both"></div>
+						        <? 		}
+						    		}else{ ?>
+						        		<p>Without categories</p>
+						        <? } ?>
+						</td>
+					</tr>
+		        	</table>
+				</div>
+					
+				
+				
+	        	<h4 style="width:180px;margin-left:20px"><?=$this->lang->line('stores_itempage_shipping_subtitle_text');?></h4>
+	        	<p style="padding:5px 20px; font-size:12px; color:#AAA;">
+					<?=$this->lang->line('stores_itempage_shipping_text');?>
+				</p>
+	        	
+        		</div>	
+        </div>
+      </form> 
+    </div>
+
+<script type="text/javascript" src="http://js.nicedit.com/nicEdit-latest.js"></script>
+<script type="text/javascript" defer="defer">
+
+	//$(document).ready(function() {
+
+	<? if(is_array($item_data[0]->image)){ ?>
+
+	$('.slide').cycle({
+		fx:     'fade', 
+		speed:  'fast', 
+		timeout: 0, 
+		next:   '#next', 
+		prev:   '#prev' ,
+		after:   onAfter
+	});
+		
+	//});
+
+	function onAfter() { 	
+		var getId = $('.slide').children('img:visible').attr('id');
+		var getAlt =  $('.slide').children('img:visible').attr('alt');
+		
+		var get_objectName = $('.slide').children('img:visible').attr('alt');
+		get_objectName = get_objectName.split('-');
+		
+		var id = getId.split('&');
+		
+		var origExt = $('.slide').children('img:visible').attr('class').split(' ');
+		
+		$('#image_id').attr('value', id[0]);
+		$('#object_name').attr('value',get_objectName[1]);
+		$('span').html(get_objectName[0]);
+		
+		var itemURL = $('.slide').children('img:visible').attr('src');
+		var launchId = getId;
+		var launchSrc = itemURL.substr( 0, itemURL.length-6) + '.' + origExt[1];
+					
+		$('a#editPicture').attr("onclick", "return launchEditor('"+launchId+"','"+launchSrc+"');"); 
+	}
+
+	<!-- Instantiate the widget -->
+	var featherEditor = new Aviary.Feather({
+		apiKey: '6282e2a3c',
+		apiVersion: 2,
+		language : '<?=$usrPref->usr_language?>',
+		tools: ['crop', 'resize', 'enhance','effects','stickers','orientation','brightness','contrast','saturation','sharpness','draw','text','redeye','whiten','blemish'],
+		initTool : 'crop',
+		onSave: function() {
+			//alert(newURL);
+			location.reload();
+		},
+		postUrl: '<?=base_url().'mediaAv/saveAviary'?>'
+	});
+
+	function launchEditor(id, src) {
+		featherEditor.launch({
+			image: id,
+			url: src, 
+			postData : id,
+			cropPresets : ['700x500']
+		});
+		return false;
+	}
+
+	<? } ?>
+	
+	$('#pictureModalButton').bind('click', function(){
+		$('#progressbar').css('display','block');
+	});
+
+  	$('#price').autoNumeric();
+  	$('#priceUSD').autoNumeric();
+
+  	$('#price').on('change', function() {
+  		convertionPrice();
+  	});
+	$('#priceUSD').on('change', function() {
+		convertionPriceUSD();
+	});
+
+	function convertionPrice(){
+		var xRate = <?=$x_rate->price?>;
+		var price = Number($('#price').autoNumericGet());
+		/*if (price <= xRate){
+			var total = price;
+			var totalUSD = 1;
+		}else{*/
+			var total = price;
+			var totalUSD = price/xRate;
+		//}
+		$('#price').autoNumericSet(total.toFixed(2));
+		$('#priceUSD').autoNumericSet(totalUSD.toFixed(2));
+	}
+	function convertionPriceUSD(){
+		var xRate = <?=$x_rate->price?>;
+		var price = Number($('#priceUSD').autoNumericGet());
+		/*if (price <= 1){
+			var total = xRate;
+			var totalUSD = 1;
+		}else{*/
+			var total = price*xRate;
+			var totalUSD = price;
+		//}
+		$('#price').autoNumericSet(total.toFixed(2));
+		$('#priceUSD').autoNumericSet(totalUSD.toFixed(2));
+	}
+
+	<? if(strtotime($item_data[0]->updated) == strtotime($item_data[0]->created)){ ?>
+
+  		var el = $('textarea , input[type=text][name=prices]');
+		el.focus(function(e) {
+		    if (e.target.value == e.target.defaultValue)
+		        e.target.value = '';
+		});
+		el.blur(function(e) {
+	        if (e.target.value == '')
+	            e.target.value = e.target.defaultValue;
+	    });  
+
+  	<? } ?>
+
+	$('#submit_button').bind('click', function(e){
+		$('#priH').val($('#price').autoNumericGet());
+	});
+
+	//<![CDATA[
+	  bkLib.onDomLoaded(function() {
+	  	new nicEditor({buttonList : ['fontSize','bold','italic','underline','forecolor','html'],maxHeight : 200}).panelInstance('description');
+	  	new nicEditor({buttonList : ['fontSize','bold','italic','underline','forecolor','html'],maxHeight : 200}).panelInstance('description_eng');
+	  });
+	 //]]>
+</script>
+
+<? // Screen version code 
+if(isset($item_data[0]->name)){
+	if(($item_data[0]->name=='No name yet') AND ($item_data[0]->price==200)){
+		$version_code='S_3.2'; 
+	}else{
+		$version_code='S_3.1'; 
+	}
+}else{
+	$version_code='S_3.2';
+}
+?>
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> $version_code.'_0.2' ))?>

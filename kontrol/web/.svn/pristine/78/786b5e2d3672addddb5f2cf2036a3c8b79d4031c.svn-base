@@ -1,0 +1,73 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+   
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('login_page_title_text');?><small> <?=$this->lang->line('login_page_subtitle_text');?></small></h1>
+        </div>
+        <div class="row">
+          <div class="span11">
+
+            <? if(isset($flashMessage)){ ?>
+			<div class="alert-message warning">
+				 <a class="close" href="#">×</a>
+				<?=$flashMessage?>
+			</div>
+			<? } ?>
+
+			
+			<ul class="login_content_bullets">
+				<li><?=$this->lang->line('login_description_bullets_text_1');?></li>
+				<li><?=$this->lang->line('login_description_bullets_text_2');?></li>
+				<li><?=$this->lang->line('login_description_bullets_text_3');?></li>
+				<li><?=$this->lang->line('login_description_bullets_text_4');?></li>
+				<li><?=$this->lang->line('login_description_bullets_text_5');?></li>
+			</ul>
+
+			
+			
+				<a class="btn large" href="/login/register"><?=$this->lang->line('login_signup_beta_button_text');?></a>
+          </div>
+          <div class="span5">
+          	<br /><br />
+          	<h1>Login </h1><br />
+            <form method="post" action="/login/doLogin" class="form-stacked">
+				 <div class="clearfix">
+		            <label for="username"><?=$this->lang->line('login_signup_text_1');?></label>
+		            <div class="input">
+		              <input type="text" name="username"  />
+		            </div>
+		          </div><!-- /clearfix -->
+				 
+				 <div class="clearfix">
+		            <label for="username"><?=$this->lang->line('login_signup_text_2');?></label>
+		            <div class="input">
+		              <input type="password" name="password"  />
+		            </div>
+		          </div><!-- /clearfix -->
+				 
+				 <br />
+				 <br />
+
+
+				<? if(isset($_SERVER['HTTP_REFERER'])){ ?> 
+					<input type="hidden" name="refer" value="<?=$_SERVER['HTTP_REFERER']?>" />
+				<? } ?>
+				
+				
+				<input  type="submit" class="btn primary large" value="<?=$this->lang->line('login_login_button_text');?>" />
+				<br /><br />
+				<a href="<?=base_url()?>login/requestPass"><?=$this->lang->line('login_password_link_text');?></a>
+				<br /><br /><br /><br />
+				
+			</form>
+          </div>
+        </div>
+      </div>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_2_0.2' ))?>

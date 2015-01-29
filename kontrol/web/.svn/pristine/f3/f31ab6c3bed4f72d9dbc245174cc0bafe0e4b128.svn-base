@@ -1,0 +1,533 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+<style type="text/css">
+.modal-body {
+max-height: 400px;
+padding: 15px;
+overflow-y: auto;
+}
+#errorIframe p{
+  line-height: 12px;
+  margin-bottom: 0;
+
+}
+
+
+select.lista {
+    font-size: 8pt;
+    font-style: normal;
+}
+</style>
+  <ul id="nav">
+    <div class="container" style="padding:5px 0">
+      <li <?=(isset($tester_user['flashMessage']) ? '' :'class="current"')?>><a href="#section-1"><?=$this->lang->line('beta_signup_title_text1');?></a></li>
+      <li><a href="#section-2"><?=$this->lang->line('beta_signup_title_text2');?></a></li>
+      <li><a href="#section-3"><?=$this->lang->line('beta_signup_title_text3');?></a></li>
+      <li><a href="#section-4"><?=$this->lang->line('beta_signup_title_text4');?></a></li>
+      <li><a href="#section-5"><?=$this->lang->line('beta_signup_title_text5');?></a></li>
+      <li <?=(isset($tester_user['flashMessage']) ? 'class="current"' :'')?>><a href="#section-6"><?=$this->lang->line('beta_signup_title_text');?></a></li>
+    </div>
+  </ul>
+
+  <div class="container">
+
+      <div id="section-1" class="section">
+        <h2 class="section_titles"><?=$this->lang->line('beta_signup_title_text1');?></h2>
+        <hr style="margin:0px">
+        <div class="row">
+          <div class="span7" style="text-align:center;margin-top:55px">
+            <img src="/img/kichink1.png">
+          </div>
+          <div class="span8">
+            <h3 align="left" style=" border-bottom:0px;color:#522C64;text-decoration:none;margin-top:55px"><?=$this->lang->line('beta_signup_subtitle_text1');?></h3>
+            <ul class="ok">
+              <li><?=$this->lang->line('beta_signup_subtitle_text1_li1');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text1_li2');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text1_li3');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text1_li4');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text1_li5');?></li>
+            </ul>
+            <a href="#section-6"><img src="/img/crea_tu_tienda_boton_home<?=$this->lang->line('beta_signup_img_extension');?>.png" style="float:left;margin-top:40px"></a>
+          </div>
+        </div>
+      </div>
+      
+      <div id="section-2" class="section">
+        <h2 class="section_titles"><?=$this->lang->line('beta_signup_title_text2');?></h2>
+        <hr style="margin:0px"> 
+        <div class="row">
+          <div class="span7" style="text-align:center;margin-top:55px"><img src="/img/kichink2.png" />
+            <p style="color:#333333; text-align:left"><?=$this->lang->line('beta_signup_subtitle_text2_p1');?></p>
+            <p style="color:#333333; text-align:left"><?=$this->lang->line('beta_signup_subtitle_text2_p2');?></p>
+          </div> 
+            
+          <div class="span8">
+            <h3 align="left" style=" border-bottom:0px;color:#522C64;text-decoration:none;margin-top:55px"> <?=$this->lang->line('beta_signup_subtitle_text2');?></h3>
+            <ul class="ok">
+              <li><?=$this->lang->line('beta_signup_subtitle_text2_l1');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text2_l2');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text2_l3');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text2_l4');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text2_l5');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text2_l6');?></li>
+            </ul>
+            <a href="#section-6"><img src="/img/crea_tu_tienda_boton_home<?=$this->lang->line('beta_signup_img_extension');?>.png" style="float:left;margin-top:40px"></a>
+           </div>
+        </div>
+      </div>
+        
+      <div id="section-3" class="section">
+        <h2 class="section_titles"><?=$this->lang->line('beta_signup_title_text3');?></h2>
+        <hr style="margin:0px">
+              
+        <div class="row">
+          <div class="span7" style="text-align:center;margin-top:55px">
+            <img src="/img/kichink3.png" />
+          </div>
+          <div class="span8">
+            <h3 align="left" style=" border-bottom:0px;color:#522C64;text-decoration:none;margin-top:35px"><?=$this->lang->line('beta_signup_subtitle_text3');?></h3>
+            <ul class="ok">
+              <li><?=$this->lang->line('beta_signup_subtitle_text3_l1');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text3_l2');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text3_l3');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text3_l4');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text3_l5');?></li>
+            </ul>
+            <a href="#section-6"><img src="/img/crea_tu_tienda_boton_home<?=$this->lang->line('beta_signup_img_extension');?>.png" style="float:left;margin-top:40px"></a>
+          </div>
+        </div>
+      </div>
+              
+      <div id="section-4" class="section">
+        <h2 class="section_titles"><?=$this->lang->line('beta_signup_title_text4');?></h2>
+        <hr style="margin:0px">
+        <div class="row">
+          <div class="span7" style="text-align:center;margin-top:55px">
+            <img src="/img/tw.png" HSPACE="10" VSPACE="10" />
+            <img src="/img/fa.png" HSPACE="10" VSPACE="10" />
+            <img src="/img/go.png" HSPACE="10" VSPACE="10" />
+          </div>
+          <div class="span8">
+            <h3 align="left" style="border-bottom:0px;color:#522C64;text-decoration:none;margin-top:35px"> <?=$this->lang->line('beta_signup_subtitle_text4');?></h3>
+            <ul class="ok">
+              <li><?=$this->lang->line('beta_signup_subtitle_text4_l1');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text4_l2');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text4_l3');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text4_l4');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text4_l5');?></li>
+            </ul>
+            <a href="#section-6"><img src="/img/crea_tu_tienda_boton_home<?=$this->lang->line('beta_signup_img_extension');?>.png" style="float:left;margin-top:40px"></a>
+          </div>
+        </div>
+      </div>
+        
+       
+      <div id="section-5" class="section">
+        <h2 class="section_titles"><?=$this->lang->line('beta_signup_title_text5');?></h2>
+        <hr style="margin:0px">
+        <div class="row">
+          <div class="span7" style="text-align:center;margin-top:55px">
+            <img src="/img/cero.png" />
+          </div>
+          <div class="span8">
+            <h3 align="left" style=" border-bottom:0px;color:#522C64;text-decoration:none;margin-top:55px"><?=$this->lang->line('beta_signup_title_text5');?></h3>
+            <ul class="ok">
+              <li><?=$this->lang->line('beta_signup_subtitle_text5_l1');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text5_l2');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text5_l3');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text5_l4');?></li>
+              <li><?=$this->lang->line('beta_signup_subtitle_text5_l5');?></li>
+            </ul>
+            <a href="#section-6"><img src="/img/crea_tu_tienda_boton_home<?=$this->lang->line('beta_signup_img_extension');?>.png" style="float:left;margin-top:40px"></a>
+          </div>
+        </div>
+      </div>
+  
+
+      <div id="section-6" class="section">
+        <h2 class="section_titles"><?=$this->lang->line('beta_signup_title_text');?></h2>
+        <hr style="margin:0px">
+              
+        <div class="row">
+          <div class="span8 form-new-store" style="margin-left:245px">
+            <div style="width:54px;margin:0 auto"><img src="/img/logoKichink_chico.png" /></div>
+            <p style="padding: 10px 5px; text-align: center;"><?=$this->lang->line('beta_signup_apply_text');?></p>
+
+            <? if(isset($tester_user['flashMessage'])){ ?>
+            <div class="alert-message warning">
+              <a class="close" href="#">×</a>
+              <?=$tester_user['flashMessage']?>
+            </div>
+            <? } ?>
+          
+            <form class="form-stacked" method="post" id="register_form" action="">
+              <fieldset>
+                <div class="clearfix">
+                  <label for="store" class="store_label" style="width:110px;float:left"> <?=$this->lang->line('beta_signup_storename_text');?></label><input type="text" name="store_name" style="width:305px" />
+                </div>
+              
+                <br />
+            
+                <div class="clearfix">
+                  <label for="current" class="current_label" > <?=$this->lang->line('beta_signup_selling_text');?> </label>
+                  <input type="checkbox" name="current" value="brick" id="brick" /> <?=$this->lang->line('beta_signup_selling_option1_text');?> <br />
+                  <input type="checkbox" name="current" value="online" id="online" /> <?=$this->lang->line('beta_signup_selling_option2_text');?> <br />
+                  <input type="checkbox" name="current" value="none" id="none" /> <?=$this->lang->line('beta_signup_selling_option3_text');?> <br />
+                </div>
+
+                <div class="clearfix">
+                  <label for="datos"  class="datos_label" style="width:110px;float:left;margin-bottom:5px;line-height:16px">Tipo de persona:</label>
+                  <input type="radio" id="Fisica" name="person_type" value="Fisica"  /> F&iacute;sica 
+                  <input type="radio" id="Moral" name="person_type" value="Moral" /> Moral 
+                </div>
+                
+                <div class="clearfix">
+                  <label for="rfc"  class="rfc_label" style="width:110px;float:left">RFC:</label>
+                  <input type="text" name="rfc"  style="width:305px" /> 
+                </div>
+
+                <div class="clearfix">
+                  <label for="name"   class="name_label" style="width:110px;float:left"> <?=$this->lang->line('beta_signup_name_text');?> </label>
+                  <input type="text" name="contact_name"  style="width:305px" /> 
+                </div>
+         
+                <div class="clearfix">
+                  <label for="email" class="email_label" style="width:110px;float:left"> <?=$this->lang->line('beta_signup_email_text');?> </label>
+                  <input type="text" name="email" id="email" style="width:305px"  />
+                </div>
+                
+                <h3>Datos de recolecci&oacute;n</h3>
+                <div class="clearfix">
+                  <label for="direccion" class="direccion_label" style="width:110px;float:left">Direcci&oacute;n </label>
+                  <input type="text" name="direccion" id="direccion" style="width:305px"  />
+                </div>
+                <div class="clearfix">
+                  <label for="telefonos" class="telefonos_label" style="width:110px;float:left">Tel&eacute;fono(s)</label>
+                  <input type="text" name="telefonos" id="telefonos" style="width:305px"  />
+                </div>
+                <div class="clearfix">
+
+               <div style="width:225px;float:left">
+                <label for="pais" class="pais_label" style="width:110px;float:left">Pa&iacute;s </label>
+                   <select id="pais" class="pais" name="pais" style="width:110px;float:left"  onchange="javascript:changeInput();">
+                      <option value="mex" selected="selected">M&eacute;xico</option>
+                      <option value="usa">Estados Unidos</option>
+                    </select>
+               </div>
+                     
+                <div style="width:215px;float:left;"  id="mex_states">
+                    <label for="estado" class="estado_label" style="width:62px;float:left;margin-left:20px">Estado</label>
+                    <select id="state" class="estado"  name="estado"  style="width:110px;float:left">
+                      <option value="select" <?=isset($data['states']) ? $data['states']=='select' ? "selected='selected'" : '' : ''?>></option>
+                   </select> 
+                   <input type="hidden" name="totalestados" value="32">
+                </div>
+             
+
+                <div style="width:215px;float:left;display:none;"  id="usa_states">
+                  <label for="estado2" class="estado2_label" style="width:62px;float:left;margin-left:20px">Estado</label>
+                  <input type="text" name="estado2" id="estado2" style="width:110px;float:left">
+                </div>
+
+              </div>
+
+                    <div class="clearfix">
+                     <div style="width:225px;float:left">
+                    <label for="ciudad" class="ciudad_label" style="width:110px;float:left">Ciudad </label>
+                    <input type="text" name="ciudad" id="ciudad" style="width:110px;float:left">
+                    </div>
+              
+                  <div style="width:215px;float:left">
+                    <label for="cp" class="cp_label" style="width:62px;float:left;margin-left:20px">C.P.</label>
+                    <input type="text" name="cp" id="cp" style="width:110px;float:left">
+                  </div>
+                </div>
+                <div class="clearfix">
+                  <label for="details" class="details_label">&iquest;Qu&eacute; tipo de productos comercializas? </label> 
+                  <textarea name="details" style="margin: 0px; width: 417px; height: 58px;" id="details"></textarea>
+                </div>
+
+                <br />
+                <div class="clearfix">
+                  <input type="submit" id="submit_register" class="btn large primary" value="<?=$this->lang->line('beta_signup_button_signup_text');?>"  style="width:425px" />
+                </div>
+
+              </fieldset>
+            </form>
+
+          </div>
+        
+        </div>
+      </div>
+
+      <div id="contrato_modal" class="modal hide fade" style="width:780px">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h3 id="myModalLabel">Contrato Kichink!</h3>
+        </div>
+        <div class="modal-body" id="pdf">
+          <iframe src="/login/contratoK" width="780" height="250" frameborder="0"><a href="/login/contratoK" target="_blank">Tu navegador no soporta la tecnolog&iacute;a necesaria para ver esta p&aacute;gina. Por favor ingresa directamente con esta liga</a></iframe>
+        </div>
+        <div class="modal-footer">
+          <div id="creating_store" style="display:none;margin:0 auto;width:250px;text-align:center">
+            <img src="/img/creating_store.gif" />
+            <p style="color:#532E63;font-size:16px;font-weight:bold">Creando tienda en Kichink!</p>
+          </div>
+
+          <div id="data_store">
+            <form id="data_store_form" method="post">
+              <div id="errorIframe" style="color:#B94A48;font-size:14px;text-align:center;padding:5px"></div>
+              Correo electr&oacute;nico <input type="text" name="confirma_email" id="confirma_email" class="span4"/><br/>
+              Contrase&ntilde;a <input type="password" name="password" id="password" class="span4" style="margin-left:40px" />
+              Confirma contrase&ntilde;a <input type="password" name="password2" id="password2" class="span4" style="margin-bottom:10px"/><br/>
+              <input type="checkbox" name="acuerdo" id="acuerdo" value="1" /> Acepto los t&eacute;rminos y condiciones del servicio <br/>
+              <button class="btn" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+              <button class="btn primary" id="create_store">Crear mi tienda en Kichink!</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+</div> <!--end of container--> 
+
+
+
+<script type="text/javascript">
+  
+  changeInput();
+  
+  function changeInput(){
+
+    var country = $('#pais').val();
+
+    if(country == 'mex'){
+      $('#usa_states').css('display', 'none');
+      $('#mex_states').css('display', 'block');
+    }else{
+      $('#usa_states').css('display', 'block');
+      $('#mex_states').css('display', 'none');
+    }
+
+  }
+
+  $('body').css('padding-top', '0px');
+
+  $(document).ready(function() {
+
+    $('#nav').onePageNav({
+      filter: ':not(.external)',
+      scrollThreshold: 0.25,
+      easing: 'swing',
+    });
+
+    $("#submit_register").on('click', validateForm);
+    $("#create_store").on('click', createStore);
+
+    $('#contrato_modal').on('hidden', function(){
+      $('#confirma_email').val('');
+      $('#errorIframe').html('');
+      $('#password').val('');
+      $('#password2').val('');
+    });
+  
+  });
+
+  var createStore = function(e){
+
+    e.preventDefault();
+    
+    var password = $('#password').val();
+    var password2 = $('#password2').val();
+    var email_confirm = $('#confirma_email').val();
+    var email = $('#email').val();
+
+    if(email_confirm != email || !email || !email_confirm){
+      $('#errorIframe').html('El correo electr&oacute;nico del contrato no coincide con el del formulario de los datos de tu tienda.');
+    }else if(!$('#acuerdo').is(':checked')){
+      $('#errorIframe').html('Por favor acepta nuestros t&eacute;rminos');
+    }else if(password === '' || password !== password2){
+      $('#errorIframe').html('Las contrase&ntilde;as no coinciden');
+    }else{
+
+      var data = $('#register_form, #data_store_form').serializeArray();
+
+      $.post("/login/create_online_signup", data,
+        function(response) {
+            if(response != 'Success'){
+              $('#errorIframe').html(response);
+            }else{
+              $('#errorIframe').html('');
+              $('#creating_store').css('display', 'block');
+              $('#data_store').css('display', 'none');
+              setTimeout('window.location.href="<?=base_url()?>stores"',2500);
+            }
+         }
+      ); 
+    }
+
+  }
+
+  var validateForm = function(e){
+
+    e.preventDefault();
+    $('#submit_register').removeAttr("disabled");
+    $('.inputErrorMsg').remove();
+    $('.inputError').removeClass();
+
+    var validar = validateFields();
+
+    if(validar){
+      //Errors
+      $('#submit_register').removeAttr("disabled");
+
+    }else{
+      //Mostrar modal
+      $('#contrato_modal').modal('show').css({
+              width: 'auto',
+              'margin-left': function () {
+                  return -($(this).width() / 2);
+              },
+              'margin-top': function () {
+                  return -($(this).height() / 2);
+              }
+      });
+
+    }
+
+  }
+
+   //// Validate
+  function validateFields(){
+
+      var error         = false;
+      var patternRFC    = new RegExp(/^[0-9A-ZÁÉÍÓÚÑ -]+$/);
+      var patternName   = new RegExp(/^[a-zA-ZÁÉÍÓÚáéíóúñÑ. ]+$/);
+      var patternZip    = new RegExp(/^[0-9]+$/);
+      var patternMail   = new RegExp(/^(("[\w-+\s]+")|([\w-+]+(?:\.[\w-+]+)*)|("[\w-+\s]+")([\w-+]+(?:\.[\w-+]+)*))(@((?:[\w-+]+\.)*\w[\w-+]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][\d]\.|1[\d]{2}\.|[\d]{1,2}\.))((25[0-5]|2[0-4][\d]|1[\d]{2}|[\d]{1,2})\.){2}(25[0-5]|2[0-4][\d]|1[\d]{2}|[\d]{1,2})\]?$)/i);
+
+      var inputEmail = $('input[name="email"]');
+      if(!inputEmail.val() || !patternMail.test(inputEmail.val())){
+        error = true;
+        $('.email_label').before('<div class="inputErrorMsg">Correo electr&oacute;nico inv&aacute;lido</div>');
+        inputEmail.addClass('inputError');
+          }
+        
+      var inputStore = $('input[name="store_name"]');
+      if(!inputStore.val()){
+        error = true;
+        $('.store_label').before('<div class="inputErrorMsg">Verificar Nombre de la Tienda </div>');
+        inputStore.addClass('inputError');
+      }
+
+      var inputName = $('input[name="contact_name"]');
+      if(!inputName.val() || !patternName.test(inputName.val())){
+        error = true;
+        $('.name_label').before('<div class="inputErrorMsg">Verifcar nombre de contacto </div>');
+        inputName.addClass('inputError');
+      }
+
+      var inputRFC = $('input[name="rfc"]');
+      if(!inputRFC.val() || !patternRFC.test(inputRFC.val())){
+        error = true;
+        $('.rfc_label').before('<div class="inputErrorMsg">Llenar el campo RFC </div>');
+        inputRFC.addClass('inputError');
+      }
+
+      var inputDireccion = $('input[name="direccion"]');
+      if(!inputDireccion.val() || inputDireccion.val().length < 6){
+        error = true;
+        $('.direccion_label').before('<div class="inputErrorMsg">Verificar Direcci&oacute;n </div>');
+        inputDireccion.addClass('inputError');
+      }
+
+      var inputTelefonos = $('input[name="telefonos"]');
+      if(!inputTelefonos.val() || inputTelefonos.val().length < 6){
+        error = true;
+        $('.telefonos_label').before('<div class="inputErrorMsg">Verificar campo Telefonos </div>');
+        inputTelefonos.addClass('inputError');
+      }
+    
+     /* var selectPais = $('select[name="pais"]');
+      if(!selectPais.val() || selectPais.val().length < 6){
+      error = true;
+      $('.pais_label').before('<div class="inputErrorMsg">Verificar campo Pa&iacute;s</div>');
+      selectPais.addClass('inputError');
+
+     }*/
+
+      var selectPais = $('#pais');
+      if(selectPais.val() != 'mex' && selectPais.val() != 'usa'){
+        error = true;
+        $('.pais_label').before('<div class="inputErrorMsg">Selecciona una opci&oacute;n</div>');
+      }
+
+      var inputEstado2 = $('input[name="estado2"]');
+      if(!inputEstado2.val() || inputEstado2.val().length < 6){
+        error = true;
+        $('.estado2_label').before('<div class="inputErrorMsg">Verificar campo Estado </div>');
+        inputEstado2.addClass('inputError');
+      }
+
+
+       var inputCiudad = $('input[name="ciudad"]');
+      if(!inputCiudad.val() || inputCiudad.val().length < 6){
+        error = true;
+        $('.ciudad_label').before('<div class="inputErrorMsg">Verificar campo Ciudad </div>');
+        inputCiudad.addClass('inputError');
+      }
+
+
+       var selectEstado = $('select[name="estado"]');
+        if(!selectEstado.val() || selectEstado.val().length < 6){
+        error = true;
+        $('.estado_label').before('<div class="inputErrorMsg">Verificar campo Estado</div>');
+        selectEstado.addClass('inputError');
+     } 
+
+    /* var selectPais = $('#pais');
+      if(selectPais.val() != 'mex' && selectPais.val() != 'usa'){
+        error = true;
+        $('.pais_label').before('<div class="inputErrorMsg">Selecciona una opci&oacute;n</div>');
+      }*/
+
+
+      var inputCP = $('input[name="cp"]');
+      if(!inputCP.val() || !patternZip.test(inputCP.val())){
+        error = true;
+        $('.cp_label').before('<div class="inputErrorMsg">Verificar campo C.P.</div>');
+        inputCP.addClass('inputError');
+      }
+
+      var radioMoral = $('#Moral');
+      var radioFisica = $('#Fisica');
+      if(!radioMoral.is(':checked') && !radioFisica.is(':checked')){
+        error = true;
+        $('.datos_label').before('<div class="inputErrorMsg">Selecciona una opci&oacute;n</div>');
+        ///radioMoral.before.before('<div class="inputErrorMsg">Selecciona una opci&oacute;n</div>');
+      }
+
+      var details = $('#details');
+      if(!details.val()){
+        erro = true;
+        $('.details_label').before('<div class="inputErrorMsg">Por favor especifica m&aacute;s detalles acerca de tu tienda</div>');
+      }
+
+      var checkBrick = $('#brick');
+      var checkOnline = $('#online');
+      var checkNone = $('#none');
+      if(!checkBrick.is(':checked') && !checkOnline.is(':checked')  &&  !checkNone.is(':checked') ){
+        error = true;
+        $('.current_label').before('<div class="inputErrorMsg">Selecciona una opci&oacute;n</div>');
+      }
+    
+    return error;
+
+
+
+
+  }
+
+</script>
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_2.1_0.2' ))?>

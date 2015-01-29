@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+    	<?=(isset ($page_title) ? $page_title : $this->lang->line('kichink_html_title').' -- Kichink')?>
+    </title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+  <!-- Le javascript -->
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-tabs.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-modal.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-transition.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="/js/feather.js"></script>
+    <script type="text/javascript" src="/js/jquery.cycle.all.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="/js/autoNumeric-1.7.4.js"></script>
+    <script type="text/javascript" src="/js/jquery.miniColors.js"></script>
+    <script type="text/javascript" src="/js/intro.js"></script>
+
+    <!--<script type="text/javascript" src="https://github.com/danbentley/placeholder/blob/master/js/jquery.placeholder.js"></script>-->
+   
+    
+    <!-- Le styles -->
+    <link href="/bootstrap/bootstrap.css" rel="stylesheet">
+    <link href="/css/sell_layout.css" rel="stylesheet">
+    <link href="/css/jquery.Jcrop.css" rel="stylesheet">
+    <link href="/css/jquery.miniColors.css" rel="stylesheet">
+    <link href="/css/custom-theme/jquery-ui-1.8.18.custom.css" rel="stylesheet" />  
+    <link href="/css/introjs.css" rel="stylesheet" />  
+
+    <!--[if lte IE 8]>
+    <link href="/css/introjs-ie.css" rel="stylesheet" />
+    <![endif]-->
+    
+    <style type="text/css">
+      /* Override some defaults */
+      html, body {
+        background-color: #eee;
+      }
+      body {
+        padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
+      }
+      .container > footer p {
+        text-align: center; /* center align it with the container */
+      }
+      .container {
+        /* width: 820px; */ /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
+      }
+
+      /* The white background content wrapper */
+      .content {
+        background-color: #fff;
+        padding: 20px;
+        margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
+        -webkit-border-radius: 0 0 6px 6px;
+           -moz-border-radius: 0 0 6px 6px;
+                border-radius: 0 0 6px 6px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                box-shadow: 0 1px 2px rgba(0,0,0,.15);
+      }
+
+      /* Page header tweaks */
+      .page-header {
+        background-color: #f5f5f5;
+        padding: 20px 20px 10px;
+        margin: -20px -20px 20px;
+      }
+
+      /* Styles you shouldn't keep as they are for displaying this base example only */
+      .content .span10,
+      .content .span4 {
+        min-height: 500px;
+      }
+      /* Give a quick and non-cross-browser friendly divider */
+      .content .span4 {
+        margin-left: 0;
+        padding-left: 19px;
+        border-left: 1px solid #eee;
+      }
+
+      .topbar .btn {
+        border: 0;
+      }
+     <?
+        if(isset($back)){
+
+          $from = $back;
+          $to = $back;
+          $fontColor = $text;
+
+        }else{
+
+          $fontColor = '#FFFFFF';
+          $from = '#532E63';
+          $to = '#532E63';
+
+        }
+      ?>
+      .items-price{
+        color: <?=$fontColor?>;
+        background-color: <?=$from?>;
+        background-repeat: repeat-x;
+        background-image: -khtml-gradient(linear, left top, left bottom, from(<?=$from?>), to(<?=$to?>));
+        background-image: -moz-linear-gradient(top, <?=$from?>, <?=$to?>);
+        background-image: -ms-linear-gradient(top, <?=$from?>, <?=$to?>);
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, <?=$from?>), color-stop(100%, <?=$to?>));
+        background-image: -webkit-linear-gradient(top, <?=$from?>, <?=$to?>);
+        background-image: -o-linear-gradient(top, <?=$from?>, <?=$to?>);
+        background-image: linear-gradient(top, <?=$from?>, <?=$to?>);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='<?=$from?>', endColorstr='<?=$to?>', GradientType=0);
+      }
+
+    </style>
+
+    <!-- Le fav and touch icons -->
+    <link href="<?=base_url()?>img/favicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/icons/apple-touch-icon-72x72.png">
+
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/icons/apple-touch-icon-114x114.png">
+  </head>
+
+  <body>
+   <? $controller = $this->uri->segment(1);?>
+   <div class="topbar">
+      <div class="fill">
+        <div class="container">
+          <img src="/img/kichink_logo_topbar.png" width="113" style="margin:8px 15px 0 0;float:left" />
+          <ul class="nav">
+            <li <?=$controller=='stores'?'class="active"':''?>><a href="<?=base_url().'stores'?>"><?=$this->lang->line('header_menu_stores_text');?></a></li>
+            <li <?=$controller=='orders'?'class="active"':''?>><a href="<?=base_url().'orders'?>"><?=$this->lang->line('header_menu_orders_text');?></a></li>
+            
+          </ul>
+          <ul class="nav pull-right" style="float:right;">
+          <!-- <form action="" class="pull-right"> -->
+          	<li><a href="#" onclick="return SnapABug.startLink();"><?=$this->lang->line('header_menu_help_text');?></a></li>
+            <li><a href="<?=base_url()?>user"><?=$this->session->userdata('name');?></a></li>
+            <li><a href="<?=base_url()?>login/doLogout"><?=$this->lang->line('header_menu_logout_text');?></a></li>
+            <li class="dropdown" data-dropdown="dropdown">
+            <? $usrPref = getUsrPref($this->session->userdata('user_id')); ?>
+                <a href="#" class="dropdown-toggle" style="padding-bottom:0px"><img src="/img/<?=$usrPref->usr_country?>_flag.png" width="24" height="24" /></a>
+                 <ul class="dropdown-menu">
+                     <form style="margin:0 10px" method="post" action="">
+                        <h5 style="padding:15px 10px 10px 0px;line-height:0px"><?=$this->lang->line('dropdown_menu_country');?></h5>
+                        <select name="pais-options" id="pais-options" class="span2" style="background:#c3c3c3">
+                            <option value="MX" <?=$usrPref->usr_country == 'MX' ? "selected='selected'" : '' ?>>MX</option>
+                            <option value="US" <?=$usrPref->usr_country == 'US' ? "selected='selected'" : '' ?>>US</option>
+                        </select>   
+                        <h5 style="padding:15px 10px 10px 0px;line-height:0px"><?=$this->lang->line('dropdown_menu_language');?></h5>
+                        <select name="lang-options" id="lang-options" class="span2" style="background:#c3c3c3">
+                            <option value="es" <?=$usrPref->usr_language == 'es' ? "selected='selected'" : '' ?>><?=$this->lang->line('dropdown_menu_option_es');?></option>
+                            <option value="en" <?=$usrPref->usr_language == 'en' ? "selected='selected'" : '' ?>><?=$this->lang->line('dropdown_menu_option_en');?></option>
+                        </select>   
+                        <input type="submit" id="changeUsrPref" value="<?=$this->lang->line('dropdown_menu_button');?>" style="margin:10px 0" />
+                    </form>
+                 </ul>
+            </li>
+            <!--
+<input class="input-small" type="text" placeholder="Username">
+
+            <input class="input-small" type="password" placeholder="Password">
+            <button class="btn" type="submit">Sign in</button>
+-->
+          <!-- </form> -->
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script>
+		$('.dropdown-toggle').dropdown();
+		$('.dropdown-menu').find('form').click(function (e) {
+    		e.stopPropagation();
+  		});
+		$('#changeUsrPref').click(function(e){
+			e.preventDefault();
+			var pais = $('#pais-options').val();
+			var lang = $('#lang-options').val();
+			
+			$.post("<?=base_url()?>login/usrPref", { lang:lang, pais:pais },
+			function(data) {
+				location.reload();
+			});
+			
+		});
+		
+	</script>

@@ -1,0 +1,44 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('password_recovery_request_h1_title')?> <small><?=$this->lang->line('kichink_html_title')?></small></h1>
+        </div>
+        <div class="row" style="min-height:350px">
+          <div class="span16">
+
+            <? if(isset($recovery)){ ?>
+                <div class="alert-message warning">
+                     <a class="close" href="#">×</a>
+                     <?=$recovery?>
+                </div> 
+			<? } ?>
+		
+        
+			<h1><?=$this->lang->line('password_recovery_request_title');?></h1>
+			
+			<form class="form-stacked" method="post" action="">
+				<fieldset>
+					<div class="clearfix">
+						<label for="name"> <?=$this->lang->line('password_recovery_request_email');?> </label>
+						<input type="text" name="email"  class="span7" value="" />
+					</div>
+					<br />
+					
+					<div class="clearfix">
+						<input type="submit" name="submit" class="btn large" value="<?=$this->lang->line('password_recovery_request_button');?>" />
+					</div>
+				</fieldset>
+			</form>
+			
+          </div>
+     
+        </div>
+      </div>
+
+
+ 
+<?=$this->load->view('layout/footer.php')?>

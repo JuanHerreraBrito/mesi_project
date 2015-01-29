@@ -1,0 +1,51 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Items extends CI_Controller {
+
+	var $sitio = 'SELL';
+
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	
+	/**
+	 * ID Page for this controller.
+	 *
+	 * Shows a specific item determined by its ID
+	 */
+	public function id($itemId){
+		
+		// Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 1,
+                                    'data'  => array('key' => 'item_id', 'value' => $itemId = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+		########## Opciones necesarios
+		$data["store"]=new stdClass();
+		
+		$this->db->select('store_id');
+		$q = $this->db->get_where('items', array( 'id' => $itemId),1);
+		$store = $q->row();
+		$data["store"]->id= $store->store_id;
+		
+		
+		$data["item_id"] = $itemId;
+		$data["usr_language"] = $this->session->userdata('lang');
+        ##########
+		
+		$this->load->view('v2/layout/header_new', $data);
+		$this->load->view('v2/stores/menu_store', $data);
+		$this->load->view('v2/stores/sidebar_left', $data);
+		$this->load->view('v2/stores/item_id_view', $data);
+		
+	}
+	
+}
+/* End of file items.php */
+/* Location: ./application/controllers/items.php */

@@ -1,0 +1,388 @@
+.pagination{
+    margin:0 0 0 10px;
+}
+.gotoPage{
+    max-width:100px;
+}
+#consumidor,#datos-recoleccion{
+    height:260px;
+    margin-bottom: 40px;
+}
+#consumidor{
+    border-right: 1px solid #DDD;
+}
+.dataTables_wrapper{
+    border: 1px solid #ccc;
+    padding: 15px;
+    max-width: 830px;
+    border-radius: 5px;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 6px #DDD;
+    margin-bottom:10px;
+}
+div .no{
+    margin-left: 15px;
+    color: #ABABAB;
+    font-weight: lighter;
+    font-size: 18px;
+}
+.btn.ver{
+    border:none;
+    color:orange;
+    outline:none;
+}
+.btn.ver:active,.btn.ver:hover{
+    box-shadow: none;
+    -webkit-box-shadow:none;
+    color:#f96338;
+    background: transparent;
+}
+
+.btn.ver {
+    border: none;
+    color: orange;
+    padding: 0 0 10px;
+    font-size: 14px;
+}
+
+.actions{
+    text-align:center;
+}
+
+td.col-id{
+    font-weight:bold !important;
+}
+
+td.col-orders_count:after{
+    content:" unidades";
+}
+
+td.col-total_price:before{
+    content:"$";
+}
+
+.title{
+    display: inline-block;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.title h4{
+    margin-top:0;
+}
+
+.title span{
+    color: #999;
+}
+
+.table.transparent{
+    margin:10px;
+    max-width:800px;
+}
+
+.col-id:before{
+    content:"No. ";
+}
+.col-units_total:after{
+    content:" artículos";
+}
+.col-total_sale_price{
+    text-align: right;
+}
+.col-currency{
+    color:#BBB;
+    text-transform: uppercase;
+}
+
+.table.transparent th{
+    display: none;
+}
+
+.table.transparent td{
+    min-width:14%;
+    width: 114px;
+}
+
+.table.transparent,.table.transparent tr,.table.transparent td, .table.transparent th{
+    border:none;
+    background: none;
+}
+
+.delivered {
+    background: #46a546;
+}
+
+.confirmed {
+    background: #ae217d;
+}
+
+.incomplete {
+    background: #b32723;
+}
+
+.closed {
+    background: #8864ec;
+}
+
+.cancelled {
+    background: #238d89;
+}
+
+.to_be_canceled {
+    background: #898d76;
+}
+
+.pending {
+    background: #f96338;
+}
+
+.new {
+    background: #00438A;
+}
+
+.late {
+    background: #F89406;
+}
+
+.waiting_for_payment {
+    background: #95dbf0;
+}
+
+.sin_fondos {
+    background: #758b36;
+}
+
+.en_ruta {
+    background: #8e2c05;
+}
+
+.resumen{
+    margin:15px 0;
+}
+
+.res-item {
+    display: inline-block;
+    border: 1px solid #e2e2e2;
+    text-align: center;
+    width: 30%;
+    padding: 15px 0;
+    margin: 0 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 6px #ccc;
+    background: #ffffff;
+}
+
+.res-item span{
+    color:#bdbdbd;
+}
+
+.res-item h1{
+    padding:0;
+    margin:0
+}
+
+.panel-group .panel.unread .panel-title .articulo{
+    font-weight: 700;
+}
+
+.panel-group .panel.read .panel-title b, .panel-group .panel.unread .panel-title b{
+    width:60px;
+}
+
+.panel-group{
+    margin:15px 0;
+}
+.panel-group a,.panel-group a:hover{
+    color:#333;
+    text-decoration:none;
+}
+
+.panel-group .panel-title b{
+    display: inline-block;
+    width:160px;
+}
+
+.panel-group .panel-title i{
+    font-weight: normal;
+    font-style: normal;
+}
+
+.panel-group .panel-title span{
+    float:right;
+    color: #999;
+}
+
+.panel-group .panel-title .articulo{
+    display: inline-block;
+    width:40%;
+    font-weight: 200;
+}
+
+.from,.to{
+    margin:5px 0;
+}
+.table-items th{
+    text-transform: capitalize;
+}
+.table-items img{
+    height:50px;
+}
+td.col-discount{
+    color:#900;
+}
+td.col-discount:before{
+    content:"-";
+}
+.name{
+    text-transform: capitalize;
+}
+
+#chat{
+    box-shadow: -1px 0 20px #CCC;
+    padding: 0 15px 100px;
+    position: fixed;
+    right: 0;
+    border-left: 1px solid #d5d5d5;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background: #f9f9f9;
+}
+
+#chat #msg{
+    border:1px solid #ADD0F8;
+    height:70px;
+    resize:none;
+    width:300px;
+    margin-bottom:10px;
+}
+
+#chat #messenger{
+    background: #E6F0FA;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #d5d5d5;
+    margin-bottom: 15px;
+}
+
+.bubble {
+    clear: both;
+    position: relative;
+    width: 230px;
+    min-height: 60px;
+    padding: 10px 15px 15px 15px ;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    box-shadow: 1px 1px 2px #ccc;
+    transform: scale(0);
+    -ms-transform: scale(0); /* IE 9 */
+    -webkit-transform: scale(0); /* Safari and Chrome */
+}
+
+.bubble .author{
+    display: block;
+    font-size: 10px;
+    float: right;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    color: #999;
+}
+
+.bubble.me:after 
+{
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 13px 20px 13px 0;
+    border-color: transparent #FFE7E1;
+    display: block;
+    width: 0;
+    z-index: 1;
+    left: -20px;
+    top: 17px;
+}
+
+.bubble.me{
+    text-align: left;
+    background: #FFE7E1;
+    float:left;
+    transform: scale(1);
+    -ms-transform: scale(1); /* IE 9 */
+    -webkit-transform: scale(1); /* Safari and Chrome */
+}
+
+
+.bubble.you
+{
+    text-align: right;
+    background: #e2e2e2;
+    float:right;
+    transform: scale(1);
+    -ms-transform: scale(1); /* IE 9 */
+    -webkit-transform: scale(1); /* Safari and Chrome */
+}
+
+.bubble.you:after 
+{
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 13px 0 13px 20px;
+    border-color: transparent #e2e2e2;
+    display: block;
+    width: 0;
+    z-index: 1;
+    right: -20px;
+    top: 17px;
+}
+
+
+
+@media 
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+    /* Force table to not be like tables anymore */
+    table.table-responsive, table.table-responsive thead, table.table-responsive tbody, table.table-responsive th, table.table-responsive td, table.table-responsive tr { 
+        display: block !important; 
+        border:none;
+        text-align: left !important;
+        color: #666666 !important;
+        width:auto;
+    }
+
+    table.table-responsive thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    table.table-responsive td { 
+        border: none;
+        border-bottom: 1px solid #eee; 
+        position: relative;
+        padding: 8px 8px 8px 50% !important; 
+    }
+
+    table.table-responsive table tr{
+        margin-bottom: 5px;
+        border-top: 1px solid #ccc !important;
+    }
+
+    .table-bordered td{
+        border: none !important;
+    }
+
+    table.table-responsive td:before { 
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 45%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+    }    
+
+}

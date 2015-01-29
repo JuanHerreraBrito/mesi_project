@@ -1,0 +1,34 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Stats extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 * Stats by store
+	 */
+	public function store_stats(){
+
+		// Checo permiso del usuario para X tienda
+        $params_permission = array( 'perm'  => 'R',
+                                    'level' => 4,
+                                    'data'  => array('key' => 'store_id', 'value' => $store_id = $this->uri->segment(3)) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+		$this->load->view('stats/index_view');
+		
+	}
+	
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

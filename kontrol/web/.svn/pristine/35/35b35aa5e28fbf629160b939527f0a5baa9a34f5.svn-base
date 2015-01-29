@@ -1,0 +1,66 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<link href="/v2/css/apps.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8">
+    <div class="appset" id='installed'>
+        <h3 class="col-lg-12">Installed Apps</h3>
+        <div class="app empty"></div>
+        <div class="app installed">  
+            <span class="fa fa-html5"></span> 
+            <div class="title">HTML5 Compatibility</div>
+            <div class="desc">You know you want it.</div>
+            <button class="btn btn-default disabled" type="button">Installed</button>
+        </div>
+    </div>
+    <div class="appset" id='available'>
+        <h3 class="col-lg-12">Available Apps</h3>
+        <div class="app">  
+            <span class="glyphicon glyphicon-dashboard"></span>
+            <div class="title">Analytics</div>
+            <div class="desc">Watch your stores' statistics LIVE for free.</div>
+            <button class="btn btn-info btn-buy" type="button">FREE!</button>
+        </div>
+        <div class="app">  
+            <span class="fa fa-calendar"></span> 
+            <div class="title">Calendar</div>
+            <div class="desc">Pretty Calendar</div>
+            <button data-placement='bottom' data-title='*charges will be applied' class="btn btn-info btn-buy" type="button">$35.00 MXN</button>
+        </div>
+        <div class="app">  
+            <span class="glyphicon glyphicon-bell"></span> 
+            <div class="title">Notifications</div>
+            <div class="desc">Powerful notifications in your desktop.</div>
+            <button data-placement='bottom' data-title='*charges will be applied' class="btn btn-info btn-buy" type="button">$10.00 MXN</button>
+        </div>
+    </div>
+</div>
+<script>
+    $(".btn-buy").each(function(i, e) {
+        $(e).click(function() {
+            if ($(this).hasClass("btn-info")) {
+                $(this).removeClass("btn-info");
+                $(this).addClass("btn-success");
+                $(this).animate({width:120});
+                $(this).html("Are you Sure?");
+            } else {
+                $(this).html("Installed");
+                $(this).removeClass("btn-success");
+                $(this).removeClass("btn-buy");
+                $(this).addClass("disabled");
+                $(this).addClass("btn-default");
+                var d = $(this).closest(".app").clone();
+                $(this).closest(".app").remove();
+                $(".appset#installed").append(d);
+
+            }
+        });
+    });
+
+</script>
+<?
+$this->load->view('v2/layout/footer');
+?>

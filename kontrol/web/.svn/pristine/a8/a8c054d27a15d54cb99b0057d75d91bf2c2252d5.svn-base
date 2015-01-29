@@ -1,0 +1,177 @@
+<? 
+$this->load->view('layout/header.php');
+$usrPref = getUsrPref($this->session->userdata('user_id'));
+$usrLang = $usrPref->usr_language;
+$store = $this->uri->segment(3);
+$cells_width=array('', '20%', '20%', '20%', '30%', '5%','5%');
+$nombre_tienda = false;
+?>
+<script type="text/javascript" src="/js/jsapi.js"></script>
+
+<script type="text/javascript">
+      //google.load("visualization", "1", {packages:["corechart"]});
+</script>
+<div class="container">
+
+      <div class="content">
+        <div class="page-header" style="background: #942984;">
+          <h1 style="font-family: Rockwell, Helvetica, Arial, sans-serif; font-weight:normal; text-align:center; color:#FFF;">Autorizaci&oacute;n de cuentas</h1>
+        </div>
+        <div class="row">
+          <div class="span12" style=" text-align:left;">
+          	<h2 style="text-align:left;">Solicitudes de acceso</h2>
+          	<table id="overview_table" class="table bordered-table" style="width:940px;">
+          		<tr>
+          			<td width="20%">
+	          			<h4>Nombre</h4>
+          			</td>
+          			<td width="15%">
+	          			<h4>Email</h4>
+          			</td>
+          			<td width="10%">
+	          			<h4>Empresa</h4>
+          			</td>
+          			<td width="10%">
+	          			<h4>Tel&eacute;fono</h4>
+          			</td>
+          			<td width="25%">
+	          			<h4>Detalles</h4>
+          			</td>
+          			<td width="20%">
+	          			<h4>Acci&oacute;n</h4>
+          			</td>
+          		</tr>
+
+          		<? foreach($user_requests as $item){ ?>
+          			<tr>
+	          			<td width="20%">
+		          			<?=$item->nombre?>
+	          			</td>
+	          			<td width="15%">
+		          			<?=$item->email?>
+	          			</td>
+	          			<td width="10%">
+		          			<?=$item->empresa?>
+	          			</td>
+	          			<td width="10%">
+		          			<?=$item->telefono?>
+	          			</td>
+	          			<td width="25%">
+		          			<?=$item->detalles?>
+	          			</td>
+	          			<td width="20%" style="text-align: center;">
+		          			<a href="javascript:void(0);" onClick="javascript:do_action('accept_user_request',<?=$item->id?>);" class="btn success">Aprobar</a> 
+		          			<a href="javascript:void(0);" onClick="javascript:do_action('delete_user_request',<?=$item->id?>);"  class="btn">Borrar</a> 
+	          			</td>
+	          		</tr>
+          		<? } ?>
+          	</table>
+          </div>
+
+          <div class="span12" style=" text-align:center;">
+          	<h2 style="text-align:left;">Cuentas autorizadas</h2>
+          	<table id="overview_b2b_auth" class="table bordered-table" style="width:940px;">
+          		<tr>
+          			<td width="20%">
+	          			<h4>Nombre</h4>
+          			</td>
+          			<td width="15%">
+	          			<h4>Email</h4>
+          			</td>
+          			<!-- <td width="10%">
+	          			<h4>Empresa</h4>
+          			</td> -->
+          			<td width="10%">
+	          			<h4>Tel&eacute;fono</h4>
+          			</td>
+          			<!-- <td width="25%">
+	          			<h4>Detalles</h4>
+          			</td> -->
+          			<td width="20%">
+	          			<h4>Acci&oacute;n</h4>
+          			</td>
+          		</tr>
+
+          		<? foreach($accepted_users as $item){ ?>
+          			<tr>
+	          			<td width="20%">
+		          			<?=$item->name?>
+	          			</td>
+	          			<td width="15%">
+		          			<?=$item->email?>
+	          			</td>
+	          			<!-- <td width="10%">
+		          			Placeholder
+	          			</td> -->
+	          			<td width="10%">
+		          			<?=$item->telefono?>
+	          			</td>
+	          			<!-- <td width="25%">
+		          			placeholder
+	          			</td> -->
+	          			<td width="20%" style="text-align: center;">
+	          				<? if($item->active){ ?>
+		          			<a href="javascript:void(0);" onClick="javascript:do_action('revoque_user_access',<?=$item->id?>);" class="btn">Borrar</a> 
+		          			<? }else{ ?>
+							<a href="javascript:void(0);" class="btn error disabled">Eliminado</a> 
+		          			<? } ?>
+	          			</td>
+	          		</tr>
+          		<? } ?>
+          </div>
+        </div>
+        
+        
+        </div>
+        
+        
+        
+        
+      </div>
+</div>
+
+<script type="text/javascript">
+
+	var ajax_result;
+	var query_data = { store_id:<?=$this->uri->segment(3);?> };
+	
+	$(document).ready(function(){
+		//get_stores();   		
+	});
+
+	// Lili: fala ligar las funciones de los botones en las tablas de arriba para que llamen a call api y acepten, borren o revoquen accesos.
+	function do_action(action, data){
+		query_data.request_id = data;
+		call_api('/api/b2b_stores/'+action, 'post', query_data, function(data) {
+			location.reload();
+		});	 
+	}
+
+	//b2b_stores
+	function call_api(url, method, vars, callback){
+		 
+		 $.ajax({
+			 type: method,
+			 url: url,
+			 data: vars
+		}).done(function( data ) {
+			try{
+		        var result = jQuery.parseJSON(data);
+		        if(!result.status || result.status != 'OK'){
+					alert('Request failed');
+					location.reload();
+				} else {
+					callback(data);
+				}
+		    }catch(e){
+		        console.log(data); //error in data result
+		    }
+		}).fail(function(jqXHR, textStatus) {
+			alert( "Request failed: " + textStatus );
+			location.reload();
+		});
+		 
+	}
+</script>
+</body>
+</html>

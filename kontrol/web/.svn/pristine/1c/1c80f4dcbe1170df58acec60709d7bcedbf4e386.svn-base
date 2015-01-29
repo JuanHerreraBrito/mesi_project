@@ -1,0 +1,100 @@
+<?= $this->load->view('v2/layout/header_new.php') ?>
+
+
+
+<div class="signin-card">
+    <? if (isset($flashMessage)) { ?>
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>Message:</strong> <?= $flashMessage ?>
+        </div>
+    <? } ?>
+    <div align="center" class="card">
+        <h1><?= $this->lang->line('login_page_title_text'); ?>!</h1>
+        <div class="person img-circle"></div>
+        <form method="post" action="/login/doLogin" class="form-stacked">
+            <input type="text" class="form-control" name="username" placeholder="<?= str_replace(":", "", $this->lang->line('login_signup_text_1')) ?>" />
+            <input type="password" class="form-control" name="password" placeholder="<?= str_replace(":", "", $this->lang->line('login_signup_text_2')) ?>" />
+            <? if (isset($_SERVER['HTTP_REFERER'])) { ?> 
+                <input type="hidden" name="refer" value="<?= $_SERVER['HTTP_REFERER'] ?>" />
+            <? } ?>
+            <button type="submit" class="btn btn-primary btn-lg"><?= $this->lang->line('login_login_button_text'); ?></button>
+            <div align="left">
+                <a href="<?= base_url() ?>login/requestPass"><?= $this->lang->line('login_password_link_text'); ?></a>
+            </div>
+        </form>
+    </div>
+    <div align="center">
+        <a href="<?= base_url() ?>login/register"><?= $this->lang->line('login_signup_beta_button_text'); ?></a>
+    </div>
+</div>			
+
+<style>
+    .card {
+        background-color: #f5f5f5;
+        padding: 20px 25px 30px;
+        margin: 0 auto 25px;
+        width: 100%;
+        -moz-border-radius: 2px;
+        -webkit-border-radius: 2px;
+        border-radius: 2px;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        border-top: 1px solid #ececec;
+    }
+    .signin-card {
+        margin:90px auto 0;
+        width: 354px;
+    }
+    .card h1 {
+        font-family: 'Open Sans', arial, helvetica;
+        -webkit-font-smoothing: antialiased;
+        color: #555;
+        font-size: 18px;
+        font-weight: 400;
+        padding-bottom: 20px;
+    }
+    .card .person{
+        height: 120px;
+        width: 120px;
+        background: url(https://www.kichink.com/v3/img/como_funciona/servicio_al_cliente.png) no-repeat -56px -31px #e2e2e2;
+        opacity: 0.90;
+        margin: 20px 0;
+        -webkit-filter: grayscale(100%);
+
+    }
+    .card input[type=password]{
+        margin-top: -1px !important;
+
+    }
+    .card input.form-control:focus{
+        outline: none;
+         display:inline-block;
+        border: 1px solid #66afe9;
+        -moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        z-index:3;
+    }
+
+    .card input{
+        margin: 0;
+        height:44px;
+        z-index:1;
+        font-size: 18px;
+        border-radius: 0;
+    }
+    .card button{
+        margin:20px 0;
+        display:block;
+        width:100%;
+    }
+    .card a{
+        text-decoration: none;
+        font-size: 12px;
+        color:#532E63;
+    }
+</style>
+
+<?= $this->load->view('v2/layout/footer.php', array('sreen_code' => 'S_2_0.2')) ?>

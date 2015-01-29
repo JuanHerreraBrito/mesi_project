@@ -1,0 +1,203 @@
+<?=$this->load->view('v2/layout/header_no_topbar.php');?>
+<style>
+    html, body, div{
+        -webkit-overflow-scrolling:touch
+    }
+</style>
+<div class="container" style="padding:20px 0 200px;">
+    
+    <p><b>Objeto</b>.- Este contrato es para que Kichink Servicios S.A. de C.V. se obligue a cumplir con servicios integrales de e-comerce para con el cliente.</p>
+    <p><b>Liquidaciones al Cliente. Contraprestaci&oacute;n</b>.- 
+        <ul>
+          <li>Cuando vendes te depositamos lo que vendas menos la comisi&oacute;n que cobramos.</li>
+          <li>Cobramos 7.5% de comisi&oacute;n por nuestros servicios </li>
+          <li>S&oacute;lo si los dos firmamos con 30 d&iacute;as de anticipaci&oacute;n se puede cambiar culaquier acuerdo</li>
+        </ul>
+    </p>
+    <p>
+      <b>Vigencia. Terminaci&oacute;n.-</b>El contrato dura 12 meses (aunque no hay mensualidades y tu decides cuando tu tienda est&aacute; en l&iacute;nea), si hubiera que terminarlo antes, debemos avisarnos 30 d&iacute;as antes.
+    </p>
+    <p><b>Obligaciones del Cliente.</b> 
+      <ul>
+        <li>Elige una de las plantilla, actualiza productos y mant&eacute;n inventarios. Cumple en los tiempos, respuestas y formas que se hayan establecido para los productos disponibles,</li>
+        <li>Si vendes algo defectuoso requerimos que lo cambies. Si se te van muchos productos defectuosos tenemos que platicar. En casos extremos se puede suspender el servicio y si no se corrigen los problemas, terminar el contrato.</li>
+        <li>El Cliente se obliga a cambiar el producto si el consumidor no queda a entera satisfacci&oacute;n. Hay productos que no podemos aceptar porque no cumplen con nuestros lineamientos. No se puede vender nada ilegal</li>
+        <li>Hay que respetar las pol&iacute;ticas de entrega para garantizar la experiencia del usuario</li>
+        <li>Los productos que cada tienda vende son responsabilidad exclusiva de cada tienda.</li>
+      </ul>
+    </p>
+    <p>
+      <b>Propiedad Industrial e Intelectual</b>.- Es necesario que cuentes con el permiso de uso de las marcas que utilizas en tu tienda. Por favor solo usa nuestra marca cuando as&iacute; lo acordemos. Necesitamos que nos permitas usar tu marca para hacer nuestro trabajo 
+    </p>
+    <p>
+      <b>Confidencialidad</b>.- Cuidaremos tu informaci&oacute;n y queremos que cuides la nuestra. Esta confidencialidad dura 3 (tres) a&ntilde;os posterior a la terminaci&oacute;n del contrato.
+    </p>
+    <p>
+      <b>Relaci&oacute;n entre las Partes</b>.- Nuestra relaci&oacute;n de Prestador y Cliente, nada m&aacute;s
+    </p>
+    <p>
+      <b>Indemnizaci&oacute;n. Responsabilidad.</b>
+      <ul>
+        <li>Cada qui&eacute;n se hace cargo de sus cuestiones legales</li>
+        <li>La mercancia est&aacute; asegurada por MXN $2,000.00 si quieres m&aacute;s seguro te lo cotizamos.</li>
+      </ul>
+    </p>
+    <p>
+      <b>Notificaciones</b>.- Para que siempre estemos todos claros, lo que haya que decir, lo diremos por escrito a las direcciones de m&aacute;s abajo
+    </p>
+    <h5>ANEXO A: DESCRIPCI&Oacute;N DE LOS SERVICIOS</h5>
+    <p>El Prestador otorga al Cliente acceso al Portal (plataforma) mediante la entrega de usuario y contrase&ntilde;a) a fin de que el Cliente pueda llevar a cabo la venta de sus productos en (i) el Portal www.[kichink.com], (ii) en el portal del Cliente pero por medio del Prestador; y/o (iii) por medio del Prestador en sus páginas de redes sociales, incluyendo sin limitar Facebook, Twitter y otras.</p>
+    <p>El Prestador tendr&aacute; en el Portal varias opciones de plantillas para que el Cliente utilice alguna para su formato de página de venta.</p>
+    <p>El Prestador podr&aacute;, sin estar obligado a ello, realizar publicidad mediante boletines informativos, campa&ntilde;as de publicidad en medios de difusi&oacute;n conocido o por conocerse, tales como, de manera enunciativa más no limitativa, v&iacute;a sat&eacute;lite, microondas, cable, fibra &oacute;ptica, pago por evento, televisi&oacute;n abierta o restringida, circuito cerrado de televisi&oacute;n, sistemas de transmisi&oacute;n restringido en autobuses, aeronaves, barcos, ferrocarriles o cualquier otro medio de transporte, sistema de difusi&oacute;n v&iacute;a sat&eacute;lite punto a punto, redes inform&aacute;ticas en ambiente de multiusuarios, incluyendo, sin limitar, protocolo de acceso inal&aacute;mbrico, asistente personal digital, SMS (sistema de mensajes cortos), discos compactos, los discos compactos con contenido inform&aacute;tico (cd-roms), cintas, videocasetes, discos vers&aacute;tiles digitales (DVDs), v&iacute;a el sistema global de informaci&oacute;n conocido como &ldquo;Internet&rdquo;, v&iacute;a plataforma digital, o medios impresos o informativos, auditivos o cualquier combinaci&oacute;n de los antes mencionados. Los servicios de publicidad aqu&iacute; mencionados que en su caso pueda llegar a prestar el Prestador al Cliente ser&aacute;n objeto de una ampliaci&oacute;n y modificaci&oacute;n de los Servicios y las tarifas correspondientes, previo acuerdo entre las partes.</p>
+    <p>El Prestador por conducto de terceros coordinar&aacute; los servicios y opciones de mensajer&iacute;a especializada para la recolecci&oacute;n y entrega de los productos vendidos.</p>
+    <p>El Prestador coordinar&aacute; la integraci&oacute;n de actividades entre otras empresas de servicios, alineando iniciativas y tiempos, no siendo responsable del contenido y calidad del trabajo y productos generados por dichas empresas de servicios.</p>
+    <p>El Prestador entregar&aacute; las pol&iacute;ticas de uso del Portal, de órdenes de compra y entrega de productos al Cliente, las cuales podr&aacute;n ser modificadas unilateralmente de tiempo en tiempo por el Prestador y que formar&aacute;n parte integrante del presente Contrato.</p>
+    <h5>Cl&aacute;usulas</h5>
+    <p>
+      <b>PRIMERA. Objeto.</b>1.1 El Prestador se obliga a prestar al Cliente, durante la vigencia del presente Contrato, los servicios (&ldquo;Servicios&rdquo;) que se describen en el Anexo &ldquo;A&rdquo; del presente contrato, el cual forma parte integrante del mismo.
+    </p>
+    <p>
+      <b>SEGUNDA. Liquidaciones al Cliente. Contraprestaci&oacute;n.</b>
+      2.1    El Prestador liquidar&aacute; al Cliente las cantidades que correspondan a las ventas a los consumidores realizadas en las p&aacute;ginas de internet, portales y/o medios electr&oacute;nicos y virtuales del Prestador que forman parte de los Servicios (el &ldquo;Portal&rdquo;), dentro de los 5 (cinco) d&iacute;as naturales posteriores a la recepci&oacute;n de la orden de corte de caja por parte del Cliente (la &ldquo;Orden de Corte&rdquo;). La Orden de Corte se realizar&aacute; por parte del Cliente mediante el Portal cuando as&iacute; lo decida y una vez que hayan sido liberadas tales ventas del proceso cabal de entrega por parte del Prestador.
+      <br/>
+      2.2    Cliente pagar&aacute; al Prestador por concepto de contraprestaci&oacute;n por los Servicios la cantidad equivalente al 7.5% (siete punto cinco por ciento) del valor de cada una de las compras realizadas por los consumidores en el Portal, incluyendo el Impuesto al Valor Agregado (&ldquo;IVA&rdquo;). El referido pago se deber&aacute; realizar mediante la compensaci&oacute;n de saldos, disminuy&eacute;ndolos de las liquidaciones que el Prestador deba pagar al Cliente en los t&eacute;rminos del punto 2.1 y 2.2. 
+      <br/>
+      2.3    Las partes acuerdan expresamente que la contraprestaci&oacute;n aqu&iacute; establecida est&aacute; sujeta a su vez a las determinaciones de las instituciones bancarias responsables del procesamiento final del cobro y en funci&oacute;n de esto podr&aacute; ser revisada trimestralmente por el Prestador y en caso de que sufra cambios, la nueva contraprestaci&oacute;n deber&aacute; ser acordad por escrito por el Prestador al Cliente con 30 (treinta) d&iacute;as de anticipaci&oacute;n a la fecha en que empezar&aacute; a surtir efectos la nueva contraprestaci&oacute;n.
+      <br/>
+      2.4    El Cliente es responsable de documentar y responder a las solicitudes de contra cargo que se pudieran presentar. El prestador facilitar&aacute; el servicio del tr&aacute;mite ante las instituciones bancarias pero no asume responsabilidad alguna por contra cargos y no asumir&aacute; ning&uacute;n costo por este concepto.
+      <br/>
+      2.5    Las facturas del Prestador ser&aacute;n presentadas mensualmente y entregadas en el domicilio del Cliente, debiendo cumplir con la totalidad de los requisitos fiscales aplicables conforme a las leyes mexicanas.
+      <br/>
+      2.6    En los casos de servicios adicionales a los estipulados en el Anexo A de este contrato mismos que deber&aacute;n ser solicitados y previamente autorizados por el cliente y que incluyen sin limitar la publicidad adicional que el Prestador contrate y realice para el Cliente en cualquier medio de difusi&oacute;n conocido o por conocerse, tales como, de manera enunciativa más no limitativa, v&iacute;a sat&eacute;lite, microondas, cable, fibra &oacute;ptica, pago por evento, televisi&oacute;n abierta o restringida, circuito cerrado de televisi&oacute;n, sistemas de transmisi&oacute;n restringido en autobuses, aeronaves, barcos, ferrocarriles o cualquier otro medio de transporte, sistema de difusi&oacute;n v&iacute;a sat&eacute;lite punto a punto, redes inform&aacute;ticas en ambiente de multiusuarios, incluyendo, sin limitar, protocolo de acceso inal&aacute;mbrico, asistente personal digital, SMS (sistema de mensajes cortos), discos compactos, los discos compactos con contenido inform&aacute;tico (cd-roms), cintas, videocasetes, discos vers&aacute;tiles digitales (DVDs), v&iacute;a el sistema global de informaci&oacute;n conocido como &ldquo;Internet&rdquo;, v&iacute;a plataforma digital, o medios impresos o informativos, auditivos o cualquier combinaci&oacute;n de los antes mencionados. Los gastos adicionales en los que incurra el Prestador directamente relacionados con dichos Servicios adicionales, correr&aacute;n a cargo del Cliente, los cuales ser&aacute;n facturados mensualmente seg&uacute;n se incurran para su reembolso. Para el reembolso de los gastos referidos en el presente apartado, el Prestador podr&aacute; recurrir a la compensaci&oacute;n de saldos, disminuy&eacute;ndolos de las liquidaciones que el Prestador deba pagar al Cliente en los t&eacute;rminos del punto 2.1 y 2.2 de la presente clausula.
+      <br/>
+    </p>
+    <p>
+      <b>TERCERA. Vigencia. Terminaci&oacute;n.</b> 
+      3.1    El presente Contrato se celebra por un plazo de 12 (doce) meses contados a partir de la fecha de su firma y se podr&aacute; renovar por períodos iguales de 12 (doce) meses, salvo que cualquiera de las partes env&iacute;e a la otra con por lo menos 30 (treinta) d&iacute;as de anticipaci&oacute;n a la fecha de expiraci&oacute;n del período de que se trate, su deseo de no renovar el presente contrato.
+      <br/>
+      3.2    No obstante lo anterior, las partes podr&aacute;n dar por terminado el presente contrato en cualquier momento mediante aviso por escrito a la contraparte con por lo menos 30 (treinta) d&iacute;as de anticipaci&oacute;n.
+      <br/>
+      3.3    Cliente estar&aacute; obligado a pagar al Prestador, todos y cada uno de los Servicios prestados hasta la fecha en que se cancelen parte o la totalidad de los Servicios.
+    </p>
+    <p>
+      <b>CUARTA. Obligaciones del Cliente.</b>
+      4.1    El Cliente se obliga a elegir entre una de varias opciones de plantillas del Portal del Prestador para ser utilizado como tienda virtual.
+      <br/>
+      4.2    El Cliente deber&aacute; de subir y actualizar los productos que tendr&aacute; a disposici&oacute;n de los consumidores.
+      <br/>
+      4.3    El Cliente se obliga a mantener un inventario adecuado y suficiente para poder cumplir con las ventas pactadas por medio del Portal y/o los puntos de venta del Prestador.
+      <br/>
+      4.4    El Cliente se obliga a cumplir en los tiempos, respuestas, formas y condiciones que se hayan establecido para los productos disponibles, con los requerimientos de contestaci&oacute;n, aceptaci&oacute;n de orden y seguimiento de  productos se&ntilde;aladas como pedido y/o venta pactada.
+      El Cliente debe elegir el tipo de entrega que ofrece a sus clientes. Con el tipo de entrega se compromete a aceptar &oacute;rdenes y surtirlas de acuerdo a la tabla siguiente:
+      <table width="100%" border="1">
+      <tr>
+        <td>Tiempos de entrega</td>
+        <td>Compromiso de aceptaci&oacute;n de orden</td>
+        <td>Compromiso de surtido de orden</td>
+      </tr>
+      <tr>
+        <td>Express (2 horas)</td>
+        <td>(Menos de cinco minutos) </td>
+        <td>Media Hora</td>
+      </tr>
+      <tr>
+        <td>D&iacute;a Siguiente</td>
+        <td>30 minutos</td>
+        <td>Antes de las 12 del d&iacute;a</td>
+      </tr>
+      <tr>
+        <td>48 horas</td>
+        <td>2 horas</td>
+        <td>Antes de las 6 de la tarde</td>
+      </tr>
+      <tr>
+        <td>3 a 5 d&iacute;as</td>
+        <td>1 d&iacute;a</td>
+        <td>2 d&iacute;as</td>
+      </tr>
+      <tr>
+        <td>Arriba de cinco d&iacute;as</td>
+        <td>2 d&iacute;as</td>
+        <td>3 d&iacute;as </td>
+      </tr>
+    </table>
+     <p> 4.5 El Cliente se obliga a reemplazar sin costo cualquier producto defectuoso a ser suministrado por el Cliente y deber&aacute; de cubrir los costos de mensajer&iacute;a. 
+      <br/>
+      4.6  En caso de que se presenten m&aacute;s de 5% (cinco por ciento) de situaciones de reemplazo por producto defectuoso, &oacute;rdenes canceladas por parte del cliente, retardos o desabasto de los productos inventariados por el Cliente en el Portal el Cliente deber&aacute; de pagar al Prestador por concepto de pena convencional un importe igual al del valor del producto vendido que sea reemplazado. 
+      <br/>
+      4.7 Asimismo, las partes acuerdan expresamente que en caso de cualquier incumplimiento de los mencionados en el punto 4.6 por el Cliente, el Prestador podr&aacute; dar por suspendidos todos los servicios del presente contrato de forma inmediata, notificando de forma escrita al Cliente sobre la suspenci&oacute;n y las razones de la misma. Teniendo esta notificaci&oacute;n los efectos de la cl&aacute;usula 3.2 del presente contrato. 
+      4.7 i) Al recibir esta notificaci&oacute;n y s&oacute;lo bajo esta circunstancia, el Cliente tiene 7 d&iacute;as para arreglar las situaciones bajo las que se emiti&oacute; la notificaci&oacute;n y de este modo, regresar a operaci&oacute;n normal. 
+      4.7ii) Al t&eacute;rmino de treinta d&iacute;as a partir de la notificaci&oacute;n y sin haber resuelto las circunstancias por las que fue emitida, el Prestador dar&aacute; por terminado el presente Contrato sin necesidad de resoluci&oacute;n judicial mediante aviso por escrito al Cliente con 48 (cuarenta y ocho) horas de anticipaci&oacute;n.
+      <br/>
+      4.8    El Cliente se obliga a otorgar un plazo de [7] d&iacute;as naturales para que el consumidor pueda cambiar el producto y a que se cambie, en caso de no estar conforme con el producto por la raz&oacute;n que sea, salvo productos hechos o manipulados por orden especial del consumidor y productos perecederos, en cuyo caso no habr&aacute; cambio. En este caso el consumidor correr&aacute; con el  costo de mensajer&iacute;a.
+      El cliente acepta la pol&iacute;tica de devoluciones que se especifica a continuaci&oacute;n:
+      1.  Si la mercanc&iacute;a que recibe el comprador final no fuera la que se adquiri&oacute;, el cliente, a trav&eacute;s del prestador enviar&aacute; el producto adecuado que el cliente compr&oacute;, si esto no es posible enviar&aacute; un reemplazo del mismo precio, monto.
+      2.  En caso de que la mercanc&iacute;a recibida por el prestador est&eacute; da&ntilde;ada, maltratada o incompleta. El cliente deber&aacute; reponer la mercanc&iacute;a de tal forma que no se impacten los tiempos de entrega
+      3.  La solicitud de devoluci&oacute;n y aclaraci&oacute;n por parte del comprador final deber&aacute; ser dentro de los primeros tres (3) d&iacute;as posteriores a la recepci&oacute;n del pedido. 
+      <br/>
+      4.9 El Prestador se reserva el derecho de aprobar y/o rechazar y/o remover los productos del Cliente en caso de que no cumplan con las condiciones se&ntilde;aladas en el presente Contrato y sus Anexos.
+      <br/>
+      4.10 El Cliente se obliga a hacer un uso adecuado de la Portal conforme a las reglas y/o pol&iacute;ticas del Prestador, as&iacute; como tambi&eacute;n se obliga a cumplir con las pol&iacute;ticas de &oacute;rdenes de compra, entrega y dem&aacute;s que le sean entregadas al Cliente de tiempo en tiempo por el prestador, las cuales formar&aacute;n parte integrante de este Contrato.
+      <br/>
+      4.11 El Cliente entiende, acuerda y se obliga expresamente a no vender, ofrecer ni promocionar productos, art&iacute;culos y/o servicios que su uso, venta o consumo resulte ilegal en cualquiera de las jurisdicciones en las que se est&eacute; ofreciendo a trav&eacute;s del Portal del Prestador.  Cualquier Reclamaci&oacute;n (seg&uacute;n se define más adelante) al Cliente derivada de esto es responsabilidad total y absoluta del Cliente.
+      <br/>
+      4.12 Cualquier problema en, derivado de o relacionado con el producto y/o situaci&oacute;n legal o Reclamaci&oacute;n relacionada con o derivada de cualquier Producto ofrecido por el Cliente en el Portales las partes acuerdan expresamente que es y ser&aacute; responsabilidad total y absoluta del Cliente o el consumidor, seg&uacute;n sea el caso.
+      <br/>
+    </p>
+    <p>
+      <b>QUINTA. Propiedad Industrial e Intelectual.</b>
+      5.1    El Cliente entiende y acepta que todos aquellos sistemas y programas derivados de o con relaci&oacute;n al presente Contrato, el Portal y/o el Anexo &ldquo;A&rdquo;, los conocimientos, metodolog&iacute;as (know-how), derechos de autor, derechos de propiedad intelectual e industrial existentes o desarrollados en la prestaci&oacute;n de los Servicios, que el Prestador aporte a la prestaci&oacute;n de los Servicios permanecer&aacute;n como propiedad del Prestador, en virtud de lo cual en ning&uacute;n caso el Prestador tendr&aacute; restricci&oacute;n alguna en desarrollar, para s&iacute; misma o para otros, materiales con base en los mismos y el Prestador podr&aacute; usar con entera libertad sus conocimientos, habilidades y experiencia y cualquier idea, concepto, conocimientos t&eacute;cnicos (know-how) y t&eacute;cnicas que hayan sido usados en el curso de la prestaci&oacute;n de los Servicios. En caso de terminaci&oacute;n anticipada del presente Contrato, el Cliente no podr&aacute; hacer uso de todos aquellos conocimientos, metodolog&iacute;as (know-how), derechos de autor, derechos de propiedad intelectual e industrial preexistente, desarrollados o como parte de los Servicios objeto del presente contrato.
+      <br/>
+      5.2    El Cliente deber&aacute; abstenerse de usar y/o hacer cualquier referencia escrita al nombre del Prestador, sus accionistas, subsidiarias y/o sociedades relacionadas, inclusive para asuntos relacionados con los Servicios, excepto que cuente con la autorizaci&oacute;n previa y por escrito del Prestador.
+      <br/>
+      5.3    El Prestador no otorga al Cliente derechos de propiedad intelectual e industrial de &iacute;ndole alguno sobre sus sistemas, procesos, denominaciones y los dise&ntilde;os o logotipos de los cuales sea titular Prestador, sus accionistas, subsidiarias o sociedades relacionadas o cualquier tercero y que se relacionen con los servicios del Prestador, sus accionistas, subsidiarias o sus sociedades relacionadas. El Cliente deber&aacute; proporcionar a Prestador, para su revisi&oacute;n y autorizaci&oacute;n por escrito de manera previa a su utilizaci&oacute;n, todo material que el Cliente pretenda utilizar y que contenga cualquier referencia, directa o indirecta, al Prestador. El Cliente no deber&aacute; usar ni intentar registrar como marca, nombre comercial o cualquier otro derecho de propiedad industrial o intelectual, denominaci&oacute;n o dise&ntilde;o alguno o logotipo igual o similar en grado de confusi&oacute;n a aquellas que el Prestador sea titular.
+      <br/>
+      5.4    Con el fin de que el Prestador pueda prestar los Servicios conforme al presente, el Cliente otorga al Prestador mediante el presente una licencia de uso de marca respecto todos los derechos de propiedad intelectual e industrial de los que sea titular el Cliente, incluyendo sin limitar, denominaciones, los dise&ntilde;os o logotipos, marcas, nombres comerciales para su uso en los servicios de difusi&oacute;n, publicidad y oferta para compra dentro del Portal y en los medios digitales antes mencionados. El Cliente es responsable de obtener aquellas licencias necesarias o relacionadas con los productos que se van a comercializar mediante el Portal y de obtener a favor del Prestador una licencia de uso de todos los derechos de propiedad intelectual e industrial de dichos productos para la legal difusi&oacute;n y comercializaci&oacute;n de los productos en el Portal y licencia que estar&aacute; vigente durante la vigencia del presente Contrato. Las partes acuerdan que cualquier Reclamaci&oacute;n derivado de lo anterior es responsabilidad del Cliente y el Prestador podr&aacute; dar por terminado el presente Contrato.
+    </p>
+    <p>
+      <b>SEXTA. Confidencialidad.</b>
+      6.1    Las partes se obligan a mantener de forma confidencial toda la informaci&oacute;n y documentaci&oacute;n recibida por ellas, en relaci&oacute;n con el presente Contrato, y no deber&aacute; divulgarse a terceros sin el consentimiento previo y por escrito de las mismas. La obligaci&oacute;n de confidencialidad aqu&iacute; establecida, no aplicar&aacute; respecto de aquella informaci&oacute;n o documentaci&oacute;n que por su naturaleza se encuentre o hubiere estado en el dominio p&uacute;blico por alg&uacute;n motivo que no constituya un acto u omisi&oacute;n de cualquiera de las partes, ni sus accionistas, consejeros, administradores, funcionarios, representantes, trabajadores, empleados o terceros que contrate.
+      <br/>
+      6.2    Las obligaciones se&ntilde;aladas en la presente Cl&aacute;usula de confidencialidad, permanecer&aacute;n vigentes durante los 3 (tres) a&ntilde;os siguientes a la terminaci&oacute;n por cualquier causa del presente Contrato.
+    <p>
+    <p>
+      <b>S&Eacute;PTIMA. Relaci&oacute;n entre las Partes. </b>
+      7.1 Este Contrato no pretende crear, y nada de lo en &eacute;l previsto debe interpretarse en el sentido de que crea, una relaci&oacute;n de patr&oacute;n y empleado, socio y asociado, ni mandante y mandatario entre Cliente y el Prestador. Ninguna de las Partes estar&aacute; facultada para representar u obligar a la otra y cada una de las Partes ser&aacute; la responsable exclusiva y &uacute;nica de sus propios actos. Las Partes ser&aacute;n exclusivamente responsables respecto de cualquier obligaci&oacute;n de tipo laboral de conformidad con lo dispuesto por las leyes laborales mexicanas aplicables en relaci&oacute;n con cualquier empleado o trabajador que empleen o contraten para cumplir sus obligaciones bajo el presente Contrato y asumen plena responsabilidad por el cumplimiento de sus obligaciones laborales con respecto al mismo.
+    </p>
+    <p>
+      <b>OCTAVA. Indemnizaci&oacute;n. Responsabilidad. </b>
+      8.1    En relaci&oacute;n con cualquier juicio, demanda, proceso legal, administrativo o de cualesquiera otra naturaleza, reclamaci&oacute;n, multa, sanci&oacute;n, p&eacute;rdida, da&ntilde;o, obligaci&oacute;n o gasto (incluyendo honorarios razonables de abogados) (conjuntamente las &ldquo;Reclamaciones&rdquo;) que surjan de o en relaci&oacute;n con, directa o indirectamente, el  presente Contrato y/o actos u omisiones del Cliente y/o sus socios, administradores, funcionarios, representantes, trabajadores o empleados o cualquier tercero contratado por el mismo, el Cliente se obliga a indemnizar y mantener al Prestador, sus accionistas, subsidiarias, sociedades relacionadas, y a sus consejeros o administradores, representantes, funcionarios, trabajadores y/o empleados en paz y a salvo de cualesquiera Reclamaciones.
+      <br/>
+      8.2    Las partes acuerdan expresamente que el Prestador prestar&aacute; los Servicios aqu&iacute; estipulados ya sea por si mismo o mediante la contrataci&oacute;n y/o coordinaci&oacute;n de terceros. El prestador no tendr&aacute; responsabilidad alguna por objetos perdidos, robados y/o maltratados entre otros, en la prestaci&oacute;n de los Servicios, excepto durante el trayecto considerado como mensajer&iacute;a que comprende del momento en que el cliente entrega y firma de entregado el producto u objeto al prestador de dicho servicio de mensajer&iacute;a y solo hasta el momento en que el consumidor o destinatario final reciba dicho objeto y firme de recibido. Todos los objetos que est&eacute;n sujetos a este servicio de mensajer&iacute;a por parte del Prestador estar&aacute;n asegurados por el valor que resulte menor entre el precio del objeto declarado al momento de la venta o $2,000.&ordm;&ordm; (Dos mil pesos 00/100 M.N). En todos los dem&aacute;s casos de perdida, maltrato y/o robo entre otros el Cliente se obliga a indemnizar y mantener al Prestador, sus accionistas, subsidiarias, sociedades relacionadas, y a sus consejeros o administradores, representantes, funcionarios, trabajadores y/o empleados en paz y a salvo de cualesquiera Reclamaciones.
+    </p>
+    <p>
+      <b>NOVENA. Notificaciones.</b>
+      9.1    Todos los avisos y notificaciones entre las Partes deber&aacute;n realizarse por escrito y ser entregados personalmente o enviados por servicio de mensajer&iacute;a previo porte pagado, en un sobre debidamente domiciliado a las direcciones que abajo se indican, a no ser que las Partes notifiquen su cambio de domicilio en los t&eacute;rminos anteriores, en cuyo caso las notificaciones ser&aacute;n enviadas a dicho nuevo domicilio. Para todo lo relacionado con este Contrato, las Partes se&ntilde;alan como sus respectivos domicilios, en el anexo A.
+      El hecho de que cualquiera de las Partes renuncie a exigir el cumplimiento de este Contrato ante cualquier incumplimiento de la otra Parte, no constituir&aacute; una renuncia a hacer valer sus derechos ante cualquier incumplimiento posterior o de otra obligaci&oacute;n de dicha otra Parte. Cualquier demora u omisi&oacute;n en el ejercicio de alg&uacute;n derecho, facultad o recurso en caso de incumplimiento por cualquiera de las Partes, no impedir&aacute; que la Parte perjudicada ejercite dicho derecho, facultad o recurso con posterioridad.
+    </p>
+    <p>
+      <b>D&Eacute;CIMA. Diversos:</b>
+      10.1    Otras Obligaciones de Hacer.  Las partes convienen expresamente y se comprometen a que, con toda buena fe y diligencia, llevar&aacute;n a cabo todos los actos y tomar&aacute;n todas las acciones que fueren necesarias o convenientes, con el objeto de que tengan plenos efectos y cumplan integralmente los acuerdos aqu&iacute; contenidos.
+      <br/>
+      10.2    Modificaciones. Ninguna modificaci&oacute;n de t&eacute;rmino o condici&oacute;n alguna de este Contrato y ning&uacute;n consentimiento, renuncia o dispensa en relaci&oacute;n con cualquiera de dichos t&eacute;rminos o condiciones, tendr&aacute; efecto en caso alguno a menos que conste por escrito y est&eacute; suscrito por las partes y a&uacute;n entonces dicha modificaci&oacute;n, renuncia, dispensa o consentimiento s&oacute;lo tendr&aacute; efecto para el caso y fin espec&iacute;ficos para el cual hayan sido otorgados, con excepci&oacute;n de aquellas modificaciones establecidas en el presente Contrato y sus Anexos que ser&aacute;n realizadas unilateralmente por el Prestador y que el cliente acuerda expresamente su consentimiento.
+      <br/>
+      10.3    Gastos. Cada una de las partes ser&aacute; responsable del pago de cualesquier impuestos y gastos que resulten a su cargo con motivo de la celebraci&oacute;n y cumplimiento del presente Contrato.  Cada parte ser&aacute; responsable de los honorarios, comisiones o cualquier contraprestaci&oacute;n a favor de asesores, intermediarios, dependientes, mandatarios, fedatarios o cualquier persona que hubiere auxiliado, asesorado o contactado para la celebraci&oacute;n del presente.
+      <br/>
+      10.4    Cesi&oacute;n. Las partes se obligan a cumplir sus obligaciones objeto del presente Contrato por s&iacute; mismas y, en consecuencia, los derechos y obligaciones de cualquiera de las partes derivados de este instrumento en ning&uacute;n caso podr&aacute;n ser cedidos, gravados o transmitidos en forma alguna sin la autorizaci&oacute;n previa y por escrito de las otras partes, con excepci&oacute;n de lo que ya ha sido se&ntilde;alado en el presente Contrato.
+      <br/>
+      10.5    T&iacute;tulos. Los t&iacute;tulos de las Cl&aacute;usulas y sub-t&iacute;tulos de los incisos de las Cl&aacute;usulas de este instrumento no tienen m&aacute;s fin que la conveniencia de las partes y no podr&aacute;n afectar ni tendr&aacute;n efecto alguno para la interpretaci&oacute;n de este Contrato.
+      <br/>
+      10.6    Acuerdo Integral. Este Contrato deja sin efecto toda negociaci&oacute;n previa, declaraci&oacute;n y acuerdo, ya sea verbal o escrito en relaci&oacute;n al objeto del mismo. Las materias contenidas en este Contrato son indivisibles y las partes manifiestan que se ha llevado a cabo porque su intenci&oacute;n es mantener toda la transacci&oacute;n en su conjunto.
+      <br/>
+      10.7    Ausencia de Vicios en el Consentimiento. Las Partes expresamente reconocen y manifiestan que en el presente Contrato no existe error, dolo o violencia ni ning&uacute;n otro vicio del consentimiento, por lo que renuncian en este acto a invocar la nulidad del mismo por cualquiera de tales conceptos.
+      <br/>
+      10.8    Subsistencia. Cualquier obligaci&oacute;n de las Partes que por su naturaleza deba cumplirse a&uacute;n despu&eacute;s de terminado este Contrato, continuar&aacute; vigente y subsistir&aacute; a la terminaci&oacute;n de este Contrato por cualquier causa.
+      <br/>
+      10.9    Legalidad de la Disposiciones. En caso de que alguna disposici&oacute;n de las contenidas en este Contrato sea considerada legalmente inexistente o nula, su cumplimiento se exigir&aacute; en la mayor medida posible de conformidad con la ley aplicable y la validez de las dem&aacute;s disposiciones de este Contrato no deber&aacute; verse afectada o menoscabada.
+    </p>
+    <p>
+      <b>D&Eacute;CIMA PRIMERA. Legislaci&oacute;n Aplicable y Jurisdicci&oacute;n.</b>
+      11.1  Para la interpretaci&oacute;n, ejecuci&oacute;n y cumplimiento del presente Contrato, las Partes se someten expresamente a las leyes aplicables y a la jurisdicci&oacute;n y competencia de los tribunales federales competentes del Distrito Federal, Estados Unidos Mexicanos, renunciando expresamente al fuero que por raz&oacute;n de sus domicilios, presentes o futuros, o por cualquier otra causa, pudiere corresponderles.
+    </p>
+    
+</div>

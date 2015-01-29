@@ -1,0 +1,941 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Media extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * A test for image cropping 
+	 */
+	 
+	public function index(){
+		redirect('/stores');
+	}
+	
+	public function delete_image()
+	{
+
+		// Checo permiso del usuario
+        $params_permission = array( 'perm'  => 'D',
+                                    'level' => 1,
+                                    'data'  => array('key' => 'media_id', 'value' => $this->input->post('image_id')) );
+
+        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+
+		$this->load->model('sell_model');
+		
+		$object_id = explode('_',$this->input->post('object_name'));
+		$image_id = $this->input->post('image_id');
+		
+		$this->sell_model->delete_image($image_id);
+		
+		redirect('items/id/'.$object_id[1]);
+		
+	}
+	
+        public function save()
+	{
+                $this->load->model('sell_model');
+			
+		if($this->input->post('submit') AND $this->input->post('from') AND $this->input->post('table') AND $this->input->post('tableID'))
+		{
+			
+			// PERMISSIONS
+			if($this->input->post('table')=='stores'){
+
+				// Checo permiso del usuario
+		        $params_permission = array( 'perm'  => 'W',
+		                                    'level' => 3,
+		                                    'data'  => array('key' => 'store_id', 'value' => $this->input->post('tableID')) );
+
+		        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+
+			}elseif($this->input->post('table')=='items'){
+
+				// Checo permiso del usuario
+		        $params_permission = array( 'perm'  => 'W',
+		                                    'level' => 1,
+		                                    'data'  => array('key' => 'item_id', 'value' => $this->input->post('tableID')) );
+
+		        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+			}else{
+
+				redirect(base_url().'stores');
+
+			}
+			//  END OF PERMISSION
+
+			$this->input->post('role') ? $role = $this->input->post('role') : $role = NULL;
+
+			if($_FILES['image']['error'] === UPLOAD_ERR_OK){
+			
+				$type = $this->_file_mime_type($_FILES['image']);
+				$type = preg_replace("/^(.+?);.*$/", "\\1", $type);
+				$type = strtolower(trim(stripslashes($type), '"'));
+				$type = $this->normalize_image_type($type);
+
+				$imageFile = $_FILES['image']['tmp_name'];
+				$extensionFile = $type;
+				$extensionFile = substr($extensionFile, 6);
+				
+				if($extensionFile != 'jpeg' AND $extensionFile != 'png' AND $extensionFile != 'gif'){
+					$data['image_error'] = array( 'flashMessage' => $this->lang->line('stores_imageadmin_error_format'),
+												  'role' => $role,
+												  'from' => $this->input->post('from'),
+												  'table' => $this->input->post('table'),
+												  'tableID' => $this->input->post('tableID'));
+				}else{
+					
+					$filename = $this->input->post('table').'_'.$this->input->post('tableID').'_'.$this->session->userdata('user_id').'_'.date('YmdHis');
+				
+					list($width, $height) = getimagesize($imageFile);
+					
+					switch ($extensionFile){
+						case 'jpeg': //image/jpeg
+							$src = imagecreatefromjpeg($imageFile);
+						break;
+						case 'png': //image/png
+							$src = imagecreatefrompng($imageFile); 
+						break;
+						case 'gif': //image/gif
+							$src = imagecreatefromgif($imageFile); 
+						break;
+						default:
+							$src = false;
+						break;
+					}
+					
+					$tmp = imagecreatetruecolor($width,$height);
+					imagecopyresampled($tmp, $src, 0,0,0,0,$width,$height,$width,$height); // Crea una nueva imagen con las dimensiones obtenidas.
+					
+					$tempFile = tempnam('/tmp', 'FOO');
+					switch ($extensionFile){
+						case 'jpeg':
+							imagejpeg($tmp, $tempFile, 100);
+						break;
+						case 'png':
+							imagepng($tmp, $tempFile, 3);
+						break;
+						case 'gif':
+							imagegif($tmp, $tempFile);
+						break;
+						default:
+							return false;
+						break;
+					}
+					
+					$bucketName = 'kichink';
+					$this->load->library('s3');
+					$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+					
+					if ($this->s3->putObjectFile($tempFile, $bucketName, $filename.'.'.$extensionFile, S3::ACL_PUBLIC_READ)) {
+						$media_id = $this->sell_model->insert_media($this->input->post('table'), $filename);
+						$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_original', $extension = $extensionFile, $w=$width, $h=$height, $role);
+						
+						switch($role){
+							case 'logo' :
+								$callTo = $this->saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired = 160, $heightRequired = 160);
+								break;
+							case 'header' :
+								$callTo = $this->saveHeaderImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired = 980);
+								break;
+							default :
+								$callTo = $this->saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired = 700, $heightRequired = 500); // means items
+								break;							
+						}
+						
+						if($callTo){
+							redirect($this->input->post('from'));
+						}else{
+							$data['media'] = array('flashMessage' => $this->lang->line('stores_imageadmin_error'));
+						}
+						
+					}else{
+						$data['media'] = array('flashMessage' => $this->lang->line('stores_imageadmin_error'));
+					}
+					
+					imagedestroy($tmp);
+					imagedestroy($src);
+					unlink($tempFile);
+				}
+			}else{
+				$error_message = $this->file_upload_error_message($_FILES['image']['error']); 
+				$data['image_error'] = array( 'flashMessage' => $error_message,
+											  'role' => $role ,
+											  'from' => $this->input->post('from'),
+											  'table' => $this->input->post('table'),
+											  'tableID' => $this->input->post('tableID'));
+			}
+			
+			$this->load->view('media/add_image', $data);
+
+	 	}else{
+
+	 		redirect(base_url().'stores');
+
+	 	}
+
+		
+		
+	}
+        
+	public function save2()
+	{
+            header('Content-type: application/json');
+
+                $data= json_decode($_POST["data"]);
+                
+		$this->load->model('sell_model');
+			
+		if($data->submit AND $data->table AND $data->tableID)
+		{
+			
+			// PERMISSIONS
+			if($data->table=='stores'){
+
+				// Checo permiso del usuario
+		        $params_permission = array( 'perm'  => 'W',
+		                                    'level' => 3,
+		                                    'data'  => array('key' => 'store_id', 'value' => $data->tableID) );
+
+		        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+			}elseif($this->input->post('table')=='items'){
+
+				// Checo permiso del usuario
+		        $params_permission = array( 'perm'  => 'W',
+		                                    'level' => 1,
+		                                    'data'  => array('key' => 'item_id', 'value' => $data->tableID) );
+
+		        if(!checkForPermission( $params_permission )){ page_not_found(); return false; }
+
+			}else{
+
+				redirect(base_url().'stores');
+
+			}
+			//  END OF PERMISSION
+
+			$data->role ? $role = $data->role : $role = NULL;
+
+			if($_FILES['image']['error'] === UPLOAD_ERR_OK){
+			
+				$type = $this->_file_mime_type($_FILES['image']);
+				$type = preg_replace("/^(.+?);.*$/", "\\1", $type);
+				$type = strtolower(trim(stripslashes($type), '"'));
+				$type = $this->normalize_image_type($type);
+
+				$imageFile = $_FILES['image']['tmp_name'];
+				$extensionFile = $type;
+				$extensionFile = substr($extensionFile, 6);
+				
+				if($extensionFile != 'jpeg' AND $extensionFile != 'png' AND $extensionFile != 'gif'){
+					$data['image_error'] = array( 'flashMessage' => $this->lang->line('stores_imageadmin_error_format'),
+												  'role' => $role,
+												  'table' => $data->table,
+												  'tableID' => $data->tableID);
+				}else{
+					
+					$filename = $data->table.'_'.$data->tableID.'_'.$this->session->userdata('user_id').'_'.date('YmdHis');
+				
+					list($width, $height) = getimagesize($imageFile);
+					
+					switch ($extensionFile){
+						case 'jpeg': //image/jpeg
+							$src = imagecreatefromjpeg($imageFile);
+						break;
+						case 'png': //image/png
+							$src = imagecreatefrompng($imageFile); 
+						break;
+						case 'gif': //image/gif
+							$src = imagecreatefromgif($imageFile); 
+						break;
+						default:
+							$src = false;
+						break;
+					}
+					
+					$tmp = imagecreatetruecolor($width,$height);
+					imagecopyresampled($tmp, $src, 0,0,0,0,$width,$height,$width,$height); // Crea una nueva imagen con las dimensiones obtenidas.
+					
+					$tempFile = tempnam('/tmp', 'FOO');
+					switch ($extensionFile){
+						case 'jpeg':
+							imagejpeg($tmp, $tempFile, 100);
+						break;
+						case 'png':
+							imagepng($tmp, $tempFile, 3);
+						break;
+						case 'gif':
+							imagegif($tmp, $tempFile);
+						break;
+						default:
+							return false;
+						break;
+					}
+					
+					$bucketName = 'kichink';
+					$this->load->library('s3');
+					$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+					
+					if ($this->s3->putObjectFile($tempFile, $bucketName, $filename.'.'.$extensionFile, S3::ACL_PUBLIC_READ)) {
+						$media_id = $this->sell_model->insert_media($this->input->post('table'), $filename);
+						$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_original', $extension = $extensionFile, $w=$width, $h=$height, $role);
+						
+						switch($role){
+							case 'logo' :
+								$callTo = $this->saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired = 160, $heightRequired = 160);
+								break;
+							case 'header' :
+								$callTo = $this->saveHeaderImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired = 980);
+								break;
+							default :
+								$callTo = $this->saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired = 700, $heightRequired = 500); // means items
+								break;							
+						}
+						
+						if($callTo){
+                                                    if(isset($data->from))
+							redirect($data->from);
+                                                    
+						}else{
+							$response = array('flashMessage' => $this->lang->line('stores_imageadmin_error'));
+						}
+						
+					}else{
+						$response = array('flashMessage' => $this->lang->line('stores_imageadmin_error'));
+					}
+					
+					imagedestroy($tmp);
+					imagedestroy($src);
+					unlink($tempFile);
+				}
+			}else{
+				$error_message = $this->file_upload_error_message($_FILES['image']['error']); 
+				$response = array( 'flashMessage' => $error_message,
+											  'role' => $role,
+												  'table' => $data->table,
+												  'tableID' => $data->tableID);
+			}
+			echo json_encode(array("success"=>"https://s3.amazonaws.com/".$bucketName."/".$filename.'_b.jpg'));
+			//$this->load->view('media/add_image', $data);
+
+	 	}else{
+
+	 		redirect(base_url().'stores');
+
+	 	}
+
+		
+		
+	}
+	
+	private function saveResizedImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired, $heightRequired){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			$bucketName = 'kichink';
+			$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+			$filename = $filename.'.'.$extensionFile;
+			
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				case 'jpeg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -5);
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($folder.$filename); 
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($folder.$filename); 
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+
+			
+			if($width > $widthRequired OR $height > $heightRequired){
+				if($width > $height){
+					$type = 'landscape';
+					$newWidth = $widthRequired;
+					$newHeight = $this->resize_by_width($newWidth, $width, $height);
+					$borders = ($heightRequired - $newHeight) / 2;
+				}
+				if($width < $height){
+					$type = 'portrait';
+					$newHeight = $heightRequired;
+					$newWidth = $this->resize_by_height($newHeight, $width, $height);
+					$borders = ($widthRequired - $newWidth) / 2;
+				}
+				if($width == $height AND $role=='logo'){
+					$type = 'square';
+					$newHeight = $heightRequired;
+					$newWidth = $widthRequired;
+					$borders = 0;
+				}
+				if($width == $height AND $role==''){
+					$type = 'items_square';
+					$newHeight = $heightRequired;
+					$newWidth = $heightRequired;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+				}
+			}else{
+				if($width > $height){
+					$type = 'small_landscape';
+					$newWidth = $width;
+					$newHeight = $height;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+					$borders_TopBottom = ($heightRequired - $newHeight) / 2;
+				}
+				if($width < $height){
+					$type = 'small_portrait';
+					$newWidth = $width;
+					$newHeight = $height;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+					$borders_TopBottom = ($heightRequired - $newHeight) / 2;
+				}
+				if($width == $height){
+					$type = 'small_square';
+					$newWidth = $width;
+					$newHeight = $height;
+					$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+					$borders_TopBottom = ($heightRequired - $newHeight) / 2;
+				}
+			}
+			
+			// Preparing new image
+			
+			$finalWidth = $widthRequired;
+			$finalHeight = $heightRequired;
+			
+			$tmp = imagecreatetruecolor($finalWidth, $finalHeight);
+			$border_color = imagecolorallocate($tmp, 255, 255, 255);
+			
+			switch($type){
+				case 'landscape':
+					imagefilledrectangle($tmp,0,0,$finalWidth,$borders,$border_color); // top
+					imagefilledrectangle($tmp, 0, $finalHeight - $borders -1, $finalWidth, $finalHeight - 1, $border_color); // bottom
+					imagecopyresampled($tmp,$src,0,$borders,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'portrait' :
+					imagefilledrectangle($tmp, 0, 0, $borders - 1, $finalHeight - 1, $border_color); // left 
+					imagefilledrectangle($tmp, $finalHeight - $borders, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+					imagecopyresampled($tmp,$src,$borders,0,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'square' :
+					imagefilledrectangle($tmp, 0, 0, $finalWidth, $finalHeight, $border_color); 
+					imagecopyresampled($tmp,$src,$borders,$borders,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'items_square' :
+					imagefilledrectangle($tmp, 0, 0, $borders_LeftRight - 1, $finalHeight - 1, $border_color); // left 
+					imagefilledrectangle($tmp, $finalHeight - $borders_LeftRight, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+					imagecopyresampled($tmp,$src,$borders_LeftRight,0,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+				case 'small_square' :
+				case 'small_landscape' :
+				case 'small_portrait' :
+					imagefilledrectangle($tmp, 0, 0,$finalWidth,$borders_TopBottom,$border_color); // top
+					imagefilledrectangle($tmp, 0, $finalHeight - $borders_TopBottom -1, $finalWidth, $finalHeight - 1, $border_color); // bottom
+					imagefilledrectangle($tmp, 0, 0, $borders_LeftRight - 1, $finalHeight - 1, $border_color); // left 
+					imagefilledrectangle($tmp, $finalHeight - $borders_LeftRight, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+					imagecopyresampled($tmp,$src,$borders_LeftRight,$borders_TopBottom,0,0,$newWidth,$newHeight,$width,$height);
+					break;
+					
+			}
+
+			$tempFileOriginal = tempnam('/tmp', 'FO1');
+			imagejpeg($tmp, $tempFileOriginal,75);
+
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileOriginal, $bucketName, urldecode($subFilename.'_b'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_bordered', $extension = 'jpg', $w = $finalWidth, $h = $finalHeight, $role);
+				if($role == 'logo' OR $role==''){
+					
+					$widthRequired = ($role == 'logo' ? 50 : 200);
+					$heightRequired = ($role == 'logo' ? 50 : 150);
+					
+					if($callTo = $this->saveThumbImage($media_id, $width = $finalWidth, $height = $finalHeight, $filename = $subFilename.'_b.jpg', $role, $widthRequired, $heightRequired)){
+						return true;
+					}else{
+						return false;	
+					}
+					
+				}else{
+					
+					return true;
+					
+				}
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmp);
+			imagedestroy($src);
+			unlink($tempFileOriginal);
+		
+	}
+	
+	private function saveHeaderImage($media_id, $width, $height, $extensionFile, $filename, $role, $widthRequired){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			$bucketName = 'kichink';
+			$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+			$filename = $filename.'.'.$extensionFile;
+			
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				case 'jpeg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -5);
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($folder.$filename); 
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($folder.$filename); 
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+			
+			$exception = false;
+			
+			if($width >= $widthRequired){
+				$newWidth = 980;
+				$newHeight = $this->resize_by_width($newWidth, $width, $height);
+				$borders = 0;
+			}else{
+				$newWidth = $width;
+				$newHeight = $this->resize_by_width($newWidth, $width, $height);
+				$borders = ($widthRequired - $newWidth) / 2;
+			}
+			if($newHeight < 250){
+				$exception = true;
+				$borders_LeftRight = ($widthRequired - $newWidth) / 2;
+				$borders_TopBottom = (250 - $newHeight) / 2;
+			}
+						
+			// Preparing new image
+					
+			$finalWidth = $widthRequired;
+			$finalHeight = ($exception==true ? 250 : $newHeight);
+			
+			$tmp = imagecreatetruecolor($finalWidth, $finalHeight);
+			$border_color = imagecolorallocate($tmp, 255, 255, 255);
+			
+			if($exception){
+				imagefilledrectangle($tmp, 0, 0,$finalWidth,$borders_TopBottom,$border_color); // top
+				imagefilledrectangle($tmp, 0, $finalHeight - $borders_TopBottom -1, $finalWidth, $finalHeight - 1, $border_color); // bottom
+				imagefilledrectangle($tmp, 0, 0, $borders_LeftRight - 1, $finalHeight - 1, $border_color); // left 
+				imagefilledrectangle($tmp, $finalHeight - $borders_LeftRight, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+				imagecopyresampled($tmp,$src,$borders_LeftRight,$borders_TopBottom,0,0,$newWidth,$newHeight,$width,$height);
+			}else{
+				imagefilledrectangle($tmp, 0, 0, $borders - 1, $finalHeight - 1, $border_color); // left 
+				imagefilledrectangle($tmp, $finalHeight - $borders, 0, $finalWidth - 1, $finalHeight - 1, $border_color); // right
+				imagecopyresampled($tmp,$src,$borders,0,0,0,$newWidth,$newHeight,$width,$height);
+			}
+
+			$tempFileOriginal = tempnam('/tmp', 'FO1');
+			imagejpeg($tmp, $tempFileOriginal,75);
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileOriginal, $bucketName, urldecode($subFilename.'_b'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_bordered', $extension = 'jpg', $w = $finalWidth, $h = $finalHeight, $role);
+				return true;
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmp);
+			imagedestroy($src);
+			unlink($tempFileOriginal);
+		
+	}
+
+	private function saveThumbImage($media_id, $width, $height, $filename, $role, $widthRequired, $heightRequired){
+		
+		$this->load->library('s3');
+		$this->load->model('sell_model');
+
+		$bucketName = 'kichink';
+		$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+		
+		$src = imagecreatefromjpeg($folder.$filename);
+		$subFilename = substr($filename, 0, -6);
+		
+		//Creando thumb
+		$tmpThumb = imagecreatetruecolor($widthRequired, $heightRequired);
+		imagecopyresampled($tmpThumb, $src, 0,0,0,0,$widthRequired,$heightRequired,$width,$height); 
+		$tempFileThumb = tempnam('/tmp', 'FOO');
+		imagejpeg($tmpThumb, $tempFileThumb,75);
+		
+		$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+		
+		if ($this->s3->putObjectFile($tempFileThumb, $bucketName, urldecode($subFilename.'_thumb'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+			$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_thumb', $extension = 'jpg', $w = $widthRequired, $h = $heightRequired, $role);
+			return true;
+		}else{
+			return false;
+		}
+		
+		imagedestroy($tmpThumb);
+		imagedestroy($src);
+		unlink($tempFileThumb);
+		
+	}
+	
+
+	/*
+	public function saveAviary(){
+		
+		$this->load->library('s3');
+		$bucketName = 'kichink';
+		
+		$src = imagecreatefromjpeg($_POST['url']);
+		
+		$tmpThumb = imagecreatetruecolor(200, 200);
+		imagecopyresampled($tmpThumb, $src, 0,0,0,0,200,200,160,160); 
+		$tempFileThumb = tempnam('/tmp', 'FOO');
+		imagejpeg($tmpThumb, $tempFileThumb,100);
+		
+		
+		$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+		
+		if ($this->s3->putObjectFile($tempFileThumb, $bucketName, 'one.jpg', S3::ACL_PUBLIC_READ)) {
+			return true;
+		}else{
+			return false;
+		}
+		
+		imagedestroy($tmpThumb);
+		imagedestroy($src);
+		unlink($tempFileThumb);
+		
+	}
+	
+	public function saveImageBordered($media_id, $width, $height, $extensionFile, $filename, $role){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			$bucketName = 'kichink';
+			$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+			$filename = $filename.'.'.$extensionFile;
+			
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				case 'jpeg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -5);
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($folder.$filename); 
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($folder.$filename); 
+					$subFilename = substr($filename, 0, -4);
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+						
+			$border=100; 
+			$img_adj_width=$width+(2*$border);
+			$img_adj_height=$height+(2*$border);
+			
+			$tmpOriginal = imagecreatetruecolor($img_adj_width,$img_adj_height);
+			$border_color = imagecolorallocate($tmpOriginal, 255, 255, 255);
+			imagefilledrectangle($tmpOriginal,0,0,$img_adj_width,$img_adj_height,$border_color);
+			
+			imagecopyresized($tmpOriginal,$src,$border,$border,0,0,$width,$height,$width,$height);
+
+			$tempFileOriginal = tempnam('/tmp', 'FO1');
+			imagejpeg($tmpOriginal, $tempFileOriginal,100);
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileOriginal, $bucketName, urldecode($subFilename.'_b'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($media_id, $bucketName, $type='img_bordered', $extension = 'jpg', $w = $img_adj_width, $h = $img_adj_height, $role);
+				return true;
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmpOriginal);
+			imagedestroy($src);
+			unlink($tempFileOriginal);
+		
+	}
+
+	
+	public function saveCrop(){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			$dataFile = $this->sell_model->getMedia($this->input->post('media_id'), $type ='img_bordered');
+			$extensionFile = $dataFile[0]->extension; 
+			$bucketName = 'kichink';
+			$width = $dataFile[0]->width;
+			$height = $dataFile[0]->height;
+			$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+			$filename = urlencode($this->input->post('filename'));
+			
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -6);
+       			break;
+				case 'jpeg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -7);
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($folder.$filename); 
+					$subFilename = substr($filename, 0, -6);
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($folder.$filename); 
+					$subFilename = substr($filename, 0, -6);
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+			
+			if ($width < 700){
+				//$crop_h = $height;
+				//$crop_w = $width; 
+				$crop_h = $this->input->post('h');
+				$crop_w = $this->input->post('w');
+			} else {
+				$crop_w = 700;
+				$crop_h = 500; 
+			}
+			
+			// Cropping original
+			$tmpOriginal = imagecreatetruecolor($crop_w, $crop_h);
+			imagecopyresampled($tmpOriginal, $src, 0,0,$this->input->post('x'), $this->input->post('y'), $crop_w ,$crop_h, $this->input->post('w'),$this->input->post('h'));
+			$tempFileOriginal = tempnam('/tmp', 'FO1');
+			imagejpeg($tmpOriginal, $tempFileOriginal,100);
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileOriginal, $bucketName, urldecode($subFilename.'_cropped'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($this->input->post('media_id'), $bucketName, $type='img_cropped', $extension = 'jpg', $w = $crop_w, $h = $crop_h, $role=$dataFile[0]->role);
+				return true;
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmpOriginal);
+			imagedestroy($src);
+			unlink($tempFileOriginal);
+		
+	}
+	
+	public function saveThumb(){
+		
+			$this->load->library('s3');
+			$this->load->model('sell_model');
+			//$extensionFile = $this->sell_model->get_extensionFile($this->input->post('media_idThumbnail'));
+			$extensionFile = 'jpg';
+
+			$targ_w = 128;
+			$targ_h = 128;
+			$bucketName = 'kichink';
+			$folder = 'https://s3.amazonaws.com/'.$bucketName.'/';
+			$filename = urlencode($this->input->post('filenameThumbnail'));
+			
+			switch ($extensionFile){
+				case 'jpg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -6);
+       			break;
+				case 'jpeg':
+            		$src = imagecreatefromjpeg($folder.$filename);
+					$subFilename = substr($filename, 0, -7);
+       			break;
+				case 'png':
+            		$src = imagecreatefrompng($folder.$filename); 
+					$subFilename = substr($filename, 0, -6);
+       			break;
+				case 'gif':
+            		$src = imagecreatefromgif($folder.$filename); 
+					$subFilename = substr($filename, 0, -6);
+       			break;
+				default:
+					$src = false;
+				break;
+			}
+
+			// Cropping thumb
+			$tmpThumb = imagecreatetruecolor($targ_w, $targ_h);
+			imagecopyresampled($tmpThumb, $src, 0,0,$this->input->post('xThumbnail'),$this->input->post('yThumbnail'),$targ_w,$targ_h,$this->input->post('wThumbnail'),$this->input->post('hThumbnail'));
+			$tempFileThumb = tempnam('/tmp', 'FOO');
+			imagejpeg($tmpThumb, $tempFileThumb,100);
+			
+			$this->s3->putBucket($bucketName,S3::ACL_PUBLIC_READ);
+			
+			if ($this->s3->putObjectFile($tempFileThumb, $bucketName, urldecode($subFilename.'_thumb'.'.jpg'), S3::ACL_PUBLIC_READ)) {
+				$this->sell_model->insert_media_file($this->input->post('media_idThumbnail'), $bucketName, $type='img_thumb', $extension = 'jpg', $w = $targ_w, $h = $targ_h, $role=$this->input->post('role'));
+				return true;
+			}else{
+				return false;
+			}
+			
+			imagedestroy($tmpThumb);
+			imagedestroy($src);
+			unlink($tempFileThumb);
+		
+	}*/
+	
+	public function file_upload_error_message($error_code) 
+	{
+		switch ($error_code) {
+			case UPLOAD_ERR_INI_SIZE:
+				return $this->lang->line('stores_imageadmin_error_tooBig');
+				break;
+			case UPLOAD_ERR_FORM_SIZE:
+				return $this->lang->line('stores_imageadmin_error_tooBig');
+				break;
+			case UPLOAD_ERR_PARTIAL:
+				return $this->lang->line('stores_imageadmin_error_partially');
+				break;
+			case UPLOAD_ERR_NO_FILE:
+				return $this->lang->line('stores_imageadmin_error_noFile');
+				break;
+			case UPLOAD_ERR_NO_TMP_DIR:
+				return $this->lang->line('stores_imageadmin_error_missing');
+				break;
+			case UPLOAD_ERR_CANT_WRITE:
+				return $this->lang->line('stores_imageadmin_error_failed');
+				break;
+			case UPLOAD_ERR_EXTENSION:
+				return $this->lang->line('stores_imageadmin_error_stopped');
+				break;
+			default:
+				return $this->lang->line('stores_imageadmin_error_unknown');
+				break;
+		}
+	} 
+	
+	function resize_by_height($newHeight, $width, $height)  
+	{  
+		$ratio = $width / $height;  
+		$newWidth = $newHeight * $ratio;  
+		return $newWidth;  
+	}  
+	  
+	function resize_by_width($newWidth, $width, $height)  
+	{  
+		$ratio = $height / $width;  
+		$newHeight = $newWidth * $ratio;  
+		return $newHeight;  
+	}  
+
+	// Functions taken from File Uploading Class
+
+	private function _file_mime_type($file)
+	{
+		// Use if the Fileinfo extension, if available (only versions above 5.3 support the FILEINFO_MIME_TYPE flag)
+		if ( (float) substr(phpversion(), 0, 3) >= 5.3 && function_exists('finfo_file'))
+		{
+			$finfo = new finfo(FILEINFO_MIME_TYPE);
+			if ($finfo !== FALSE) // This is possible, if there is no magic MIME database file found on the system
+			{
+				$file_type = $finfo->file($file['tmp_name']);
+
+				/* According to the comments section of the PHP manual page,
+				 * it is possible that this function returns an empty string
+				 * for some files (e.g. if they don't exist in the magic MIME database)
+				 */
+				if (strlen($file_type) > 1)
+				{
+					return $file_type;					
+				}
+			}
+		}
+
+		// Fall back to the deprecated mime_content_type(), if available
+		if (function_exists('mime_content_type'))
+		{
+			return $file_type = @mime_content_type($file['tmp_name']);
+		}
+
+		/* This is an ugly hack, but UNIX-type systems provide a native way to detect the file type,
+		 * which is still more secure than depending on the value of $_FILES[$field]['type'].
+		 *
+		 * Notes:
+		 *	- a 'W' in the substr() expression bellow, would mean that we're using Windows
+		 *	- many system admins would disable the exec() function due to security concerns, hence the function_exists() check
+		 */
+		if (DIRECTORY_SEPARATOR !== '\\' && function_exists('exec'))
+		{
+			$output = array();
+			@exec('file --brief --mime-type ' . escapeshellarg($file['tmp_path']), $output, $return_code);
+			if ($return_code === 0 && strlen($output[0]) > 0) // A return status code != 0 would mean failed execution
+			{
+				return $file_type = rtrim($output[0]);
+			}
+		}
+
+		return $file['type'];
+	}
+
+	private function normalize_image_type($type)
+	{
+		// IE will sometimes return odd mime-types during upload, so here we just standardize all
+		// jpegs or pngs to the same file type.
+
+		$png_mimes  = array('image/x-png');
+		$jpeg_mimes = array('image/jpg', 'image/jpe', 'image/jpeg', 'image/pjpeg');
+
+		if (in_array($type, $png_mimes))
+		{
+			$type = 'image/png';
+		}
+
+		if (in_array($type, $jpeg_mimes))
+		{
+			$type = 'image/jpeg';
+		}
+
+		return $type;
+
+	}
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

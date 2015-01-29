@@ -1,0 +1,171 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Stores extends CI_Controller {
+
+    var $sitio = 'SELL';
+
+    function __construct() {
+        parent::__construct();
+        checkForSession();
+        geoIP();
+    }
+
+    /**
+     * Index Page for this controller.
+     *
+     * Shows all stores of a particular user
+     */
+   public function index()
+	{
+		if($this->session->userdata('admin_client_stores')){
+			redirect('/stores/id/22');
+			return false;
+		}
+
+		$this->load->model('sell_model');
+		$user_id 	= $this->session->userdata('user_id');
+
+		$data['stores'] = $this->sell_model->get_all_user_stores();
+
+		if($data['stores']['stores']){
+
+			$store_id = $data['stores']['stores'][0]->id;
+			redirect('/stores/id/'.$store_id );
+
+		}else{
+
+			$data['stores'] = false;
+			$this->load->view('stores/index_view', $data);
+		}
+
+	}
+
+    public function id() {
+        if (!$storeId = $this->uri->segment(3)) {
+            page_not_found();
+        } else {
+            $data["store"] = new stdClass();
+            $data["store"]->id = $storeId;
+            $this->load->view('v2/stores/id_view', $data);
+        }
+    }
+
+    public function add_store() {
+        $this->load->model('sell_model');
+
+        $validate = $this->validate_add_store();
+
+        if (!$validate) {
+
+            $store = $this->input->post('store_name');
+            // Validate -> Process -> Store
+            if ($store_id = $this->sell_model->insert_store($store)) {
+                // Redirect
+                echo json_encode(array('msg' => 'Success', 'datos' => $store_id));
+                //redirect('stores/id/'.$store_id);
+            } else {
+                echo json_encode(array('msg' => 'error', 'datos' => 'Ha ocurrido un error'));
+            }
+        } else {
+
+            echo json_encode(array('msg' => 'error', 'datos' => $validate));
+        }
+    }
+
+    public function payments() {
+        if (!$storeId = $this->uri->segment(3)) {
+            page_not_found();
+        } else {
+            if ($paymentId = $this->uri->segment(4)) {
+                $data["store"] = new stdClass();
+                $data["store"]->id = $storeId;
+                $data["payment"]->id = $paymentId;
+                $this->load->view('v2/payments/details_view', $data);
+            }else{
+                $data["store"] = new stdClass();
+                $data["store"]->id = $storeId;
+                $this->load->view('v2/payments/payments_store_view', $data);
+            }
+        }
+    }
+
+    public function paymentdetails() {
+        if (!$storeId = $this->uri->segment(3) && !$paymentId = $this->uri->segment(4)) {
+            page_not_found();
+        } else {
+            $data["store"] = new stdClass();
+            $data["store"]->id = $storeId;
+            $data["payment"]->id = $paymentId;
+            $this->load->view('v2/payments/details_view', $data);
+        }
+    }
+
+    public function apps() {
+
+        if (!$storeId = $this->uri->segment(3)) {
+            page_not_found();
+        } else {
+            $data["store"] = new stdClass();
+            $data["store"]->id = $storeId;
+            $this->load->view('v2/stores/apps_view', $data);
+        }
+    }
+
+    public function preview() {
+
+        $store_id = $this->uri->segment(3);
+
+        if (!$store_id) {
+
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            $category = $this->uri->segment(4);
+
+            // Agregue un objeto que traiga los datos de la tienda para poder actualizar el titulo y descripcion
+            $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            $data['items_store'] = $this->sell_model->get_all_store_items($store_id, $category);
+            $data['store_categories'] = $CI->shared_model->get_store_categories($store_id, $this->sitio);
+
+            $this->load->view('stores/id_preview_view_2', $data);
+        }
+    }
+
+    public function settings() {
+
+        if (!$storeId = $this->uri->segment(3)) {
+            page_not_found();
+        } else {
+            $data["store"] = new stdClass();
+            $data["store"]->id = $storeId;
+            $data["option"] = ($this->uri->segment(4));
+            
+            $this->load->model('sell_model');
+            $CI =& get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+            $data['admins']= $this->sell_model->get_admins($storeId);
+            
+            $this->load->view('v2/stores/settings_view', $data);
+        }
+    }
+
+    public function setting_tab() {
+        $tab = $this->input->post('tab');
+        $this->session->set_userdata('settings_tab', $tab);
+    }
+
+}
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

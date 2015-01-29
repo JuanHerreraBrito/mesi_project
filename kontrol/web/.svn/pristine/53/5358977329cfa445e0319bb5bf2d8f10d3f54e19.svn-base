@@ -1,0 +1,71 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class B2b extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function authorize_accounts()
+	{	
+
+		$store_id = $this->uri->segment(3);
+		if(!$store_id){
+			page_not_found();
+			return false;
+		}
+
+		// Check user_perm
+		checkForPermission($this->session->userdata('user_id'), array('store_id' => $store_id), 'stores');
+
+		$q = $this->db->get_where('b2b_access_request', array('store_id'=>$store_id,
+															  'status'=> NULL,
+															  'deleted !='=> 1));
+		$data['user_requests'] = $q->result();
+		
+		
+
+		$this->db->select('users.id, users.name, users.email, users.telefono, b2b_access.active');
+		$this->db->join('users', 'b2b_access.user_id = users.id');
+		$q = $this->db->get_where('b2b_access', array('store_id'=>$store_id));
+		$data['accepted_users'] = $q->result();
+		
+		$this->load->view('b2b/auth_view', $data);
+	    
+	}
+	
+	/*
+$this->load->model('sell_model');
+		
+		$data['user_terms_checked'] = false;
+
+		$q = $this->db->get_where('users', array('id' => $this->session->userdata('user_id'), 'sell_terms' => 1));
+
+		if($r = $q->result()){
+			$data['user_terms_checked'] = true;
+		}
+
+		$data['user_stores'] = $this->sell_model->get_all_user_stores();
+		$data['tuto'] 		 = $this->sell_model->get_tuto('stores');
+
+		//print_r($data['user_stores']);
+		$this->load->view('stores/index_view', $data);
+*/
+	
+	
+
+	
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

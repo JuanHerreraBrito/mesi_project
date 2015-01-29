@@ -1,0 +1,161 @@
+/* 
+ * V2 Sell.Kichink
+ * Payments
+ */
+
+$(document).ready(function() {
+
+    $("#pending-payments").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            time_ago: "time_ago"
+        },
+        dataTable: {
+            "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+            "sPaginationType": "bootstrap",
+            "bFilter": false,
+            "bInfo": false,
+            "oLanguage": {
+                "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                "sLengthMenu": "Show _MENU_",
+                "sPrevious": "",
+                "sNext": ""
+            }
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: kontrol_lang['payments_view_detail']",
+                type: "href",
+                href:'/stores/payments/' + store_id + '/'
+            }]
+    });
+
+    $("#closed-payments").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            time_ago: "time_ago"
+        },
+        dataTable: {
+            "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+            "sPaginationType": "bootstrap",
+            "bFilter": false,
+            "bInfo": false,
+            "oLanguage": {
+                "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                "sLengthMenu": "Show _MENU_",
+                "sPrevious": "",
+                "sNext": ""
+            }
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: kontrol_lang['payments_view_detail'],
+                type: "href",
+                href:'/stores/payments/' + store_id + '/'
+                
+            }],
+    });
+
+    $("#available-payments").DinamicTable({
+        tableClass: "table table-responsive transparent",
+        numered: false, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            status: "label",
+            total_price: "money",
+            time_ago: "time_ago"
+        },
+        dataTable: {
+            "bFilter": false,
+            "bInfo": false,
+            "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                "sLengthMenu": "Show _MENU_",
+                "sPrevious": "",
+                "sNext": ""
+            }
+        },
+        actions: [//Tpdas las acciones que quiero agregar
+            {
+                label: kontrol_lang['payments_view_detail'],
+                type: "href",
+                href:'/stores/payments/' + store_id + '/'
+            }]
+    });
+
+    call_api('/api/pagos/get_pagos_sell', 'post', {store_id: store_id, status: "pending", page: 1, limit: 1000}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+        if (obj.data.length > 0) {
+            $("#pending-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#pending-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#pending-payments").data().DinamicTable.methods.drawTable();
+            $("#getdeposit.well").show();
+        } else {
+            $("#pending-payments").html("<span class='no'>"+kontrol_lang['payments_no_pending']+"</span>");
+            $("#getdeposit.well").remove();
+        }
+    });
+
+    call_api('/api/pagos/get_pagos_sell', 'post', {store_id: store_id, status: "closed", page: 1, limit: 1000}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+        if (obj.data.length > 0) {
+            $("#closed-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#closed-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#closed-payments").data().DinamicTable.methods.drawTable();
+            $("#getdeposit.well").show();
+        } else {
+            $("#closed-payments").html("<span class='no'>"+kontrol_lang['payments_no_deposits']+"</span>");
+            $("#getdeposit.well").remove();
+        }
+    });
+
+
+    call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "available", page: 1, limit: 1000}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+        if (obj.data.length > 0) {
+            $("#available-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#available-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#available-payments").data().DinamicTable.methods.drawTable();
+            $("#getdeposit.well").show();
+        } else {
+            $("#available-payments").html("<span class='no'>"+kontrol_lang['payments_no_payments']+"</span>");
+            $("#getdeposit.well").remove();
+        }
+    });
+
+
+    $("#solicitar-deposito-btn").click(function() {
+        call_api('/api/pagos/solicitar_deposito', 'post', {store_id: store_id}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+
+            var text = kontrol_lang['payments_requests_1'] + obj.data.fecha_pago +
+                    kontrol_lang['payments_requests_2'] + obj.data.banco_cuenta + kontrol_lang['payments_requests_3'] + obj.data.nombre_cuenta;
+
+            $("#modal-pagos").find(".modal-body").html(text);
+            $("#modal-pagos").modal("show");
+
+            $("#modal-pagos .btn-primary").click(function() {
+                call_api('/api/pagos/confirmar_solicitud_deposito', 'post', {store_id: store_id}, function(data) {
+                    $("#modal-pagos").remove();
+                    $("#getdeposit.well").remove();
+                });
+
+            });
+        });
+    });
+
+
+});

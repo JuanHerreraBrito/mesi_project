@@ -17,67 +17,6 @@
       </script>         
       <script type="text/javascript" src="jquery.js">
       </script>
-	<script type="text/javascript">
-	    $(document).ready(function()
-	    {
-	      $('#open').click(function()
-	      {
-		  $('#popup').fadeIn('slow');
-		  $('.popup-overlay').fadeIn('slow');
-		  $('.popup-overlay').height($(window).height());
-		  return false;
-	      });
-    
-	     $('#close').click(function()
-	     {
-	      $('#popup').fadeOut('slow');
-	      $('.popup-overlay').fadeOut('slow');
-	      return false;
-	    });
-	  
-	  /* mas js document.ready*/	 
-	      
-	      
-	      $('#submit').click(function()
-	      {
-		var user = $('#user').val();
-		var password = $('#password').val();
-		  if(user=='' || password =='')
-		  {
-		    alert('No dejar campos en blanco');
-		    $('#user').focus();
-		  }
-		  else{
-		  
-		    $.post('../../../kontrol/index.php/welcome/valid',
-			    { 'user':user,
-			     'password':password
-			    }, 
-			    
-			      function(result)	
-			      {
-				  if(result)
-				  {
-				    
-				    alert(result);
-				     $('#popup').fadeOut('slow');
-				      $('.popup-overlay').fadeOut('slow');
-				      window.location.href="../../../kontrol/index.php/welcome/active_ar";
-				      return false;
-				  }
-				  
-				  else{
-				  alert("Usuario o Contraseña Incorrecto");
-				  $('#user').focus();
-				  }
-				  
-			      }
-			  );		 
-		  }  
-		  
-	      });
-	        
-	});
-      </script>
+	<script type="text/javascript" src="http://mena.site88.net/mesi/kontrol/conten/js/header.js" > </script>
     </head> 
     <!-- cuerpo -->

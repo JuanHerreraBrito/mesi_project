@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>
+            <?= (isset($page_title) ? $page_title : $this->lang->line('kichink_html_title') . ' -- Kichink') ?>
+        </title>
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <!-- Le javascript -->
+        <script type="text/javascript" src="/js/jquery.js"></script>
+        <script type="text/javascript" src="/js/bootstrap.js"></script>
+        <script type="text/javascript" src="/js/feather.js"></script>
+        <script type="text/javascript" src="/js/jquery.callapi.js"></script>
+        <script type="text/javascript" src="/js/jquery.cycle.all.js"></script>
+        <script type="text/javascript" src="/js/jquery-ui-1.8.18.custom.min.js"></script>
+        <script type="text/javascript" src="/js/autoNumeric-1.7.4.js"></script>
+        <script type="text/javascript" src="/js/jquery.miniColors.js"></script>
+        <script type="text/javascript" src="/js/intro.js"></script>
+
+    <!--<script type="text/javascript" src="https://github.com/danbentley/placeholder/blob/master/js/jquery.placeholder.js"></script>-->
+
+
+        <!-- Le styles -->
+        <!--link href="/bootstrap/bootstrap.css" rel="stylesheet"-->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css">        <!--link href="/bootstrap3/css/bootstrap.min.css" rel="stylesheet"/-->
+        <link href="/bootstrap3/css/bootstrap-theme.css" rel="stylesheet"/>
+        <link href="/bootstrap3/css/style.css" rel="stylesheet"/>    
+        <link href="/css/sell_layout.css" rel="stylesheet">
+        <link href="/css/jquery.Jcrop.css" rel="stylesheet">
+        <link href="/css/jquery.miniColors.css" rel="stylesheet">
+        <link href="/css/custom-theme/jquery-ui-1.8.18.custom.css" rel="stylesheet" />  
+        <link href="/css/introjs.css" rel="stylesheet" />  
+
+        <!--[if lte IE 8]>
+        <link href="/css/introjs-ie.css" rel="stylesheet" />
+        <![endif]-->
+
+        <style type="text/css">
+            /* Override some defaults */
+            html, body {
+                background-color: #eee;
+            }
+
+            .container > footer p {
+                text-align: center; /* center align it with the container */
+            }
+            .container {
+                /* width: 820px; */ /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
+            }
+
+            /* The white background content wrapper */
+            .content {
+                background-color: #fff;
+                padding: 20px;
+                margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
+                -webkit-border-radius: 0 0 6px 6px;
+                -moz-border-radius: 0 0 6px 6px;
+                border-radius: 0 0 6px 6px;
+                -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                box-shadow: 0 1px 2px rgba(0,0,0,.15);
+            }
+
+            /* Page header tweaks */
+            .page-header {
+                background-color: #f5f5f5;
+                padding: 20px 20px 10px;
+                margin: -20px -20px 20px;
+            }
+
+            /* Styles you shouldn't keep as they are for displaying this base example only */
+            .content .span10,
+            .content .span4 {
+                min-height: 500px;
+            }
+            /* Give a quick and non-cross-browser friendly divider */
+            .content .span4 {
+                margin-left: 0;
+                padding-left: 19px;
+                border-left: 1px solid #eee;
+            }
+
+            .topbar .btn {
+                border: 0;
+            }
+            <?
+            if (isset($back)) {
+
+                $from = $back;
+                $to = $back;
+                $fontColor = $text;
+            } else {
+
+                $fontColor = '#FFFFFF';
+                $from = '#532E63';
+                $to = '#532E63';
+            }
+            ?>
+            .items-price{
+                color: <?= $fontColor ?>;
+                background-color: <?= $from ?>;
+                background-repeat: repeat-x;
+                background-image: -khtml-gradient(linear, left top, left bottom, from(<?= $from ?>), to(<?= $to ?>));
+                background-image: -moz-linear-gradient(top, <?= $from ?>, <?= $to ?>);
+                background-image: -ms-linear-gradient(top, <?= $from ?>, <?= $to ?>);
+                background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, <?= $from ?>), color-stop(100%, <?= $to ?>));
+                background-image: -webkit-linear-gradient(top, <?= $from ?>, <?= $to ?>);
+                background-image: -o-linear-gradient(top, <?= $from ?>, <?= $to ?>);
+                background-image: linear-gradient(top, <?= $from ?>, <?= $to ?>);
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='<?= $from ?>', endColorstr='<?= $to ?>', GradientType=0);
+            }
+
+        </style>
+
+        <!-- Le fav and touch icons -->
+        <link href="<?= base_url() ?>img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/img/icons/apple-touch-icon-72x72.png">
+
+        <link rel="apple-touch-icon" sizes="114x114" href="/img/icons/apple-touch-icon-114x114.png">
+    </head>
+    <? $usrPref = getUsrPref($this->session->userdata('user_id')); ?>
+
+    <body>
+        <!------------header-------------------->
+        <header class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+                <button class="navbar-toggle" data-target=".bs-navbar-collapse" data-toggle="collapse" type="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../"><img src="/bootstrap3/img/logo.png" alt="KICHINK!"/></a>
+            </div>
+
+            <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                <ul class="nav navbar-nav ">
+                     <li>
+                        <a href="javascript:SnapABug.startLink();"><?= $this->lang->line('header_menu_help_text'); ?></a>
+                    </li>   
+                    
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <?= $usrPref->usr_language == 'es' ? $this->lang->line('dropdown_menu_option_es') : $this->lang->line('dropdown_menu_option_en'); ?>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" id='languagedrowdown'>
+                            <li role="presentation" class="dropdown-header"><?= $this->lang->line('dropdown_menu_language'); ?></li>
+                            <li>
+                                <a data-value='es' <?=$usrPref->usr_language == 'es'?"class='selected'":""?> href="javascript:void(0);"><?= $this->lang->line('dropdown_menu_option_es') ?></a>
+                            </li>
+                            <li>
+                                <a data-value='en' <?=$usrPref->usr_language == 'en'?"class='selected'":""?> href="javascript:void(0);"><?= $this->lang->line('dropdown_menu_option_en') ?></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <?= $usrPref->usr_country == 'MX' ? "MX" : 'US' ?>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li role="presentation" class="dropdown-header"><?= $this->lang->line('dropdown_menu_country'); ?></li>
+                            <li>
+                                <a href="#">MX</a>
+                            </li>
+                            <li>
+                                <a href="#">US</a>
+                            </li>
+                        </ul>
+                    </li-->
+                   
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <?= $this->session->userdata('name'); ?>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li role="presentation" class="dropdown-header"><?= $this->session->userdata('name'); ?></li>
+                            <li>
+                                <a href="<?= base_url() ?>user"><?= $this->lang->line('userProfile_title_text') ?></a>
+                            </li>
+                            <li>
+                                <a href="<?= base_url() ?>login/doLogout"><?= $this->lang->line('header_menu_logout_text'); ?></a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                </ul>
+            </nav>
+        </header>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#languagedrowdown').find("a").each(function(i, e) {
+                    $(e).click(function() {
+                        //var pais = $('#pais-options').val();
+                        if(!$(this).hasClass("selected")){
+                        var lang = $(this).data().value;
+                            $.post("<?= base_url() ?>login/usrPref", {lang: lang},
+                            function(data) {
+                                location.reload();
+                            });
+                        }
+                    });
+                });
+            });
+        </script>

@@ -1,0 +1,230 @@
+#sortable_items{
+    padding:0;
+    margin:0;
+    list-style: none;
+}
+
+.items{
+    display:inline-block;
+    padding-bottom: 30px;
+    width:100%;
+}
+
+.floatcategories h4{
+    margin-left:10px;
+}
+.floatcategories{
+    display: none;
+    float: right;
+    position: absolute;
+    background: white;
+    z-index: 101;
+    padding: 0 10px 10px;
+    border: 1px solid #CCC;
+    box-shadow: 0px 4px 4px #DDD;
+    width: 300px;
+    color: #666;
+    top:73px;
+    right:15px;
+    border-radius: 5px;
+}
+.piquito{
+    background: url(/img/triangulito_globo.png) no-repeat top right;
+    width: 22px;
+    height: 8px;
+    border: none;
+    margin-top: -6px;
+    float: right;
+}
+
+.itemBox {
+    float: left;
+    margin: 10px 15px 10px 0;
+    width: 160px;
+    height: 220px;
+    overflow: hidden;
+    background: #FFFFFF;
+    box-shadow: 1px 2px 3px #ccc;
+    border: 1px solid #ccc;
+}
+
+
+.itemBox input[type=checkbox]{
+    position: absolute;
+    margin-top:7px;
+    margin-left:7px;
+}
+
+div.itemList img,.itemBox .live{
+    display:none;
+}
+
+div.itemList {
+    border:none;
+    background: none;
+    margin-top:5px;
+}
+
+.itemList input[type=checkbox]{
+    margin: 0 10px 0 5px;
+}
+
+.itemList .img, .itemBox .img{
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;    
+}
+
+.itemBox .img{
+    height: 158px;
+    width: 158px;
+    border-bottom: 1px solid #e2e2e2;
+}
+
+li .live{
+    color:#999;
+}
+
+li .price{
+    font-size: 12px;
+    color:#999;
+    float:right;
+    padding:5px;
+}
+
+li.itemBox .price{
+    display:none;
+}
+
+li.itemBox a, li.itemList a{
+    color:#666;
+    font-size: 13px;
+}
+
+li.itemList a:hover{
+    color:#3dc5f5;
+}
+
+li.itemList a{
+    display: inline-block;
+    width:60%;
+}
+
+li.itemBox a:hover{
+    text-decoration: none;
+}
+
+.itemBox p{
+    padding: 5px;
+    text-align: center;
+}
+
+itemBox a{
+    cursor: pointer;
+    font-weight:bold;
+}
+
+.itemList {
+    display: block;
+    float: none;
+    min-height: 40px !important;
+    border: 1px solid #e2e2e2;
+    padding: 5px;
+    margin: -1px 0 0 0;
+    overflow: hidden;
+    border-collapse: collapse;
+    height: 42px;
+    background: #FFFFFF;
+    cursor: move;
+    width: 90%;
+}
+
+.itemList:hover{
+    background: #ececec;
+}
+
+.itemBox button{
+    width:100%;
+    border-radius: 0;
+}
+
+.itemList .img{
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+    margin-right: 5px;
+    float:left;
+}
+
+.itemList p{
+    display:inline-block;
+    margin-top: 5px;
+}
+
+.options-itemlist{
+    margin:15px 0;
+    height:40px;
+}
+
+div.search{
+    max-width:280px;
+    padding: 0px; 
+    position: absolute; 
+    top: 0px;
+    width: 0; 
+    overflow: hidden; 
+    background: #2d2f3d;
+}
+
+div.search input[type=text]{
+    margin: 10px;
+    background-color: #44495c;
+    color: #ccc;
+    border: none;
+    height: 30px;
+    border-radius:5px;
+    padding-right: 24px;
+}
+
+div.search span{
+    top: 18px;
+    color: #9a79a8;
+    z-index: 10000;
+    position: absolute;
+    right: 26px;
+}
+
+#incomplete-profile{
+    min-width: 300px;
+}
+
+#incomplete-profile a:first-child{
+    float: left;
+    height: 50px;
+    overflow: hidden;
+    padding: 4px 10px;
+    color:#e2e2e2;
+}
+
+#incomplete-profile span.tip{
+    margin: 1px 0 0 0;
+    font-weight: lighter;
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#incomplete-profile .progress{
+    height: 15px;
+    background: #2d2f3d;
+    margin: 3px 0 0 0;
+}
+.allstores .caret{
+
+}
+.allstores .currname{
+
+}
+#my-stores{
+    min-width: 280px;
+}

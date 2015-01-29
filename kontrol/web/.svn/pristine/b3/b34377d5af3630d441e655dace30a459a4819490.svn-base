@@ -1,0 +1,131 @@
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+/*
+| -------------------------------------------------------------------
+| DATABASE CONNECTIVITY SETTINGS
+| -------------------------------------------------------------------
+| This file will contain the settings needed to access your database.
+|
+| For complete instructions please consult the 'Database Connection'
+| page of the User Guide.
+|
+| -------------------------------------------------------------------
+| EXPLANATION OF VARIABLES
+| -------------------------------------------------------------------
+|
+|	['hostname'] The hostname of your database server.
+|	['username'] The username used to connect to the database
+|	['password'] The password used to connect to the database
+|	['database'] The name of the database you want to connect to
+|	['dbdriver'] The database type. ie: mysql.  Currently supported:
+				 mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
+|	['dbprefix'] You can add an optional prefix, which will be added
+|				 to the table name when using the  Active Record class
+|	['pconnect'] TRUE/FALSE - Whether to use a persistent connection
+|	['db_debug'] TRUE/FALSE - Whether database errors should be displayed.
+|	['cache_on'] TRUE/FALSE - Enables/disables query caching
+|	['cachedir'] The path to the folder where cache files should be stored
+|	['char_set'] The character set used in communicating with the database
+|	['dbcollat'] The character collation used in communicating with the database
+|				 NOTE: For MySQL and MySQLi databases, this setting is only used
+| 				 as a backup if your server is running PHP < 5.2.3 or MySQL < 5.0.7
+|				 (and in table creation queries made with DB Forge).
+| 				 There is an incompatibility in PHP with mysql_real_escape_string() which
+| 				 can make your site vulnerable to SQL injection if you are using a
+| 				 multi-byte character set and are running versions lower than these.
+| 				 Sites using Latin-1 or UTF-8 database character set and collation are unaffected.
+|	['swap_pre'] A default table prefix that should be swapped with the dbprefix
+|	['autoinit'] Whether or not to automatically initialize the database.
+|	['stricton'] TRUE/FALSE - forces 'Strict Mode' connections
+|							- good for ensuring strict SQL while developing
+|
+| The $active_group variable lets you choose which connection group to
+| make active.  By default there is only one group (the 'default' group).
+|
+| The $active_record variables lets you determine whether or not to load
+| the active record class
+*/
+
+$active_group = 'Kichink_Prod_AWS_201210';
+$active_record = TRUE;
+
+
+//// AWS
+//Desarrollo
+
+$db['Kichink_Prod_AWS_201210']['hostname'] = 'kichink-dev.cdv34f5kpsyt.us-east-1.rds.amazonaws.com';// 'mysql50-91.wc1.dfw1.stabletransit.com'; //
+$db['Kichink_Prod_AWS_201210']['username'] = 'kichink_MPvVRKWv';
+$db['Kichink_Prod_AWS_201210']['password'] = '9E7v(hQ9M9gQf8<H$4Gv';
+$db['Kichink_Prod_AWS_201210']['database'] = 'Kichink_Prod_AWS_201210';
+$db['Kichink_Prod_AWS_201210']['dbdriver'] = 'mysql';
+$db['Kichink_Prod_AWS_201210']['dbprefix'] = '';
+$db['Kichink_Prod_AWS_201210']['pconnect'] = TRUE;
+$db['Kichink_Prod_AWS_201210']['db_debug'] = TRUE;
+$db['Kichink_Prod_AWS_201210']['cache_on'] = FALSE;
+$db['Kichink_Prod_AWS_201210']['cachedir'] = '';
+$db['Kichink_Prod_AWS_201210']['char_set'] = 'utf8';
+$db['Kichink_Prod_AWS_201210']['dbcollat'] = 'utf8_general_ci';
+$db['Kichink_Prod_AWS_201210']['swap_pre'] = '';
+$db['Kichink_Prod_AWS_201210']['autoinit'] = TRUE;
+$db['Kichink_Prod_AWS_201210']['stricton'] = FALSE;
+
+
+//Kichink_Prod_AWS_log
+
+$db['kichink_log']['hostname'] = 'kichink-db-aws-1.cdv34f5kpsyt.us-east-1.rds.amazonaws.com';// 'mysql50-91.wc1.dfw1.stabletransit.com'; //
+$db['kichink_log']['username'] = 'k1ch1nk';
+$db['kichink_log']['password'] = 'dJx>gL&fLNkuc%n';
+$db['kichink_log']['database'] = 'Kichink_Prod_AWS_log';
+$db['kichink_log']['dbdriver'] = 'mysql';
+$db['kichink_log']['dbprefix'] = '';
+$db['kichink_log']['pconnect'] = TRUE;
+$db['kichink_log']['db_debug'] = TRUE;
+$db['kichink_log']['cache_on'] = FALSE;
+$db['kichink_log']['cachedir'] = '';
+$db['kichink_log']['char_set'] = 'utf8';
+$db['kichink_log']['dbcollat'] = 'utf8_general_ci';
+$db['kichink_log']['swap_pre'] = '';
+$db['kichink_log']['autoinit'] = TRUE;
+$db['kichink_log']['stricton'] = FALSE;
+
+
+/// OLD
+
+$db['localhost']['hostname'] = 'localhost:8889';// 'mysql50-91.wc1.dfw1.stabletransit.com'; //
+$db['localhost']['username'] = 'root';
+$db['localhost']['password'] = 'root';
+$db['localhost']['database'] = '578454_kichink_1';
+$db['localhost']['dbdriver'] = 'mysql';
+$db['localhost']['dbprefix'] = '';
+$db['localhost']['pconnect'] = TRUE;
+$db['localhost']['db_debug'] = TRUE;
+$db['localhost']['cache_on'] = FALSE;
+$db['localhost']['cachedir'] = '';
+$db['localhost']['char_set'] = 'utf8';
+$db['localhost']['dbcollat'] = 'utf8_general_ci';
+$db['localhost']['swap_pre'] = '';
+$db['localhost']['autoinit'] = TRUE;
+$db['localhost']['stricton'] = FALSE;
+
+$db['default']['hostname'] = '174.143.132.205';// 'mysql50-91.wc1.dfw1.stabletransit.com'; //
+$db['default']['username'] = '578454_kichink_1';
+$db['default']['password'] = 'eCkBpAyZXDJt9w6uy';
+$db['default']['database'] = '578454_kichink_1';
+$db['default']['dbdriver'] = 'mysql';
+$db['default']['dbprefix'] = '';
+$db['default']['pconnect'] = TRUE;
+$db['default']['db_debug'] = TRUE;
+$db['default']['cache_on'] = FALSE;
+$db['default']['cachedir'] = '';
+$db['default']['char_set'] = 'utf8';
+$db['default']['dbcollat'] = 'utf8_general_ci';
+$db['default']['swap_pre'] = '';
+$db['default']['autoinit'] = TRUE;
+$db['default']['stricton'] = FALSE;
+
+
+
+
+
+
+/* End of file database.php */
+/* Location: ./application/config/database.php */

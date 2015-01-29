@@ -1,0 +1,603 @@
+$(document).ready(function(){
+    
+    // Tipo de cambio
+    var xRate = 1;
+    // Thumbnails de imagenes para items
+    var thumbnailsImages = new Array();
+    // Categorias seleccionadas del item
+    var items_categories = new Array();
+    // Inventario manejado por K!
+	var manager_k = false;
+	// Tipo de item
+    var physical = true;
+	
+    // Instantiate the widget
+    var featherEditor = new Aviary.Feather({
+        apiKey: '6282e2a3c',
+        apiVersion: 2,
+        language : 'en',
+        tools: ['crop', 'resize', 'enhance','effects','stickers','orientation','brightness','contrast','saturation','sharpness','draw','text','redeye','whiten','blemish'],
+        //initTool : 'crop',
+        onSave: function() {
+            //alert(newURL);
+            location.reload();
+        },
+        postUrl: base_url + 'mediaAv/saveAviary'
+    });
+    tinymce.init({
+        selector: "#description",
+        menubar: false,
+        statusbar : true,
+        height : 150,
+        language: (lang == 'en') ? '': lang,
+        entity_encoding : "raw",
+        plugins: [
+            "textcolor  paste"
+        ],
+        toolbar1: "styleselect forecolor backcolor | bullist numlist outdent indent "
+    });
+    tinymce.init({
+        selector: "#description_eng",
+        menubar: false,
+        statusbar : true,
+        height : 150,
+        language: (lang == 'en') ? '': lang,
+        entity_encoding : "raw",
+        plugins: [
+            "textcolor  paste"
+        ],
+        toolbar1: "styleselect forecolor backcolor | bullist numlist outdent indent "
+    });
+    
+    function createPageImage(index, element){        
+         //Add images to pager
+         return '<li><a href="#"><img class="img-responsive" src="'+thumbnailsImages[index]+'" /></a></li>';
+    }
+    
+    $('#price').autoNumeric();
+  	$('#priceUSD').autoNumeric();
+
+  	$('#price').on('change', function() {
+  		convertionPrice();
+  	});
+	$('#priceUSD').on('change', function() {
+		convertionPriceUSD();
+	});
+    $('#pictureModalButton').bind('click', function(){
+		$('#progressbar').css('display','block');
+	});
+    
+	function convertionPrice(){
+		var price = Number($('#price').autoNumericGet());
+		var total = price;
+		var totalUSD = price/xRate;
+			
+		$('#price').autoNumericSet(total.toFixed(2));
+		$('#priceUSD').autoNumericSet(totalUSD.toFixed(2));
+	}
+	function convertionPriceUSD(){
+		var price = Number($('#priceUSD').autoNumericGet());
+		var total = price*xRate;
+		var totalUSD = price;
+		
+		$('#price').autoNumericSet(total.toFixed(2));
+		$('#priceUSD').autoNumericSet(totalUSD.toFixed(2));
+	}
+    
+    $('#editPicture').bind('click', function(){
+        var id = $(this).data('id');
+        var src = $(this).data('src');
+        
+        featherEditor.launch({
+            image: id,
+            url: src,
+            postData : id,
+            cropPresets : ['700x500']
+        });
+        return false;
+    });
+    
+    function onAfter() {
+        var getId = $('.slide').children('img:visible').attr('id');
+        var getAlt =  $('.slide').children('img:visible').attr('alt');
+
+        var get_objectName = $('.slide').children('img:visible').attr('alt');
+        get_objectName = get_objectName.split('-');
+
+        var id = getId.split('&');
+
+        var origExt = $('.slide').children('img:visible').attr('class').split(' ');
+
+        $('#image_id').attr('value', id[0]);
+        $('#object_name').attr('value',get_objectName[1]);
+        $('#counter_span').html(get_objectName[0]);
+
+        var itemURL = $('.slide').children('img:visible').attr('src');
+        var launchId = getId;
+        var launchSrc = itemURL.substr( 0, itemURL.length-6) + '_b.' + origExt[1];
+        
+        $('a#editPicture').data('id', launchId);
+        $('a#editPicture').data('src', launchSrc);
+    }
+    
+    function createObjectDataTree(data){
+        var stringJSON = '';
+
+        // Arma recursivamente el JSON para dibujar el arbol
+        $.each(data, function(index, val){
+            stringJSON+= "{";
+            stringJSON+= '"id" : "'+val.id+'",';
+            stringJSON+= '"text" : "'+val.name+'",';
+            stringJSON+= '"state" : { "opened" : true},';
+            stringJSON+= '"a_attr" : { "href" : "#'+val.id+'"}';
+            
+            if(typeof val.subcats != 'undefined' && val.subcats.length > 0){
+                stringJSON+= ',"children" : [';
+                stringJSON += createObjectDataTree(val.subcats);
+                stringJSON+= "]";
+            }
+            
+            stringJSON+= "}";
+            if((index+1) < data.length) stringJSON+= ",";
+        });
+        
+        return stringJSON;
+    }
+    
+    function validate_field(id){
+        
+        var groupName = new RegExp(/^[a-zA-ZÁÉÍÓÚáéíóúñÑäëïöüÄËÏÖÜ\s]+$/);
+        var opcionName = new RegExp(/^[a-zA-Z0-9ÁÉÍÓÚáéíóúñÑäëïöüÄËÏÖÜ\/\-\.\s]+$/);
+		var error = false;
+
+	    switch(id){
+
+			case "grupo_opt":
+				var field_value = $('.'+id).val();
+	            if(!groupName.test(field_value) || field_value.length < 1 || field_value.length > 20 ) {
+					error = true;
+					$('.'+id).css('border', '1px solid #A22F40');
+				}else{
+					$('.'+id).css('border', '1px solid #80B437');
+				}
+			break;
+
+			case "opcion_opt":
+				var found = {};
+				$('.opcion_opt').each(function(){
+					var field_value = $(this).val();
+					if(!opcionName.test(field_value) || field_value.length < 1 || field_value in found || field_value.length > 20 ){
+						error = true;
+						$(this).css('border', '1px solid #A22F40');
+					}else{
+						found[field_value] = true;
+						$(this).css('border', '1px solid #80B437');
+					}
+				});
+			break;
+
+			case "select_opt":
+				var field_value = $('.'+id).val();
+				if(field_value !== 'select'){
+					error = true;
+					$('.'+id).css('border', '1px solid #A22F40');
+				}else{
+					$('.'+id).css('border', '1px solid #80B437');
+				}
+			break;
+
+		}
+
+		return error;
+
+	}
+    
+    function validate_all_fields(){
+
+		var fields_submit = ['grupo_opt', 'opcion_opt', 'select_opt'];
+		var count = 0;
+
+		for( var i=0; i<fields_submit.length; i++ ) {
+			if( validate_field(fields_submit[i]) ) {
+				count++;
+			}
+		}
+
+		if(count != 0) {
+			return false;
+		} else {
+			return true;
+		}
+
+	}
+    
+    function save_purchase_opts(){
+		
+		var query_data = { item_id: item_id };
+		var validate = validate_all_fields();
+		var save = $('#save_purchase_opts');
+		var add = $('#boton_append_1');
+		$('#msg_error').html('');
+		save.attr('disabled', 'disabled');
+		add.attr('disabled', 'disabled');
+		save.text('Guardando');
+
+		if(validate){
+			query_data.group_name = $('#group_name').val();
+			query_data.group_type_display = $('#select_opt').val();
+			var opts = [];
+			var i = 0;
+			$('.opcion_opt').each(function(){
+				var field_value = $(this).val();
+				opts.push(field_value);
+			});
+			query_data.options = opts;
+			call_api('/api/items/add_purchase_option_group', 'post', query_data, function(response){
+				try{
+	                var ajax_result = jQuery.parseJSON(response);
+	                if(ajax_result.data === true){
+	                	location.reload();
+	               	}else{
+	               		$('#msg_error').html('Ocurri&oacute; un error al procesar acci&oacute;n');
+	               		save.removeAttr('disabled');
+						add.removeAttr('disabled');
+						save.text('Guardar');
+	               	}
+	            }catch(e){
+	                $('#msg_error').html('Ocurri&oacute; un error al procesar acci&oacute;n');
+	                save.removeAttr('disabled');
+					add.removeAttr('disabled');
+					save.text('Guardar');
+	            }
+			});
+		}else{
+			save.removeAttr('disabled');
+			add.removeAttr('disabled');
+			save.text('Guardar');
+		}
+
+	}
+    
+    $(document).on('blur','.grupo_opt, .opcion_opt',function(event){
+        var error = false;
+		var groupName = new RegExp(/^[a-zA-ZÁÉÍÓÚáéíóúñÑäëïöüÄËÏÖÜ\s]+$/);
+		var opcionName = new RegExp(/^[a-zA-Z0-9ÁÉÍÓÚáéíóúñÑäëïöüÄËÏÖÜ\/\-\.\s]+$/);
+
+	    if($(this).hasClass('grupo_opt')){
+            var field_value = $(this).val();
+            if(!groupName.test(field_value) || field_value.length < 1 || field_value.length > 20 ) {
+                error = true;
+                $(this).css('border', '1px solid #A22F40');
+            }else{
+                $(this).css('border', '1px solid #80B437');
+            }
+        }
+        else if($(this).hasClass('opcion_opt')){
+            var found = {};
+            $('.opcion_opt').each(function(){
+                var field_value = $(this).val();
+                if(!opcionName.test(field_value) || field_value.length < 1 || field_value in found || field_value.length > 20 ){
+                    error = true;
+                    $(this).css('border', '1px solid #A22F40');
+                }else{
+                    found[field_value] = true;
+                    $(this).css('border', '1px solid #80B437');
+                }
+            });
+        }
+        else if($(this).hasClass('select_opt')){
+            var field_value = $(this).val();
+            if(field_value !== 'select'){
+                error = true;
+                $(this).css('border', '1px solid #A22F40');
+            }else{
+                $(this).css('border', '1px solid #80B437');
+            }
+		}
+
+		return error;
+    });
+    
+    $('#boton_append_1').click(function() {
+        var id = Math.floor((Math.random()*100)+1);
+        var element = ''
+        
+        element += '<div class="input-group">';
+        element += '	<div class="title">Opción</div>';
+        element += '	<input type="text" class="opcion_opt form-control">';
+        element += '</div>';
+        
+        $('#options-items').append(element);
+    });
+
+    $('#save_purchase_opts').on('click', function(){
+        save_purchase_opts();
+    });
+    
+    function doTreeItem(tree, plugins, data) {
+        if (plugins == undefined)
+            plugins = [];
+        
+        /*
+         * Data que se pasará al arbol para que se dibuje
+         */
+        var dataTree = '[';
+		
+		dataTree+= "{";
+		dataTree+= '"text" : "All",';
+		dataTree+= '"state" : { "opened" : true, "disabled" : true},';
+		dataTree+= '"a_attr" : { "href" : "#"}';
+		dataTree+= ',"children" : [';
+        if(data.length > 0){
+            dataTree += createObjectDataTree(data);
+        }
+		
+		dataTree+= "]";
+		dataTree+= "}";
+        dataTree+= "]";
+        dataTree = jQuery.parseJSON(dataTree.toString());
+		
+        $(tree).jstree({
+            "checkbox": {
+                real_checkboxes: true
+            },
+            "xml_data": {
+                "ajax": {
+                    cache: false
+                }
+            },
+            "core": {
+                "animation": 0,
+                "check_callback": true,
+                "themes": {"dots": true, "stripes": true},
+                "data": dataTree
+            },
+            "types": {
+                "#": {"max_children": 1, "max_depth": 6, "valid_children": ["root"]},
+                "root": {"icon": "glyphicon glyphicon-tags", "valid_children": ["default"], "max_depth": 5},
+                "default": {"icon": "glyphicon glyphicon-tag", "valid_children": ["default", "file"]}
+            },
+            "plugins": plugins
+        });
+    
+    }
+    
+    function AddOptionDisplay(data){
+        var html = '';
+        
+        $.each(data, function(i, val){
+            html+= '<h2 style="font-weight:300;margin:0 10px">';
+            html+= '    <div style="width:90px;float:left"><small>'+val.option_name+'</small></div>';
+            html+= '    <textarea name="display_option_value[]" id="display_option_value_'+i+'" rows="4" class="form-control" style="margin-top:5px;text-align:left" >'+val.option_values+'</textarea>';
+            html+= '</h2>';
+        });
+        $('#settings_opts_panel_2').html(html);
+    }
+    
+    function AddOptionPurchase(data){
+        var html = '';
+        
+        html+= data.group_name;
+        
+        $.each(data.options, function(i, val){
+            html+= '<div style="width: 80%; margin-left: auto; margin-right: auto;" class="input-group">';
+            html+= '	<span style="width: 30%;" class="input-group-addon">'+val.label+'</span>';
+            html+= '	<input value="'+val.units+'" type="text" class="form-control" id="'+val.label+'"';
+            html+= '		    placeholder="Num Units">';
+            html+= '</div>';
+        });
+        $('#settings_opts_panel_1 > #option_item').html(html);
+    }
+    
+    // Des/Seleccion de categorias
+    $('#jstree_categories_items').on('changed.jstree', function (_event,_data){
+        switch(_data.action){
+            case 'deselect_node':
+                items_categories = _data.selected;
+                break;
+            case 'select_node':
+                items_categories = _data.selected;
+                break;
+        }        
+    });
+    
+    /* Manejo del arbol */
+    call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+        cats = jQuery.parseJSON(cats.toString());
+        
+        if(cats !== null)
+        {
+                
+            doTreeItem('#jstree_categories_items', ["wholerow","types", "checkbox", "sort"], cats.data);
+            
+            // Selecciona categorias del item
+            call_api('/api/items/get_item_categories', 'post', {"store_id": store_id, "item_id": item_id}, function(result) {
+                result = jQuery.parseJSON(result.toString());
+                if(result !== null){
+                    if(result.data.length > 0){
+                        $.each(result.data, function(i, val){
+                            // Selecciona la categoria en el arbol
+                            $("#jstree_categories_items").jstree("select_node", "#"+val.id);
+                        });
+                    }
+                }
+                else{
+                    // Mensaje de error
+                }
+            });
+        }
+        else
+        {
+            // Mensaje de error
+        }
+    });
+    /* END Manejo del arbol */
+    
+    call_api('/api/items/get_item_details', 'post', {store_id: store_id, item_id: item_id}, function(resp){
+        resp = jQuery.parseJSON(resp);
+        var alt = '';
+        var id = '';
+        
+        if(resp !== null){
+            
+            // Carga de datos
+            /* Items Settings */
+            $('#item_name').val(resp.data.name);
+            $('#description').val(resp.data.description);
+            $('#item_name_eng').val(resp.data.name_eng);
+            $('#description_eng').val(resp.data.description_eng);
+            $('#price').val(resp.data.precio.MXN);
+            $('#priceUSD').val(resp.data.precio.USD);
+            xRate = resp.data.get_xRates;
+			
+            if(resp.data.live == '1'){
+                $('#toggle-button').toggleButtons('toggleState');
+            }
+			if(resp.data.physical == '0'){
+				physical = false;
+			}
+            
+            /* END Items Settings */
+            
+            /* Inventories */
+            $('#sku').val(resp.data.sku);
+            $('#units_availible').val(resp.data.units_availible);
+            if(resp.data.managed_inv == "1"){ // Inventario administrado por Kichink!
+				manager_k = true;
+                $('#manager_inventories,#settings_opts_check_1, #new_options_item, #settings_opts_panel_1,#settings_opts_panel_2').remove();
+                $('#units_availible_read').val(resp.data.units_availible);
+                $('#item_without_options').show();
+            }
+            else if(resp.data.managed_inv == "0"){
+                $('#units_availible').val(resp.data.units_availible);
+                $('#inventories_kichink_units, #inventories_kichink_options_purcharse').remove();
+            }
+            
+            //resp.data.inventories = '1';
+            if(resp.data.inventories == "1") $('#inventories_num').attr('checked', 'checked');
+            else{
+                // 1 sola unidad en inventario
+                $('#inventories_unique').attr('checked', 'checked');
+                $('#units_availible').val('0');
+            }
+            
+            if(typeof resp.data.opciones_compra.group_name != 'undefined'){ // exiten opciones de compra
+                $('#settings_opts_check_1').attr('checked', 'checked');
+                $('#purchase_options_init, #new_options_item').remove();
+                AddOptionPurchase(resp.data.opciones_compra);
+            }
+            else{
+                $('#option_item').remove();
+                $('#purchase_options_title, #new_options_item').hide();
+            }
+            
+            if(typeof resp.data.opciones_despliegue[0] != 'undefined'){
+                $('#settings_opts_check_2').attr('checked', 'checked');
+                AddOptionDisplay(resp.data.opciones_despliegue);
+            }
+            else{
+                $('#settings_opts_panel_2, #settings_opts_check_2').remove();
+                $('#item_without_options').show();
+            }
+            
+            /* END Inventories */
+            
+            // Existen imagenes
+            if(typeof resp.data.imagenes[0] != 'undefined' && resp.data.imagenes.length > 0){
+                
+                // Carga las imagenes
+                $.each(resp.data.imagenes, function(indice, data){
+                    if(indice == 0){
+                        $('.slide, #nav').html('');
+                        $('#nav-slider').show();
+                    }
+                    
+                    alt = (indice+1)+'-'+data.object_name;
+                    id = data.id+'&amp;'+'items&amp;'+ data.object_name;
+                    if(data.extension == 'jpeg') data.extension = 'jpg';
+                    
+                    // Carga las imagenes
+                    $('.slide').append('<img class="img-responsive '+data.extension+'" src="'+data.bordered+'" alt="'+alt+'" id="'+id+'" />');
+                    thumbnailsImages.push(data.thumbnail);
+                });
+                
+                $('.slide').cycle({
+                    fx:     'fade',
+                    speed:  'fast',
+                    timeout: 0,
+                    pager:  '#nav-slider',
+                    after:   onAfter,
+                    height:  'auto',
+                    pagerAnchorBuilder: createPageImage,
+                });
+                
+            }
+            else{
+                // Deshabilita botones
+                $('#editPicture, #deletePicture').hide();
+            }
+        }
+        else{
+            // Mensaje de error
+        }
+    });
+    
+    //$('#toggle-button').on('click', function (e) {
+    //    alert($('#toggle-button').toggleButtons('status'));
+    //});
+    
+    $('#toggle-button').toggleButtons({
+
+        width: 100,
+        height: 25,
+        font: {
+            'font-size': '16px',
+            'font-style': 'normal'
+        },
+        animated: true,
+        transitionspeed: 1, // Accepted values float or "percent" [ 1, 0.5, "150%" ]
+        label: {
+            enabled: "ON",
+            disabled: "OFF"
+        },
+        style: {
+          // Accepted values ["primary", "danger", "info", "success", "warning"] or nothing
+            enabled: "primary",
+            disabled: "danger",
+            custom: {
+                disabled: {
+                    background: "#D0D0D0",
+                    gradient: "#DDD",
+                    color: "#969696"
+                }
+            }
+        }
+	});
+    
+    $('#settings').on('activate.bs.scrollspy', function () {
+        $('body').scrollTop(0);
+    });
+    
+	/* Bottons */
+	
+	// Update inventario
+	$('#update_inventario').on('click', function(){
+		var units_gral = 0;
+		var units_items = 0;
+		units_gral = (manager_k) ? $('#units_availible_read').val() : $('#units_availible').val();
+		
+		$.each($('#settings_opts_panel_1 > #option_item input'), function(i, val){
+			if($(val).val() != 0) units_items += Number($(val).val());
+		});
+		if(units_gral == units_items){
+			// Llamada al api para actualizar
+		}
+		else{
+			// Error
+			alert('Sus valores deben coincidir con la cantidad de unidades disponible en su inventario');
+		}
+		
+		
+	});
+	/* END Bottons */
+});

@@ -1,0 +1,480 @@
+    <?=$this->load->view('layout/header.php')?>
+
+   <style>
+   .inputErrorMsg {
+    width: auto;
+    }
+   </style>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('login_page_title_text');?> <small><?=$this->lang->line('login_page_subtitle_text');?></small></h1>
+        </div>
+        <div class="row">
+          <div class="span12">
+            
+            <h2 id="step1"><?=$this->lang->line('stores_page_title_text');?></h2>
+
+          	<? if(!empty($user_stores['stores'])){ ?>
+			 	    
+			<table class="span11" style="margin-left:10px; margin-top:20px;">
+				
+				<tbody>
+					<? foreach($user_stores['stores'] as $item){?> 
+					<tr>
+						<td>
+							<div class="stores_list_item" style="height:auto;">
+                            <?  if (!empty($item->thumbnail)){ ?>
+								<img class="thumbnail" width="48" height="48" src="<?=$item->thumbnail[0]->url.$item->thumbnail[0]->object_name.'_thumb.'.$item->thumbnail[0]->extension?>" style="float:left;"/>
+							<? } /*else{ ?>
+								<img class="thumbnail" src="http://placehold.it/48x48" style="float:left;"/>
+							<? } */ ?>
+								<h2 style="float:left; margin-left:10px; line-height:23px; width:550px">
+									<a href="/stores/id/<?=$item->id?>">
+									<?=$item->name?>
+									</a>
+									<br />
+                                    <p><?=$item->description?></p>
+									
+									<? if(!$this->session->userdata('admin_client_stores')){ ?>
+									<small><?=$item->total_items == 0 ? $this->lang->line('stores_store_itemsTotal_none') : ($item->total_items == 1 ? $item->total_items.' '.$this->lang->line('stores_store_itemsTotal_description_singular') :  $item->total_items.' '.$this->lang->line('stores_store_itemsTotal_description_plural'))?></small>
+									<? } ?>
+								</h2>
+								
+								<!--<h5 style="float:right; margin-left:20px; line-height:20px; text-align:center;">$10,000 <br /><small><?=$this->lang->line('stores_store_sales_text_1');//SALES?></small></h5>
+								<h5 style="float:right; margin-left:20px; line-height:20px; text-align:center;">5,000 <br /><small><?=$this->lang->line('stores_store_fans_text_1');//FANS?></small></h5>
+								<h5 style="float:right; margin-left:10px; line-height:20px; text-align:center;">300K <br /><small><?=$this->lang->line('stores_store_views_text_1');//VIEWS?></small></h5>
+								--><div style="clear:both;">&nbsp;</div>
+							</div>
+							
+							<? if(!$this->session->userdata('admin_client_stores')){ ?>
+							<div class="" style="width:100%; clear:both; background:#EEE; -webkit-border-radius: 0 0 6px 6px; -moz-border-radius: 0 0 6px 6px; border-radius: 0 0 6px 6px;">
+                            
+                            	<h6 style="margin-left:10px; float:left;"><?=$this->lang->line('stores_new_bar_text_1'); //New orders?></h6>
+								<? if(empty($item->orders['new'])){ ?> 
+                                
+                                    <table class="zebra-striped" style="clear:both;margin-bottom:0px">
+                                        <tr>
+                                            <td style="width:430px;">
+                                                <?=$this->lang->line('stores_orders_no_orders'); //No new orders?>
+                                            </td>
+                                            <td>
+                                                <a href="#" style="color:#999;"><?=$this->lang->line('stores_orders_viewHistory'); //View order history?></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+								<? } else { ?>
+                                
+                                    <a href="/orders" style="float:right; margin:10px 10px 0px auto;color:#999;"><?=$this->lang->line('stores_orders_viewAll'); //View all?></a>
+                                    <table class="zebra-striped" style="clear:both;margin-bottom:0px">
+                                        <? foreach($item->orders['new'] as $new){?> 
+                                            <tr>
+                                                <td style="width:200px;">
+                                                    <span class="label new"><?=$this->lang->line('stores_new_label_text'); //New?></span> No. <?=$new->orderID?> 
+                                                </td>
+                                                <td>
+                                                    <small><?=$this->lang->line('stores_orders_qty');?></small> <?=$new->units_total?>
+                                                </td>
+                                                <td>
+                                                    <small><?=$this->lang->line('stores_orders_total');?></small> $ <?=$new->total_sale_price?>
+                                                </td>
+                                                <td>
+                                                    <a href="/orders/id/<?=$new->orderID?>/<?=$item->id?>"><?=$this->lang->line('stores_orders_viewOrder'); //View Order?></a>	
+                                                </td>
+                                            </tr>
+                                        <? } ?>
+                                    </table>
+                                    
+								<? } ?>
+                                
+                              <h6 style="margin-left:10px; float:left;"><?=$this->lang->line('stores_pending_bar_text_1'); //Pending orders?></h6>
+                              <? if(empty($item->orders['pending'])){ ?> 
+
+                                    <table class="zebra-striped" style="clear:both;margin-bottom:0px">
+                                        <tr>
+                                            <td style="width:430px;">
+                                                <?=$this->lang->line('stores_orders_no_orders'); //No new orders?>
+                                            </td>
+                                            <td>
+                                                <a href="#" style="color:#999;"><?=$this->lang->line('stores_orders_viewHistory'); //View order history?></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                                                        
+								<? } else { ?>
+                                
+                                    <a href="/orders" style="float:right; margin:10px 10px 0px auto;color:#999;"><?=$this->lang->line('stores_orders_viewAll'); //View all?></a>
+                                    <table class="zebra-striped" style="clear:both;margin-bottom:0px">
+                                        <? foreach($item->orders['pending'] as $pending){?> 
+                                            <tr>
+                                                <td style="width:200px;">
+                                                    <span class="label pending"><?=$this->lang->line('stores_pending_label_text'); //New?></span> No. <?=$pending->orderID?> 
+                                                </td>
+                                                <td>
+                                                    <small><?=$this->lang->line('stores_orders_qty');?></small> <?=$pending->units_total?>
+                                                </td>
+                                                <td>
+                                                    <small><?=$this->lang->line('stores_orders_total');?></small> $ <?=$pending->total_sale_price?>
+                                                </td>
+                                                <td>
+                                                    <a href="/orders/id/<?=$pending->orderID?>/<?=$item->id?>"><?=$this->lang->line('stores_orders_viewOrder'); //View Order?></a>	
+                                                </td>
+                                            </tr>
+                                        <? } ?>
+                                    </table>
+                                    
+								<? } ?>
+                               
+							</div>
+							
+							<? } ?>
+						</td>
+					</tr>
+					<? } ?>
+				</tbody>
+			</table>
+            
+            <? } else { ?>
+				
+				<div class="alert-message block-message info" style="width:600px; margin:0 auto">
+                    <a class="close" href="#">×</a>
+                    <p>You don&acute;t have active stores, create one to get started</p>
+    			</div>
+				
+			<? } ?>
+          </div>
+          
+          <div class="span4">
+
+            <a href="javascript:void(0);" onclick="javascript:startIntro();" class="btn success large" style="margin:0 0 10px 20px;padding:9px;width:160px;text-align:center;"><?=$this->lang->line('stores_orders_mostrar_tuto');?></a>
+            <a href="/img/welcome_modal/MANUAL_USUARIO_2013_v2.pdf" target="_blank" class="btn success large" style="margin:0 0 10px 20px;padding:9px;width:160px;text-align:center;">Descarga el manual del usuario</a>
+            <?
+                if(!empty($user_stores['stores'])){ 
+                    $contador_tiendas = count($user_stores['stores']);
+                }else{
+                    $contador_tiendas = 0;
+                }
+            ?>
+            <h3 style="line-height:22px;text-align:center">Total de tiendas<br/><?=$contador_tiendas?></h3>
+          	<br />
+          	<p style="text-align:center;" id="step2">
+		        <a href="javascript:openAddStoreModal();" class="btn primary large"><?=$this->lang->line('stores_new_button_text');?></a>
+ 	        </p>
+            <h5>Tips <span class="label notice"><?=$this->lang->line('stores_tips_subtitle_text');?></span></h5>
+            
+            <ul>
+            	<li><?=$this->lang->line('stores_tips_text_1');?></li>
+            	<li><?=$this->lang->line('stores_tips_text_2');?></li>
+            	<li><?=$this->lang->line('stores_tips_text_3');?></li>
+            	
+            </ul>
+            <p style="text-align:center;">
+                <a href="javascript:openModal();" class="btn primary">Mostrar Bienvenida</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="bienvenida_modal" class="modal hide fade" style="width:780px;background:#CCB2D5">
+        <div class="modal-header" style="border-bottom:none">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h1 style="text-align:center;color:#532E63;font-weight:bold">&iexcl;Bienvenido!</h1>
+          <? if($this->session->userdata('online_signup')){ ?>
+          <h2 style="text-align:center;color:#532E63;font-weight:bold;line-height:0">&iexcl;Felicidades tu tienda ha sido creada!</h2>
+          <? } ?>
+        </div>
+        <div class="modal-body" style="max-height:390px;overflow-y:auto;">
+            <div style="width:750px" class="row">
+                <div class="span9" style="background:#FFFFFF">
+                    <h3 style="color:#532E63;text-align:center">&iquest;Qu&eacute; no puedo vender?</h3>
+                    <div style="float:left;width:120px;margin-left:20px"/>
+                        <img src="/img/welcome_modal/no_armas.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center">No armas</h5>
+                    </div>
+                    <div style="float:left;width:120px"/>
+                        <img src="/img/welcome_modal/no_drogas.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center">No drogas</h5>
+                    </div>
+                    <div style="float:left;width:120px"/>
+                        <img src="/img/welcome_modal/no_pornografia.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center">No pornograf&iacute;a</h5>
+                    </div>
+                    <div style="float:left;width:120px"/>
+                        <img src="/img/welcome_modal/no_objs_ilegales.png" width="120" />
+                        <h5 style="font-weight:bold;color:#532E63;line-height:16px;text-transform:uppercase;text-align:center">No objetos ilegales</h5>
+                    </div>
+
+                    <!--<h3 style="color:#532E63;text-align:center">&iquest;C&oacute;mo empiezo a vender?</h3>-->
+
+                    <div style="height:50px;clear:both"></div>
+                    <p style="text-align:center"><a href="javascript:closeModal();" class="btn primary large" style="width:200px;text-align:center">&iexcl;Estoy listo!</a></p>
+
+                </div>
+                <div class="span3">
+                    <h3 style="color:#532E63">Contacto</h3>
+                    <p style="color:#532E63">Si tienes dudas da click en nuestro bot&oacute;n de <b>Ayuda</b> o si gustas, habla al tel&eacute;fono +52 (55) 6267 3474</p><br/>
+                    <p style="text-align:center"><a href="/img/welcome_modal/MANUAL_USUARIO_2013_v2.pdf" target="_blank" class="btn success" style="text-align:center;width:130px">Descarga el manual del usuario</a></p>
+                    <p style="text-align:center"><a href="/img/welcome_modal/ordenes_info.jpg" class="btn success" target="_blank" style="text-align:center;width:130px">Descarga infograf&iacute;a<br/><b>Aceptar una orden</b></a></p>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div id="add_store_modal" class="modal hide fade" style="width:780px;">
+
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h3 id="myModalLabel">Agrega una tienda nueva</h3>
+        </div>
+
+        <div class="modal-body" style="max-height:390px;overflow-y:auto;">
+
+            <form id="datos_tienda" method="post">
+
+                <fieldset style="padding-top:0;margin-bottom:0">
+
+                <div class="clearfix" style="margin-bottom:0">
+                    <label for="store_name" class="store_name_label" style="width:110px;float:left;text-align:left"><b>Nombre tienda</b></label>
+                    <input type="text" name="store_name" id="store_name" style="width:305px"  />
+                </div>
+
+                <? if(!$user_terms_checked){ ?>
+                <h4>Por favor, antes de crear tu tienda acepta nuestros t&eacute;rminos y condiciones</h4>
+                <iframe style="border:8px solid #EEEEEE" src="/login/contratoK" width="730" height="170" frameborder="0"><a href="/login/contratoK" target="_blank">Tu navegador no soporta la tecnolog&iacute;a necesaria para ver esta p&aacute;gina. Por favor ingresa directamente con esta liga</a></iframe>
+                <br/>
+                <input type="checkbox" name="acuerdo" id="acuerdo" value="1" /> Acepto los t&eacute;rminos y condiciones del servicio <br/>
+                <? }else{ ?>
+                <input type="hidden" name="acuerdo" value="1" id="acuerdo" />
+                <? } ?>
+                <div id="errorIframe" style="color:#B94A48;font-size:14px;text-align:center;padding:5px"></div>
+                <h4 style="line-height:26px">Datos de recolecci&oacute;n</h4>
+
+                    <div class="clearfix" style="margin-bottom:0">
+                        <div style="width:280px;float:left">
+                            <label for="direccion" class="direccion_label" style="padding-top:0">Direcci&oacute;n </label>
+                            <input type="text" name="direccion" id="direccion" style="width:230px"  />
+                        </div>
+                        <div style="width:300px;float:left">
+                            <label for="telefonos" class="telefonos_label" style="padding-top:0">Tel&eacute;fono(s)</label>
+                            <input type="text" name="telefonos" id="telefonos" style="width:250px"  />
+                        </div>
+                        <div style="width:150px;float:left">
+                            <label for="ciudad" class="ciudad_label" style="padding-top:0">Ciudad </label>
+                            <input type="text" name="ciudad" id="ciudad" style="width:105px;float:left">
+                        </div>
+                    </div>
+                    
+                    <div class="clearfix" style="margin-bottom:0">
+                        <div style="width:150px;float:left">
+                            <label for="estado" class="estado_label" style="padding-top:0">Estado</label>
+                            <input type="text" name="estado" id="estado" style="width:105px;float:left">
+                        </div>
+                        <div style="width:120px;float:left;margin-right:30px">
+                            <label for="pais" class="pais_label" style="padding-top:0">Pa&iacute;s </label>
+                            <input type="text" name="pais" id="pais" style="width:105px;float:left">
+                        </div>
+                        <div style="width:120px;float:left">
+                            <label for="cp" class="cp_label" style="padding-top:0">C.P.</label>
+                            <input type="text" name="cp" id="cp" style="width:105px;float:left">
+                        </div>
+                    </div>
+
+                </fieldset>
+
+            </form>
+        </div>
+
+        <div class="modal-footer">
+
+            <div id="creating_store" style="display:none;margin:0 auto;width:250px;text-align:center">
+                <img src="/img/creating_store.gif" />
+                <p style="color:#532E63;font-size:16px;font-weight:bold">Creando tienda en Kichink!</p>
+            </div>
+
+            <div id="data_store">
+                <form id="data_store_form" method="post">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+                    <button class="btn primary" id="create_store">Crear mi tienda en Kichink!</button>
+                </form>
+            </div>
+
+        </div>
+      </div>
+
+      <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            <? if(isset($tuto) AND $tuto){ ?>startIntro();<? } ?>
+            <? if($this->session->userdata('online_signup')){ ?>
+                openModal();
+                <? $this->session->set_userdata('online_signup', FALSE);?>
+            <? } ?>
+
+            $("#create_store").on('click', createStore);
+
+            $('#add_store_modal').on('hidden', function(){
+                $('#datos_tienda').get(0).reset();
+                $('#errorIframe').html('');
+            });
+           
+           
+        });
+
+        function startIntro(){
+            var intro = introJs();
+            var default_steps = [];
+            var intro_steps = [];
+            intro_steps[1] = "<?=$this->lang->line('stores_index_step1')?>";
+            intro_steps[2] = "<?=$this->lang->line('stores_index_step2')?>";
+
+            for(var k_steps=1;k_steps<3;k_steps++){
+                default_steps.push({ element: document.getElementById('step' + k_steps), intro: intro_steps[k_steps] });
+            }
+            intro.setOptions({ steps: default_steps, skipLabel: '<?=$this->lang->line('stores_orders_skip');?>', nextLabel:'<?=$this->lang->line('stores_orders_next');?> &rarr;', prevLabel:'&larr; <?=$this->lang->line('stores_orders_prev');?>', doneLabel: '<?=$this->lang->line('stores_orders_done');?>' });
+            intro.start();
+            intro.oncomplete(function(){ $.post("/stores/tutorials",{tuto:'stores'});
+            });
+        }
+
+
+        var createStore = function(e){
+
+            e.preventDefault();
+            $('#create_store').removeAttr("disabled");
+            $('.inputErrorMsg').remove();
+            $('.inputError').removeClass();
+            $('#errorIframe').html('');
+
+            var validar = validateFields();
+
+            if(validar){
+                $('#create_store').removeAttr("disabled");
+            }else{
+
+                var data = $('#datos_tienda').serializeArray();
+
+                $.post("/stores/add_store", data,
+                    function(response) {
+                        if(response.msg != 'Success'){
+                          $('#errorIframe').html(response.datos);
+                        }else{
+                          $('#errorIframe').html('');
+                          $('#creating_store').css('display', 'block');
+                          $('#data_store').css('display', 'none');
+                          setTimeout('window.location.href="<?=base_url()?>stores/id/'+ response.datos +'"',2500);
+                        }
+                    }, 'json');
+            }
+
+        }
+
+        function validateFields(){
+
+            var error         = false;
+            var patternName   = new RegExp(/^[a-zA-ZÁÉÍÓÚáéíóúñÑ. ]+$/);
+            var patternZip    = new RegExp(/^[0-9]+$/);
+
+            <? if(!$user_terms_checked){ ?>
+            if(!$('#acuerdo').is(':checked')){
+                $('#errorIframe').html('Por favor acepta nuestros t&eacute;rminos');
+            }    
+            <? }else{ ?>
+            if(!$('#acuerdo').val()){
+                $('#errorIframe').html('Por favor acepta nuestros t&eacute;rminos');
+            }
+            <? } ?>
+           
+            var inputStore = $('input[name="store_name"]');
+            if(!inputStore.val()){
+                error = true;
+                $('.store_name_label').before('<div class="inputErrorMsg">Verificar Nombre de la Tienda </div>');
+                inputStore.addClass('inputError');
+            }
+
+            var inputDireccion = $('input[name="direccion"]');
+            if(!inputDireccion.val() || inputDireccion.val().length < 6){
+                error = true;
+                $('.direccion_label').before('<div class="inputErrorMsg">Verificar Direcci&oacute;n </div>');
+                inputDireccion.addClass('inputError');
+            }
+
+            var inputTelefonos = $('input[name="telefonos"]');
+            if(!inputTelefonos.val() || inputTelefonos.val().length < 6){
+                error = true;
+                $('.telefonos_label').before('<div class="inputErrorMsg">Verificar campo Telefonos </div>');
+                inputTelefonos.addClass('inputError');
+            }
+
+            var inputCiudad = $('input[name="ciudad"]');
+            if(!inputCiudad.val() || inputCiudad.val().length < 5){
+                error = true;
+                $('.ciudad_label').before('<div class="inputErrorMsg">Verificar campo Ciudad </div>');
+                inputCiudad.addClass('inputError');
+            }
+
+            var inputEstado = $('input[name="estado"]');
+            if(!inputEstado.val() || inputEstado.val().length < 6){
+                error = true;
+                $('.estado_label').before('<div class="inputErrorMsg">Verificar campo Estado</div>');
+                inputEstado.addClass('inputError');
+            }
+
+            var inputPais = $('input[name="pais"]');
+            if(!inputPais.val() || inputPais.val().length < 6){
+                error = true;
+                $('.pais_label').before('<div class="inputErrorMsg">Verificar campo Pa&iacute;s</div>');
+                inputPais.addClass('inputError');
+            }
+
+            var inputCP = $('input[name="cp"]');
+            if(!inputCP.val() || !patternZip.test(inputCP.val())){
+                error = true;
+                $('.cp_label').before('<div class="inputErrorMsg">Verificar campo C.P.</div>');
+                inputCP.addClass('inputError');
+            }
+
+            return error;
+
+        }
+
+        function openAddStoreModal(){
+            $('#add_store_modal').modal('show').css({
+                width: 'auto',
+                'margin-left': function () {
+                  return -($(this).width() / 2);
+                },
+                'margin-top': function () {
+                  return -($(this).height() / 2);
+                }
+            });
+        }
+
+        function closeAddStoreModal(){
+            $('#add_store_modal').modal('hide');
+        }
+
+        function openModal(){
+            $('#bienvenida_modal').modal('show').css({
+                width: 'auto',
+                'margin-left': function () {
+                  return -($(this).width() / 2);
+                },
+                'margin-top': function () {
+                  return -($(this).height() / 2);
+                }
+            });
+        }
+
+        function closeModal(){
+            $('#bienvenida_modal').modal('hide');
+        }
+
+      </script>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_1_0.2' ))?>

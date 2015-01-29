@@ -1,0 +1,34 @@
+<? $this->load->view('layout/header.php');?>
+
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1><?=$this->lang->line('depositRequestConfirmation_title')?></h1>
+        </div>
+        <div class="row">
+          <div class="span12">
+			  <? if($payment_order['error']==0) {?>
+                    <p><?=$this->lang->line('depositRequestConfirmation_success')?></p>
+                    <h2 style="text-align:center"><?=$this->lang->line('depositRequestConfirmation_orderNo')?> <?=$payment_order['payment_id']?></h2>
+                    <br  /><br  />
+                    <p style="text-align:center"><a class="btn primary large" href="<?=base_url().'orders'?>"><?=$this->lang->line('depositRequestConfirmation_backButton')?></a></p>
+              <? }else{ ?>
+                    <p><?=$this->lang->line('depositRequestConfirmation_error')?></p>
+                    <p style="text-align:center"><a class="btn primary large" href="<?=base_url().'orders'?>"><?=$this->lang->line('depositRequestConfirmation_backButton')?></a></p>
+              <? } ?>            
+          </div>
+          <div class="span4">
+          	<br />
+            <h5><?=$this->lang->line('depositRequestConfirmation_sidebar_title')?></h5>
+            
+          </div>
+
+        </div>
+        
+      </div>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_4.1.1_0.2'))?>

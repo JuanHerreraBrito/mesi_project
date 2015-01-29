@@ -1,0 +1,146 @@
+<?php
+$page_title = "Secci&oacute;n de Tutoriales";
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+?>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+<link rel="stylesheet" href="/v2/css/tutorials.css">
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.css" type="text/css" media="screen">
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.theme.css" type="text/css" media="screen">
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.min.js"></script>
+<script type="text/javascript">
+    $(function() {
+        $('#hero .container').owlCarousel({
+            singleItem: true,
+            stopOnHover: true,
+            autoPlay: true,
+            paginationSpeed: 1000,
+            autoHeight: false,
+            transitionStyle: "fade"
+        });
+        /*
+         $(".show-guia").each(function(i,e){
+         $(e).click(function(evt){
+         evt.stopPropagation();
+         evt.preventDefault();
+         if($(this).data().type=="image"){
+         $("#guiasModal").find(".modal-body").html("<img src='"+$(this).attr("href")+"' width='100%'/>");
+         }else{
+         $("#guiasModal").find(".modal-body").html("<iframe src='"+$(this).attr("href")+"' frameborder='0' height='100%' width='100%'></iframe>");
+         }
+         $("#guiasModal").modal("show");
+         });
+         });*/
+
+    });
+</script>
+<style>
+    .articles.guides .info-block{
+        margin-bottom: 40px;
+        min-height: 182px;
+    }
+</style>
+<div id="hero">
+    <div class="container owl-carousel">
+        <div class="item">
+            <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/bienvenido_kontrol.jpg" alt="">
+        </div>
+        <div class="item">
+            <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/infografias_kontrol.jpg" alt="">
+        </div>
+        <div class="item">
+            <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/reglamentos_kontrol.jpg" alt="">
+        </div>
+    </div>
+</div>
+<div class="fence">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Consulta nuestros videotutoriales</h2>
+            <p>Resuelve todas tus dudas paso a paso para cada una de las funciones que puedes encontrar en Kontrol!</p>
+        </div>
+    </div>
+</div>
+<div class="articles tutorials">
+    <div class="container-fluid">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a href="#"><h3>¿Cómo solicitar pagos?</h3></a></li>
+            <li><a href="https://www.youtube.com/watch?v=_xFFicg6mEE" target="_blank"><h3>¿Cómo tomar fotografía de producto?</h3></a></li>
+            <li><a href="#"><h3>¿Cómo usar las categorías?</h3></a></li>
+            <li><a href="https://www.youtube.com/watch?v=BW962D8tVq0" target="_blank"><h3>¿Cómo usar las categorías?</h3></a></li>
+            <li><a href="https://www.youtube.com/watch?v=QqHFp0job9s" target="_blank"><h3>Control de inventarios y plantillas</h3></a></li>
+            <li><a href="https://www.youtube.com/watch?v=rJNfhMNZdMI" target="_blank"><h3>Nueva pantalla de artículos</h3></a></li>
+            <li><a href="https://www.youtube.com/watch?v=3yiL6USZ-k8" target="_blank"><h3>Tienda de Facebook y Webpage</h3></a></li>
+        </ul>   
+    </div>
+</div>
+<div class="fence">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Infografías y guías</h2>
+            <p>Te decimos cómo y con qué puedes tener mejores fotos, descripciones y paquetes, para que tus clientes tengan una increíble experiencia de compra en línea</p>
+        </div>
+    </div>
+</div>
+<div class="articles guides">
+    <div class="container">
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="pdf" href="http://s3.amazonaws.com/kichink-tutoriales/guia_descripciones.pdf" target="_blank"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_descripciones.png" class="img-responsive"></a>
+        </div>
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="image" href="http://s3.amazonaws.com/kichink-tutoriales/guia_de_empaque-02.jpg" target="_blank"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_empaque.png" class="img-responsive"></a>
+        </div>
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="pdf" href="http://s3.amazonaws.com/kichink-tutoriales/guia_foto.pdf" target="_blank"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_foto.png" class="img-responsive"></a>
+        </div>
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="pdf" href="http://s3.amazonaws.com/kichink-tutoriales/manual_plantillas.pdf"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_plantillas.png" class="img-responsive"></a>
+        </div>
+        <!--div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block"> 
+            <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/info_comocomprar.png" class="img-responsive"></a>
+        </div-->
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="image" href="http://s3.amazonaws.com/kichink-tutoriales/info_formaspago.jpg"><img src="http://s3.amazonaws.com/kichink-tutoriales/info_formaspago.png" class="img-responsive"></a>
+        </div>
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="image" href="http://s3.amazonaws.com/kichink-tutoriales/info_soporte3-01.jpg"><img src="http://s3.amazonaws.com/kichink-tutoriales/info_pagoefectivo.png" class="img-responsive"></a>
+        </div>
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="pdf" href="http://s3.amazonaws.com/kichink-tutoriales/guia_redes.pdf"><img src="http://s3.amazonaws.com/kichink-tutoriales/manual_RSS.png" class="img-responsive"></a>
+        </div>
+        <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+            <a class="show-guia" data-type="pdf" href="http://s3.amazonaws.com/kichink-tutoriales/guia_logok.pdf"><img src="http://s3.amazonaws.com/kichink-tutoriales/manual_usologo.png" class="img-responsive"></a>
+        </div>
+    </div>
+</div>
+<div class="fence">
+    <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Reglamentos</h2>
+            <p>No olvides consultar de manera regular las normas a seguir para el buen uso y mantenimiento de tu tienda en línea dentro de la plataforma</p>
+        </div>
+    </div>
+</div>
+<div class="articles rules">
+    <div class="container">
+        <div align="center" class="col-sm-6 col-md-6 center-block">
+            <a target="_blank" href="http://s3.amazonaws.com/kichink-tutoriales/reglamento_almacen.pdf"><img width="100%" src="http://kichink-tutoriales.s3.amazonaws.com/botones_reglamentos-01.jpg" alt="Reglamento de almacen"></a>
+        </div>
+        <div align="center" class="col-sm-6 col-md-6 center-block">
+            <a target="_blank" href="http://s3.amazonaws.com/kichink-tutoriales/reglamento_tiendas.pdf"><img width="100%" src="http://kichink-tutoriales.s3.amazonaws.com/botones_reglamentos-02.jpg" alt="Reglamento de tiendas"></a>
+        </div>
+    </div>
+</div>
+<!--div class="modal modal-lg fade" id="guiasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 85%;height: 80%">
+        <div class="modal-content" style="min-height: 600px;">
+            <div class="modal-body" style="height: 100%;min-height: 480px;">
+            </div>
+
+        </div>
+    </div>
+</div-->
+<?php
+$this->load->view('v2/layout/footer');
+?>
+

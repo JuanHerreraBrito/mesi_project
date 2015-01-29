@@ -1,0 +1,598 @@
+/* 
+ * V2 Sell.Kichink
+ * Stores
+ */
+var changed_flag = 0; // change in an onchange event or whatever, something like the below
+
+window.onbeforeunload = function() {
+    if (changed_flag) {
+        return 'You have unsubmitted changes.';
+    }
+};
+
+function update_inventarios_simple(el) {
+        var data = {
+            item_id: $(el).closest("li").data().id,
+            store_id: store_id,
+            units: $(el).closest("li").find(".utotal").val(),
+            options: ""
+        };
+
+        call_api('/api/items/set_inventory', 'post', data, function(res) {
+        });
+    }
+
+$(document).ready(function() {
+
+    $(".viewtoggle").find("button").each(function(i, e) {
+        $(e).click(function() {
+            if (!$(e).hasClass("active")) {
+                $(".viewtoggle").find("button").removeClass("active");
+                $(e).addClass("active");
+                if ($(e).data().setToggle == "itemList") {
+                    $(".itemBox").addClass("itemList");
+                    $(".itemList").removeClass("itemBox");
+                    $("#edit-menu").show();
+                    $(".guardar").show();
+                } else {
+                    $(".itemList").addClass("itemBox");
+                    $(".itemBox").removeClass("itemList");
+                    $("#edit-menu").hide();
+                    $(".guardar").hide();
+                }
+            }
+        });
+    });
+
+    $(".guardar").click(function() {
+        var arr = [];
+        $("li.itemList.changed").each(function() {
+            arr.push({
+                live: $(this).data().live,
+                id: $(this).data().id,
+                precio: $(this).data().price
+            });
+        });
+        if (changed_flag) {
+            call_api('/api/items/update_items_properties', 'post', {store_id: store_id, json: JSON.stringify(arr)}, function(data) {
+                changed_flag = 0;
+                $(".itemList.changed").removeClass("changed");
+                $("#preloader").data().Preloader.methods.hide();
+            }, null, function() {
+                $("#preloader").data().Preloader.methods.setText("" + kontrol_lang['layout_changes_will_be_made'] + "");
+                $("#preloader").data().Preloader.methods.draw([{issue: "" + kontrol_lang['layout_will_be_updated_1'] + "" + $(".itemList.changed").length + "" + kontrol_lang['layout_will_be_updated_2'] + ""}])
+                $("#preloader").data().Preloader.methods.show();
+
+            });
+
+        }
+
+
+
+
+
+    });
+
+    $("#sortable_items").sortable({
+        update: function() {
+            var neworder = Array();
+            $('#sortable_items li').each(function() {
+                var id = $(this).attr('data-id');
+                neworder.push(id);
+            });
+            call_api('/api/items/update_items_order', 'post', {store_id: store_id, newOrder: neworder}, function(data) {
+                changed_flag=1;
+            });
+        }
+    });
+
+
+    $(".edit-attribute").change(function() {
+        if ($(".edit-attribute").val() == "live") {
+            $("#sortable_items").show();
+            $(".itemList .live").show();
+            $(".itemList .items-price").hide();
+            $("#inventory").hide();
+
+        } else if ($(".edit-attribute").val() == "precio") {
+            $("#sortable_items").show();
+            $(".itemList .live").hide();
+            $(".itemList .items-price").show();
+            $("#inventory").hide();
+
+        } else {
+            $("#sortable_items").hide();
+            $("#inventory").show();
+            if($("#inventory").find("li").length<1)
+            call_api('/api/items/get_inventory', 'post', {"store_id": store_id}, function(data) {
+                changed_flag=1;
+                var ajax_result = jQuery.parseJSON(data.toString());
+                var items = ajax_result.data;
+                for (var n in items) {
+                    var li = document.createElement("li");
+                    $(li).attr("style", "padding: 10px;list-style: none;margin: 10px 0;border: 1px solid #ccc;");
+                    $(li).attr("data-id", items[n].id);
+                    $(li).addClass("row");
+                    var name = (items[n].name) ? items[n].name : items[n].name_eng;
+                    $(li).append("<div class='col-sm-6'><img class='pull-left' src='https://img.kichink.com/item_id/" + items[n].id + "/?width=50&height=50'><a style='margin:10px; display:inline-block;' href='/items/id/" + items[n].id + "'>" + name + "</h3></div>");
+                    $(li).append("<div class='mopt col-sm-6'><b>Total de unidades:</b> <input onblur='update_inventarios_simple(this)' class='utotal form-control' type='text' " + (items[n].options ? "disabled" : "") + " value='" + items[n].units_availible + "'/></div></div>");
+
+
+                    if (items[n].options) {
+                        var options = jQuery.parseJSON(items[n].options.toString());
+                        for (var v in options) {
+                            var d = document.createElement("div");
+                            $(d).append('<b>' + options[v].label + ':</b>');
+                            $(d).attr("data-label", options[v].label);
+                            $(d).addClass("opt-container");
+                            var input = document.createElement("input");
+                            $(input).attr("type", "text");
+                            $(input).addClass("form-control");
+                            $(input).addClass("opt");
+                            $(input).val(options[v].units);
+                            $(input).blur(function() {
+                                if (isNaN($(this).val())) {
+                                    alert("Ingrese valores numericos");
+                                    $(this).val(0);
+                                } else {
+
+                                    var sum = 0;
+                                    $(this).closest("li").find(".opt").each(function(i, e) {
+                                        sum += parseInt($(e).val());
+                                    });
+                                    $(this).closest("li").find(".utotal").val(sum);
+
+
+                                    var opts = new Array();
+                                    $(this).closest("li").find(".opt-container").each(function(j, f) {
+                                        var obj = {
+                                            label: $(f).data().label,
+                                            units: $(f).find(".opt").val()
+                                        };
+                                        opts.push(obj);
+                                    });
+
+                                    var data = {
+                                        item_id: $(this).closest("li").data().id,
+                                        store_id: store_id,
+                                        units: $(this).closest("li").find(".utotal").val(),
+                                        options: JSON.stringify(opts)
+                                    };
+
+                                    call_api('/api/items/set_inventory', 'post', data, function(res) {
+                                        console.log(res);
+                                    });
+                                }
+
+
+                            });
+                            $(d).append(input);
+                            $(li).find(".mopt").append(d);
+                            $(li).append('<div class="clearfix"></div>');
+                        }
+                    }
+
+                    $("#inventory").append(li);
+
+                }
+
+
+            });
+
+        }
+    });
+
+    call_api('/api/stores/get_store_items', 'post', {"store_id": store_id, "category": "all"}, function(data) {
+        var ajax_result = jQuery.parseJSON(data.toString());
+        try {
+            $("#preloader").data().Preloader.methods.hide();
+
+            var storeItems = ajax_result.data;
+            if (storeItems != undefined) {
+
+                if (storeItems.length > 0) {
+
+                    //Llenar grid de items
+
+                    for (var i = 0; i < storeItems.length; i++) {
+
+                        var item = storeItems[i];
+                        var li = document.createElement("li");
+                        $(li).addClass("itemBox");
+                        $(li).attr("data-id", item.id);
+                        $(li).data("id", item.id);
+                        var rowItems = "<input type='checkbox'/>"
+                        rowItems += '<span class="items-price">' + item.price + '</span><a href="/items/id/' + item.id + '">';
+
+                        if (item.thumb != "none" && item.thumb != "" && item.thumb != undefined) {
+                            rowItems += '<div style="background-image:url(' + item.thumb + ')" class="img"></div><p>' + item.name + '</p>';
+                        }
+                        else {
+                            rowItems += '<div style="background-image:url(http://placehold.it/160x160)" class="img"></div><p>' + item.name + '</p>';
+                        }
+
+                        rowItems += '</a><span class="live"><input class="switch-small" type="checkbox" ' + (parseInt(item.live) ? "checked" : "") + ' data-text-label="LIVE" data-on="primary" data-off="danger"/></span>';
+                        $(li).data("live", item.live);
+                        $(li).data("originalprice", parseFloat(item.price));
+                        $(li).data("price", parseFloat(item.price));
+                        $(li).data("categories", item.categories);
+
+                        for (c in item.categories) {
+                            $(li).addClass(convertToSlug(item.categories[c].name));
+                        }
+
+                        $(li).html(rowItems);
+                        $("#sortable_items").append(li);
+                    }
+
+                    $("#sortable_items").find("input[type=checkbox]").each(function(i, e) {
+                        $(e).click(function() {
+                            $(this).parent().toggleClass("checked");
+                            $("#treetotalitems").html($("#sortable_items li.checked").length);
+                        });
+                    });
+
+                    $('.live input[type="checkbox"].switch-small').bootstrapSwitch();
+
+                    $('.live input[type="checkbox"].switch-small').on('switch-change', function(e, data) {
+                        $(this).closest("li").data("live", ($(this).prop("checked")) ? 1 : 0);
+                        $(this).closest("li").addClass("changed");
+                        changed_flag++;
+                    });
+
+                    var switchToInput = function() {
+                        var $input = $("<input>", {
+                            val: $(this).text(),
+                            type: "text"
+                        });
+                        $input.addClass("items-price");
+                        $(this).replaceWith($input);
+                        $input.on("blur", switchToSpan);
+                        $input.select();
+                    };
+                    var switchToSpan = function() {
+                        var $span = $("<span>");
+                        $span.addClass("items-price");
+                        var v = number_format($(this).val(), 2, ".", ",");
+
+                        if (parseFloat(v.replace(",", "")) > 0) {
+                            if ($(this).closest("li").data().originalprice != $(this).val()) {
+                                $(this).closest("li").data("price", parseFloat(v.replace(",", "").replace(",", "")));
+                                $(this).closest("li").data("originalprice", parseFloat(v.replace(",", "").replace(",", "")));
+                                changed_flag++;
+                                $(this).closest("li").addClass("changed");
+                            }
+                        } else {
+                            $(this).closest("li").data("price", $(this).closest("li").data().originalprice);
+                            v = number_format($(this).closest("li").data().originalprice, 2, ".", ",");
+                        }
+
+                        $span.html(v);
+                        $(this).replaceWith($span);
+                        $span.on("click", switchToInput);
+
+
+                    }
+
+                    $("li .items-price").each(function(i, e) {
+                        $(e).on("click", switchToInput);
+                    });
+                    updatevitems();
+                    $(".header-options").show();
+                } else {
+                    $(".header-options").remove();
+                }
+            } else {
+                $(".header-options").remove();
+            }
+        } catch (e) {
+            console.log(e);
+        }
+
+    }, null, function() {
+        $("#store").show();
+        $("#preloader").data().Preloader.methods.setText("" + kontrol_lang['layout_loading_items'] + "");
+        $("#preloader").data().Preloader.methods.draw([{issue: "" + kontrol_lang['layout_loading_item_list'] + ""}]);
+        $("#preloader").data().Preloader.methods.show();
+    });
+
+    call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+        cats = jQuery.parseJSON(cats.toString());
+        if (addSubCat($("#jstree_categories #maincats"), cats.data)) {
+            doTree('#jstree_categories', ["wholerow", "types", "checkbox"]);
+        }
+
+        set_mysubcats(cats.data);
+
+    });
+
+    $("#btn-delete-items").click(function() {
+        if ($("#sortable_items li.checked").length > 0) {
+            var tobedeleted = [];
+            $("#sortable_items li.checked").find('input[class!=switch-small]:checked').each(function() {
+                tobedeleted.push({deleted: 1, id: parseInt($(this).parent().data().id)});
+            });
+
+            $("#message-confirm").modal("show");
+
+            $("#message-confirm").find("#btn-confirm").click(function() {
+                $("#message-confirm").modal("hide");
+                $("#message-confirm").on('hidden.bs.modal', function() {
+
+                    call_api('/api/items/update_items_properties', 'post', {store_id: store_id, json: JSON.stringify(tobedeleted)}, function(data) {
+                        updatevitems();
+                        $("#preloader").data().Preloader.methods.hide();
+                        delay(function() {
+                            $("#sortable_items li.checked").remove();
+                        }, 2000);
+
+                    }, null, function() {
+                        $("#preloader").data().Preloader.methods.setText("" + kontrol_lang['layout_changes_will_be_made'] + "");
+                        $("#preloader").data().Preloader.methods.draw([{issue: "" + kontrol_lang['layout_items_will_be_deleted_1'] + "" + tobedeleted.length + "" + kontrol_lang['layout_items_will_be_deleted_2'] + ""}]);
+                        $("#preloader").data().Preloader.methods.show();
+                    });
+                });
+            });
+        }
+    });
+
+    $("#btn-delete-items").click(function() {
+        if ($("#sortable_items li.checked").length > 0) {
+            var tobedeleted = [];
+            $("#sortable_items li.checked").find('input[class!=switch-small]:checked').each(function() {
+                tobedeleted.push({deleted: 1, id: parseInt($(this).parent().data().id)});
+            });
+
+            $("#message-confirm").modal("show");
+
+            $("#message-confirm").find("#btn-confirm").click(function() {
+                $("#message-confirm").modal("hide");
+                $("#message-confirm").on('hidden.bs.modal', function() {
+                    delete_items(store_id, tobedeleted);
+
+                });
+            });
+        }
+    });
+
+
+    $("#checkall").click(function() {
+        if ($(this).hasClass("btn-success")) {
+            $("#sortable_items").find("input[type=checkbox]").prop("checked", true);
+            $("#sortable_items").find("li").addClass("checked");
+            $(this).removeClass("btn-success");
+            $(this).addClass("btn-danger");
+            $(this).html('<span class="glyphicon glyphicon-unchecked"></span>&nbsp;');
+            $(this).append($(this).data().uncheckedText);
+        } else {
+            $("#sortable_items").find("input[type=checkbox]").prop("checked", false);
+            $("#sortable_items").find("li").removeClass("checked");
+            $(this).removeClass("btn-danger");
+            $(this).addClass("btn-success");
+            $(this).html('<span class="glyphicon glyphicon-check"></span>&nbsp;');
+            $(this).append($(this).data().checkedText);
+        }
+    });
+
+    $("#btn-add-categories").click(function() {
+        var r = $("#jstree_categories").jstree(true);
+        if (r) {
+            r.deselect_all();
+
+            var arr = [];
+            $("li.checked").each(function() {
+                arr = arr.concat($(this).data().categories);
+            });
+
+            /*
+             for (i in arr) {
+             if ($("li[data-id=" + arr[i].id + "]").length) {
+             var node = r.get_node($("li[data-id=" + arr[i].id + "]"));
+             r.select_node(node);
+             }
+             }*/
+            $("#jstree_categories").data("", arr);
+            $(".floatcategories").fadeIn("fast");
+        }
+    });
+
+    $("#btn-save-categories").click(function() {
+        if ($("#sortable_items li.checked").length > 0) {
+            var r = $("#jstree_categories").jstree(true);
+            var s = r.get_json(), a = [], b = [];
+            var agregar = assigncategories(s[0], "add");
+
+            $("#sortable_items li.checked").each(function(i, e) {
+                a.push(parseInt($(e).data().id));
+            });
+
+            for (var j in agregar) {
+                if (agregar[j]) {
+                    b.push({id: a, cat_id: agregar[j].id});
+                    $("#sortable_items li.checked").addClass(convertToSlug(agregar[j].name));
+                }
+            }
+
+
+            call_api('/api/items/add_item_to_category_masive', 'post', {"store_id": store_id, json: JSON.stringify(b)}, function() {
+                $("#preloader").data().Preloader.methods.hide();
+
+            }, null, function() {
+                $("#preloader").data().Preloader.methods.show();
+                $("#preloader").data().Preloader.methods.setText("" + kontrol_lang['layout_changes_will_be_made'] + "");
+                $("#preloader").data().Preloader.methods.draw([{issue: "" + kontrol_lang['layout_categories_will_be_assigned_1'] + "" + agregar.length + "" + kontrol_lang['layout_categories_will_be_assigned_2'] + " " + $("li.checked").length + "" + kontrol_lang['layout_categories_will_be_assigned_3'] + " "}]);
+            });
+        }
+        $(".floatcategories").fadeOut("fast");
+    });
+
+    $(".closetree").on("click", function() {
+        $(".floatcategories").fadeOut("fast");
+    });
+
+    $(".floatcategories").on('mouseleave', function() {
+        var timer = self.setInterval(function() {
+            if ($(".floatcategories:hover").length < 1) {
+                $(".floatcategories").fadeOut("fast");
+            }
+            window.clearInterval(timer);
+        }, 3000);
+    });
+
+
+});
+
+function updatevitems() {
+    $("#totalitems").html($("#sortable_items").find("li:visible").length);
+}
+
+function assigncategories(cats, action) {
+    var agregar = [];
+    var borrar = [];
+    var categories = [];
+
+    for (var i in cats.children) {
+        if (cats.children[i].children.length > 0) {
+            var aux = assigncategories(cats.children[i], action);
+            if (cats.children[i].state.selected || $("#" + cats.children[i].id + " > a.jstree-anchor").find(".jstree-checkbox").hasClass("jstree-undetermined")) {
+                agregar.push({id: cats.children[i].data.id, name: cats.children[i].text});
+            }
+            agregar = agregar.concat(aux);
+
+        }
+        else {
+            categories.push({id: cats.children[i].data.id, name: cats.children[i].text});
+            $("#sortable_items").find("li").removeClass(convertToSlug(cats.children[i].text));
+            if (cats.children[i].state.selected || $("#" + cats.children[i].id + " > a.jstree-anchor").find(".jstree-checkbox").hasClass("jstree-undetermined")) {
+                agregar.push({id: cats.children[i].data.id, name: cats.children[i].text});
+            }
+            else {
+                borrar.push({id: cats.children[i].data.id, name: cats.children[i].text});
+            }
+        }
+    }
+    if (action == "add")
+        return agregar;
+    if (action == "delete")
+        return borrar;
+    return categories;
+}
+
+function filterItems(element) {
+
+    $("#showcats").parent().find("a[data-toggle=dropdown]").html($(element).find("a").html());
+    var cls = "li";
+    $("ol#breadcrumb > li").each(function(i, e) {
+        var v = $(e).find(".btn-group > a").html();
+        if ($(this).find(".allcategoriesfilter a").html() != v) {
+            cls += "." + convertToSlug(v);
+        }
+    });
+
+    if ($("#sortable_items").find(cls).length > 0)
+        $("#sortable_items").find(cls).show();
+
+    /*
+     $("#sortable_items li").each(function(i, e) {
+     if ($(e).data().categories)
+     for (var t = 0; t < $(e).data().categories.length; t++) {
+     if (parseInt($(e).data().categories[t].id) == $(element).data().id) {
+     $(e).show();
+     }
+     }
+     });*/
+
+    updatevitems();
+}
+
+function setTooltip(t) {
+    t.each(function() {
+        var title = "";
+        if ($(this).hasClass("without-founds")) {
+            title = kontrol_lang['orders_sin_fondos'];
+        }
+        if ($(this).hasClass("waiting-for-payment")) {
+            title = kontrol_lang['orders_waiting_for_payment'];
+            $(this).html(kontrol_lang['o_waiting_for_payment']);
+        }
+        if ($(this).hasClass("new")) {
+            title = kontrol_lang['orders_new'];
+            $(this).html(kontrol_lang['o_new']);
+        }
+        if ($(this).hasClass("pending")) {
+            title = kontrol_lang['orders_pending'];
+            $(this).html(kontrol_lang['o_pending']);
+        }
+        if ($(this).hasClass("confirmed")) {
+            title = kontrol_lang['orders_confirmed'];
+            $(this).html(kontrol_lang['o_confirmed']);
+        }
+        if ($(this).hasClass("en-ruta")) {
+            title = kontrol_lang['orders_en_ruta'];
+            $(this).html(kontrol_lang['o_en_ruta']);
+        }
+        if ($(this).hasClass("delivered")) {
+            title = kontrol_lang['orders_delivered'];
+            $(this).html(kontrol_lang['o_delivered']);
+        }
+        if ($(this).hasClass("pendiente-cancelacion")) {
+            title = kontrol_lang['orders_pendiente_cancelacion'];
+            $(this).html(kontrol_lang['o_pendiente_cancelacion']);
+        }
+        if ($(this).hasClass("closed")) {
+            title = kontrol_lang['orders_closed'];
+            $(this).html(kontrol_lang['o_closed']);
+        }
+        $(this).popover({
+            content: title,
+            html: true,
+            placement: "right",
+            trigger: "hover"
+        });
+    });
+
+}
+function set_mysubcats(data) {
+    var li = document.createElement("li");
+    $(li).append('<div class="btn-group">' +
+            '<a href="#" data-toggle="dropdown">' + kontrol_lang['layout_all_the'] + ' ' + (($("#breadcrumb").find("li").length > 1) ? kontrol_lang['layout_all_categories_2'] : kontrol_lang['layout_all_categories_1']) + '</a>' +
+            '<ul class="dropdown-menu" role="menu">' +
+            //'<li class="allcategoriesfilter"><a>'+kontrol_lang['layout_all_categories_1']+' ' + (($("#breadcrumb").find("li").length > 1) ? "" : "") + ''+kontrol_lang['layout_all_categories_2']+'</a></li>' +
+            '<li class="allcategoriesfilter"><a>' + kontrol_lang['layout_all_the'] + ' ' + (($("#breadcrumb").find("li").length > 1) ? kontrol_lang['layout_all_categories_2'] : kontrol_lang['layout_all_categories_1']) + '</a></li>' +
+            '</ul>' +
+            '</div>'
+            );
+    //data.unshift({name:"All", subcats:[]});
+
+    for (var i in data) {
+        var obj = data[i];
+        if (obj != undefined) {
+            var l = document.createElement("li");
+            $(l).attr("data-id", obj.id);
+            $(l).data("subcats", obj.subcats);
+            $(l).html("<a href='#'>" + obj.name + "</a>");
+            $(l).click(function() {
+
+                $(this).closest(".btn-group").parent().nextAll().remove();
+                $("#sortable_items li.checked").removeClass("checked");
+                $("#sortable_items li input[class!=switch-small]").prop("checked", false);
+                if ($(this).data().subcats.length > 0) {
+                    set_mysubcats($(this).data().subcats);
+                }
+                $(this).closest(".btn-group").find("a[data-toggle=dropdown]").html($(this).find("a").html());
+                $("#sortable_items li").hide();
+                filterItems(this);
+            });
+
+            $(li).find("ul.dropdown-menu").append(l);
+            $(li).find(".allcategoriesfilter").click(function() {
+                $(this).closest(".btn-group").find("a[data-toggle=dropdown]").html($(this).find("a").html());
+                $(this).closest(".btn-group").parent().nextAll().remove();
+                filterItems(this);
+            });
+
+        }
+    }
+    $("#breadcrumb").append(li);
+
+}

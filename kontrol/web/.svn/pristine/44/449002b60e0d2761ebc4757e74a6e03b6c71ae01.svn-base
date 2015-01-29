@@ -1,0 +1,68 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+?>
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<br/><br/><br/>
+<script type="text/javascript">
+    $(document).ready(function() {
+        call_api('/api/apps/get_guests', 'post', {"store_id": store_id}, function(data) {
+            var ajax_request = jQuery.parseJSON(data.toString());
+
+            var html = '<div class="panel-group" id="accordion-pagos">';
+
+            for (var i in ajax_request.data) {
+                var obj = (ajax_request.data[i]);
+                console.log(obj);
+
+
+                var body = "<h4 class='pull-right'>Activation code: " + obj.activation_code + "</h4>";
+                if (obj.data_buyer)
+                    body += '<div><b>Comprador:</b>' + obj.data_buyer.nombre + ", " + obj.data_buyer.cargo + " " + obj.data_buyer.empresa + " " + obj.data_buyer.email + "</div>";
+                if (obj.data_assistant)
+                    body += "<div><b>Assistant:</b>" + obj.data_assistant.nombre + " " + obj.data_assistant.telefono + " " + obj.data_assistant.email + "</div>";
+
+                if (obj.guests.length > 0) {
+                    //body += "<h3>Guests</h3>";
+
+                    body += "<table class='table'>";
+                    body += "<tr><th>#</th><th>Guest</th><th>Created</th><th>Last Update</th><th>Duplicated</th><th>Redeemed</th><th>Token</th></tr>";
+
+                    for (var j = 0; j < obj.guests.length; j++) {
+                        body += "<tr><td>" + obj.guests[j].id + "</td>"+
+                                "<td>" + obj.guests[j].data + "</td>" +
+                                "<td>" + obj.guests[j].created + "</td>"+
+                                "<td>" + ((obj.guests[j].data_last_time_updated)?obj.guests[j].data_last_time_updated:"") + "</td>"+
+                                "<td>" + ((obj.guests[j].duplicado)?(obj.guests[j].duplicado + "<br/>" + obj.guests[j].duplicado_by + "<br/>" + obj.guests[j].duplicado_timestamp):"") + "</td>" +
+                                "<td>" + ((obj.guests[j].redimido)?(obj.guests[j].redimido + "<br/>" + obj.guests[j].redimido_by + "<br/>" + obj.guests[j].redimido_timestamp):"") + "</td>"+
+                                "<td>" + obj.guests[j].token + "</td></tr>";
+                    }
+                    body += "</table>";
+                }
+
+                html += '<div class="panel panel-default">' +
+                        '<div class="panel-heading">' +
+                        '<a data-toggle="collapse" data-parent="#accordion-pagos" href="#collapse-10595" class="collapsed">' +
+                        '<div class="panel-title">' +
+                        '<b>No. ' + obj.id + '</b><i class="articulo">' + obj.name + '</i><span>' + obj.total_guests + ' guests</span>' +
+                        '</div>' +
+                        '</a></div>' +
+                        '<div id="collapse-10595" class="panel-collapse collapse" style="height: 0px;">' +
+                        '<div class="panel-body">' +
+                        body +
+                        '</div></div></div></div>';
+            }
+            html += "</div>";
+            $("#tickets").append(html);
+
+
+        });
+    });
+</script>
+
+
+
+<div class="container">
+    <h3>Tickets</h3>
+    <div id="tickets"></div>
+</div>

@@ -1,0 +1,52 @@
+/* 
+ * V2 Sell.Kichink
+ * Payment Details
+ */
+$(document).ready(function() {
+  call_api('/api/notifications/get_notifications', 'post', {"store_id": store_id}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        console.log(obj.data);
+        for (i in obj.data) {
+            var type="";
+            switch(obj.data[i].type){
+                case "important":{
+                     type="fa-warning";  
+                     break;
+                }
+                case "simple":{
+                    type="fa-bell-o";    
+                    break;
+                }
+                default:{
+                    type="fa-link";    
+                    break;
+                }
+            }
+            var o = '<div class="panel panel-default '+(obj.data[i].read?"read":"unread")+'" data-id="'+obj.data[i].id+'">' +
+                    '<div class="panel-heading">' +
+                    '<a data-toggle="collapse" data-parent="#accordion-pagos" href="#collapse-' + i + '">' +
+                    '<div class="panel-title">' +
+                    '<b><i class="fa '+type+'"></i></b>' +
+                    '<i class="articulo">' + obj.data[i].title + '</i>' +
+                    '<span>' + date_ago(obj.data[i].created) + '</span>' +
+                    '</div>' +
+                    '</a>' +
+                    '</div>';
+            if (obj.data[i].message!="") {
+                o += '<div id="collapse-' + i + '" class="panel-collapse collapse">' +
+                        '<div class="panel-body">' +
+                        obj.data[i].message+
+                        '</div>' +
+                        '</div>';
+            }
+            o += '</div>';
+
+            $("#accordion-notifications").append(o);
+
+        }
+
+     
+    });
+});
+
+

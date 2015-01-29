@@ -1,0 +1,236 @@
+/* 
+ * V2 Sell.Kichink
+ * Settings
+ */
+
+$(document).ready(function() {
+    var to = false;
+    updateOrderTable();
+    $('#demo_q').keyup(function() {
+        if (to) {
+            clearTimeout(to);
+        }
+        to = setTimeout(function() {
+            var v = $('#demo_q').val();
+            $('#jstree_demo').jstree(true).search(v);
+        }, 250);
+    });
+
+    $("#addUser").submit(function() {
+        call_api('/api/stores/add_store_users/', 'post', {"store_id": store_id, "email": $("#addUser").find("input[name=emailAdmin]").val()}, function(data) {
+            $("#addUser").find("input[name=emailAdmin]").val("");
+            alert("El correo ha sido enviado satisfactoriamente");
+        });
+        return false;
+    });
+
+    $("#addCategories").on("submit", function() {
+        var ref = $('#jstree_demo').jstree(true),
+                sel = ref.get_selected();
+        if (!sel.length) {
+            var sid = (ref._model.data["#"].children[0]);
+            ref.select_node(ref._model.data[sid]);
+            sel = ref.get_selected();
+            //return false;
+        }
+
+        call_api("/api/items/add_category", 'post', {store_id: store_id, parent_id: ($("#" + sel).data().id) ? $("#" + sel).data().id : 0, name: $("#addCategories").find("input[type=text]").val(), order: 1}, function(data) {
+            data = jQuery.parseJSON(data.toString());
+
+            var ref = $('#jstree_demo').jstree(true);
+
+            var sel2 = ref.create_node(sel[0], {"text": $("#addCategories").find("input[type=text]").val(), "type": "default"});
+            if (sel2) {
+                ref.open_node(sel2);
+                ref.select_node(sel2);
+                $("#" + sel2).data("id", data.data.id);
+                console.log(data);
+            }
+            $("#addCategories").find("input[type=text]").val('');
+        });
+        return false;
+    });
+
+    $("#settings-menu").find("li a").each(function(i, e) {
+        $(e).click(function() {
+            v = window.location.pathname.split("/");
+            formatter = "/" + v[1] + "/" + v[2] + "/" + v[3] + "/";
+            if (!$(e).parent().hasClass("disabled")) {
+                var s = $(e).attr("href").replace("#", "");
+                window.history.replaceState({}, '', formatter + s);
+            }
+        });
+    });
+
+    // Details
+    $('#submit_details').click(function(event) {
+
+        var inputs = $('#details_store').serializeArray();
+        inputs.push({'name': 'store_id', 'value': store_id});
+        inputs.push({'name': 'seccion', 'value': 'info'});
+
+        if ($("input[name='facturacion']:checked").length == 0)
+            inputs.push({'name': 'facturacion', 'value': '0'});
+        if ($("input[name='inventories']:checked").length == 0)
+            inputs.push({'name': 'inventories', 'value': '0'});
+        if ($("input[name='physical']:checked").length == 0)
+            inputs.push({'name': 'physical', 'value': '0'});
+
+        call_api('/api/stores/update_store_settings/', 'post', $.param(inputs), function(data) {
+            data = jQuery.parseJSON(data.toString());
+            if (data.data) {
+
+            }
+            else
+                alert('Error al actualizar, intente de nuevo');
+        });
+        event.preventDefault()
+    });
+
+    // Address
+    $('#submit_pos').click(function(event) {
+        var inputs = $('#step1_pos').serializeArray();
+        inputs.push({'name': 'store_id', 'value': store_id});
+        inputs.push({'name': 'seccion', 'value': 'add_address'});
+
+        call_api('/api/stores/update_store_settings/', 'post', $.param(inputs), function(data) {
+            data = jQuery.parseJSON(data.toString());
+            if ($("#step1_pos").data().validationK.methods.validate() && data.data) {
+                var addr = [];
+                var cntc = [];
+                for (var i in inputs) {
+                    if (inputs[i].name.indexOf("_contacto") != -1) {
+                        cntc.push(inputs[i].value);
+                    } else {
+                        addr.push(inputs[i].value);
+                    }
+                }
+
+                var tr = document.createElement("tr");
+                $(tr).append("<td></td>");
+                $(tr).append("<td>" + addr.join(" ") + "</td>");
+                $(tr).append("<td>" + cntc.join("<br/>") + "</td>");
+                $(tr).append('<td><a class="btn btn-default delete-pos"> <span class="glyphicon glyphicon-trash"></span> Borrar</a></td>');
+
+                $("#my-addr").append(tr);
+                updateOrderTable();
+                $("#step1_pos").find("input[type=text]").val("");
+            }
+
+        });
+        event.preventDefault();
+    });
+
+    // Carga la información de la tienda
+    call_api('/api/stores/get_store_info', 'post', {'store_id': store_id}, function(data) {
+        data = jQuery.parseJSON(data.toString());
+        $.each(data.data, function(campo, value) {
+
+            if (campo == 'name')
+                $('#' + campo).val(value);
+            else if (campo == 'facturacion') {
+                if (value == '1')
+                    $('#' + campo).attr('checked', 'checked');
+            }
+            else if (campo == 'inventories') {
+                if (value == '1')
+                    $('#' + campo).attr('checked', 'checked');
+            }
+            else if (campo == 'physical') {
+                if (value == '1')
+                    $('#' + campo).attr('checked', 'checked');
+            }
+            else
+                $('#' + campo).html(value);
+        });
+
+    });
+
+    call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+        cats = jQuery.parseJSON(cats.toString());
+        if (addSubCat($("#jstree_demo #cats"), cats.data)) {
+            doTree('#jstree_demo', ["wholerow", "state", "types", "dnd"], function(data) {
+                updateCategory(data);
+            });
+        }
+    });
+
+    $("#step1_pos").validationK();
+
+});
+
+function demo_create() {
+    var ref = $('#jstree_demo').jstree(true),
+            sel = ref.get_selected();
+    if (!sel.length) {
+        return false;
+    }
+    sel = sel[0];
+    sel = ref.create_node(sel, {"type": "default"});
+    if (sel) {
+        ref.edit(sel);
+    }
+}
+
+function demo_rename() {
+    var ref = $('#jstree_demo').jstree(true),
+            sel = ref.get_selected();
+    if (!sel.length) {
+        return false;
+    }
+    //sel = sel[0];
+
+    if (!$("#" + sel[0]).hasClass("jstree-disabled")) {
+        ref.edit(sel);
+    }
+}
+
+function demo_delete() {
+    var ref = $('#jstree_demo').jstree(true), sel = ref.get_selected();
+    if (!sel.length) {
+        return false;
+    }
+    if (!$("#" + sel[0]).hasClass("jstree-disabled")) {
+        console.log($("#" + sel[0]).data());
+        call_api('/api/items/delete_category', 'post', {store_id: store_id, cat_id: $("#" + sel[0]).data().id}, function() {
+        });
+
+        ref.delete_node(sel);
+    }
+
+}
+
+function updateOrderTable() {
+
+    if ($("#my-addr").find("tbody tr[class!=noaddr]").length > 0)
+        $(".noaddr").hide();
+    else
+        $(".noaddr").show();
+    $("#my-addr").find("tbody tr[class!=noaddr]").each(function(i, e) {
+        $(this).find("td:first-child").html(i + 1);
+    });
+
+    $(".delete-pos").unbind("click");
+    $(".delete-pos").click(function() {
+        $(this).closest("tr").fadeOut("slow", function() {
+            $(this).closest("tr").remove();
+            call_api('/api/stores/remove_store_users/', 'post', {"store_id": store_id, "address_id": $(this).closest("tr").data().id}, function(data) {
+                updateOrderTable();
+            });
+        });
+    });
+}
+
+function updateCategory(data) {
+    var parent_id = ($("#" + data.node.parent).data().id != undefined) ? $("#" + data.node.parent).data().id : 0;
+    var obj = {
+        "store_id": store_id,
+        "cat_id": data.node.data.id,
+        "name": data.node.text,
+        "order": data.position,
+        "parent_id": parent_id
+    };
+    call_api('/api/items/edit_category', 'post', obj, function() {
+    });
+}
+

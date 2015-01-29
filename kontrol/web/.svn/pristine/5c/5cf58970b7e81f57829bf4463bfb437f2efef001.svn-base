@@ -1,0 +1,196 @@
+<link href="/css/orders.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8">
+    <div class="col-lg-12" id="main-content">
+
+        <div class="well" style="width:830px;">
+            <div style="width:625px;display: inline-block;">
+                Encuentra en esta pantalla el historial de solicitudes de dep&oacute;sito de tu cuenta. Recuerda que una vez solicitado el dep&oacute;sito este 
+                tomar&aacute; entre <b>48 y 72 hrs. h&aacute;biles</b> en procesare, apenas seas procesado te notificaremos v&iacute;a correo elctr&oacute;nico.
+            </div>
+            <div style="display: inline-block;float: right;margin: 10px;">
+                <button id="solicitar-deposito-btn" class="btn btn-primary">Solicitar dep&oacute;sito</button> 
+            </div>            
+        </div>
+        <div class="modal fade" id="modal-pagos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Confirmaci&oacute;n de Solicitud de Pago</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Ha solicitado el pago de N ordenes. Este se realizará a mas tardar el dia dd/MM/YY v&iacute;a transferencia bancaria a la cuenta XXXXXXXXXXXXXXXX a nombre de XXXXXXXXXXXXX.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary">Confirmar</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <section>
+            <div class="title">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <b>Pending</b>
+                </div> 
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    <span>Solicitudes que est&aacute; en proceso de pago.</span>
+                </div> 
+            </div>
+            <div id="pending-payments"></div>
+        </section>
+        <section>
+            <div class="title">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <b>Closed</b> 
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    <span>Solicitudes de pago que ya fueron depositadas y cerradas.</span>
+                </div>
+            </div>
+            <div id="closed-payments"></div>
+
+        </section>
+        <section>
+            <div class="title">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <b>Available</b> 
+                </div>
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    <span>Ordenes liberadas sobre las cuales puedes generar una solicitud de pago.</span>
+                </div>
+            </div>
+            <div id="available-payments"></div>
+        </section>          
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+
+        $("#pending-payments").DinamicTable({
+            tableClass: "table transparent",
+            numered: false, //Si va numerada
+            selectable: false, //Si lleva checkboxes o no
+            types: {
+                status: "label",
+                total_sale_price: "money",
+                time_ago: "time_ago"
+            },
+            dataTable: {
+                "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+                "sPaginationType": "bootstrap",
+                "bFilter": false,
+                "bInfo": false,
+                "oLanguage": {
+                    "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                    "sLengthMenu": "Show _MENU_",
+                    "sPrevious": "",
+                    "sNext": ""
+                }
+            },
+            actions: [//Tpdas las acciones que quiero agregar
+                {
+                    label: "Ver",
+                    icon: "",
+                    onClick: function(obj) {
+                        window.location = '/orders/id/' + obj.data.id + '/' + obj.data.store_id;
+                    }
+                }]
+        });
+
+        $("#closed-payments").DinamicTable({
+            tableClass: "table transparent",
+            numered: false, //Si va numerada
+            selectable: false, //Si lleva checkboxes o no
+            types: {
+                status: "label",
+                total_sale_price: "money",
+                time_ago: "time_ago"
+            },
+            dataTable: {
+                "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+                "sPaginationType": "bootstrap",
+                "bFilter": false,
+                "bInfo": false,
+                "oLanguage": {
+                    "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                    "sLengthMenu": "Show _MENU_",
+                    "sPrevious": "",
+                    "sNext": ""
+                }
+            },
+            actions: [//Tpdas las acciones que quiero agregar
+                {
+                    label: "Ver",
+                    icon: "",
+                    onClick: function(obj) {
+                        window.location = '/orders/id/' + obj.data.id + '/' + obj.data.store_id;
+                    }
+                }],
+        });
+
+        $("#available-payments").DinamicTable({
+            tableClass: "table transparent",
+            numered: false, //Si va numerada
+            selectable: false, //Si lleva checkboxes o no
+            types: {
+                status: "label",
+                total_sale_price: "money",
+                time_ago: "time_ago"
+            },
+            dataTable: {
+                "bFilter": false,
+                "bInfo": false,
+                "sDom": "<'row'<'col-lg-6'l><'col-lg-6'f>r>t<'row'<'col-lg-6'i><'col-lg-6'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sInfo": "_START_ - _END_ / _TOTAL_ records",
+                    "sLengthMenu": "Show _MENU_",
+                    "sPrevious": "",
+                    "sNext": ""
+                }
+            },
+            actions: [//Tpdas las acciones que quiero agregar
+                {
+                    label: "Ver",
+                    icon: "",
+                    onClick: function(obj) {
+                        window.location = '/orders/id/' + obj.data.id + '/' + obj.data.store_id;
+                    }
+                }]
+        });
+
+    call_api('/api/pagos/get_pagos_sell', 'post', {store_id: store_id, status: "pending", page: 1, limit: 10}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+            $("#pending-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#pending-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#pending-payments").data().DinamicTable.methods.drawTable();
+
+        });
+        
+        call_api('/api/pagos/get_pagos_sell', 'post', {store_id: store_id, status: "closed", page: 1, limit: 10}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+            $("#closed-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#closed-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#closed-payments").data().DinamicTable.methods.drawTable();
+
+        });
+        
+
+        call_api('/api/orders/get_orders_sell', 'post', {store_id: store_id, status: "available", page: 1, limit: 10}, function(data) {
+            var obj = jQuery.parseJSON(data.toString());
+            var visible = ["status", "id", "orders_count", "total_price", "currency", "time_ago"];
+            $("#available-payments").data().DinamicTable.methods.setContent(obj.data);
+            $("#available-payments").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#available-payments").data().DinamicTable.methods.drawTable();
+
+        });
+
+
+
+    });
+</script>

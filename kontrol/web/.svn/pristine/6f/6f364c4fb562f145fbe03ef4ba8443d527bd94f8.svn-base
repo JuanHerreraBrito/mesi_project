@@ -1,0 +1,27 @@
+<div class="col-lg-3 col-md-4 col-sm-4" id="sidebar-left">
+    <div class="col-lg-12 col-md-12 col-sm-12" align="center">
+        <img src="http://placehold.it/160x160" alt="" id="fotoTienda" height="160px" width="160px"/>
+    </div>    
+    <div class="col-lg-12 col-md-12 col-sm-12" align="center">    
+        <button style="width:160px"href="/items/add_item/<?= $store->id ?>" class="btn btn-primary form-control"><span class="glyphicon glyphicon-plus-sign"></span> Add Item</button>
+    </div>
+    <!--div class="border"></div>
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <span class="glyphicon glyphicon-envelope"></span>&nbsp;<b>Messages</b>&nbsp;<span class="badge">0</span>
+    </div-->
+    <div class="border"></div>
+    <div class="col-lg-12 col-md-12 col-sm-12 ">
+        <div><span class="glyphicon glyphicon-stats"></span>&nbsp;<b>Stats</b> for <b><a href="">today <span style="font-size:x-small" class="glyphicon glyphicon-chevron-down"></b></a></div>
+        <div id="stats" >
+            <div class="stats-box col-lg-12">
+                <h2 id="sales">$0.00</h2>
+                <p>in sales</p>
+            </div>
+            <br/>
+            <div class="stats-box col-lg-12">
+                <h2 id="views">0</h2>
+                <p>pageviews</p>
+            </div>
+        </div>
+    </div>
+</div>

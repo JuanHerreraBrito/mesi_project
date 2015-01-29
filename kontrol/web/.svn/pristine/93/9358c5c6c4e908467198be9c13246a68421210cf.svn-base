@@ -1,0 +1,263 @@
+<? 
+$this->load->view('layout/header.php');
+$usrPref = getUsrPref($this->session->userdata('user_id'));
+$usrLang = $usrPref->usr_language;
+$store = $this->uri->segment(3);
+$cells_width=array('', '20%', '20%', '20%', '30%', '5%','5%');
+$nombre_tienda = false;
+?>
+<script type="text/javascript" src="/js/jsapi.js"></script>
+
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+</script>
+<div class="container">
+
+      <div class="content">
+        <div class="page-header" style="background: #942984;">
+          <h1 style="font-family: Rockwell, Helvetica, Arial, sans-serif; font-weight:normal; text-align:center; color:#FFF;">Estad&iacute;sticas de tu tienda</h1>
+        </div>
+        <div class="row">
+          <div class="span12" style=" text-align:center;">
+          	<table id="overview_table">
+          		<tr>
+          			<td width="20%">
+	          			<h4>Ventas totales</h4>
+	          			<p id="ventas_totales">$0</p>
+	          			<div class="overview_order_count" id="ordenes_totales">0<br />Ordenes</div>
+          			</td>
+          			<td width="20%">
+	          			<h4>30 dias</h4>
+	          			<p id="ventas_30">$0</p>
+	          			<div class="overview_order_count" id="ordenes_30">10</div>
+          			</td>
+          			<td width="20%">
+	          			<h4>7 dias</h4>
+	          			<p id="ventas_7">$0</p>
+	          			<div class="overview_order_count" id="ordenes_7">10<br />Ordenes</div>
+          			</td>
+          			<td width="20%">
+	          			<h4>Hoy</h4>
+	          			<p id="ventas_1">$0</p>
+	          			<div class="overview_order_count" id="ordenes_1">10<br />Ordenes</div>
+          			</td>
+          			<td width="20%" style="background: #942984; ">
+	          			<h4 style="color:#FFF;">Total depositado</h4>
+	          			<p id="pagos_totales" style="color:#FFF;">$0</p>
+          			</td>
+          		</tr>
+          	</table>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div id="graph_container" class="span12" style=" text-align:center; height:300px;">
+          		<div id="graph">
+          		
+          		</div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="span8" style=" text-align:center; min-height: 600px;">
+          	<table id="overview_products">
+          		
+          		<thead>
+          			<tr>
+	          			<td colspan="3"><h3 class="stats_table_head">Productos</h3></td>
+	          		</tr>
+	          		<tr>
+	          			<td width="50%"><h5>Producto</h5></td>
+	          			<td width="25%"><h5>Ordenes</h5></td>
+	          			<td width="25%"><h5>Ventas</h5></td>
+	          		</tr>
+          		</thead>
+          		
+          	</table>
+          </div>
+          
+          <div class="span6" style=" text-align:center; min-height: 600px;">
+          	<table id="overview_users">
+          		
+          		<thead>
+          			<tr>
+	          			<td colspan="3"><h3 class="stats_table_head">Usuarios</h3></td>
+	          		</tr>
+	          		<tr>
+	          			<td width="50%"><h5>Producto</h5></td>
+	          			<td width="25%"><h5>Ordenes</h5></td>
+	          			<td width="25%"><h5>Ventas</h5></td>
+	          		</tr>
+          		</thead>
+          		
+          		
+          	</table>
+          </div>
+        </div>
+        
+        
+        
+        
+      </div>
+</div>
+
+<script type="text/javascript">
+
+	var ajax_result;
+	var query_data = { };
+	
+	$(document).ready(function(){
+	   		
+	   		//get_stores();
+	   		get_sales_overview();
+	   		
+	 });
+	 
+	 function call_api(url, method, vars, callback){
+		 
+		 $.ajax({
+			 type: method,
+			 url: url,
+			 data: vars
+		}).done(function( data ) {
+			var result = jQuery.parseJSON(data);
+			if(!result.status || result.status != 'OK'){
+				alert('Request failed');
+				location.reload();
+			} else {
+				callback(data);
+			}
+			//alert( "Data Saved: " + msg );
+			
+		}).fail(function(jqXHR, textStatus) {
+			alert( "Request failed: " + textStatus );
+			location.reload();
+		});
+		 
+	 }
+	 function get_sales_overview(){
+		 call_api('/api/stats/get_store_sales_overview', 'post', { store_id:<?=$this->uri->segment(3)?>}, function(data) {
+		 	ajax_result = jQuery.parseJSON(data);
+			refresh_sales_overview(ajax_result.data);
+		});	 
+	 }
+	 var graph_data;
+	 function get_sales_graph(){
+		 call_api('/api/stats/get_store_sales_graph', 'post', { store_id:<?=$this->uri->segment(3)?>}, function(data) {
+		 	ajax_result = graph_data= jQuery.parseJSON(data);
+			drawChart(ajax_result.data);
+		});	 
+	 }
+	 
+	 function get_top_products(){
+		 call_api('/api/stats/get_store_top_products', 'post', { store_id:<?=$this->uri->segment(3)?>}, function(data) {
+		 	ajax_result = graph_data= jQuery.parseJSON(data);
+			updateProducts(ajax_result.data);
+		});	 
+	 }
+	 
+	 function get_top_users(){
+		 call_api('/api/stats/get_store_top_users', 'post', { store_id:<?=$this->uri->segment(3)?>}, function(data) {
+		 	ajax_result = graph_data= jQuery.parseJSON(data);
+			updateUsers(ajax_result.data);
+		});	 
+	 }
+	 
+	 function updateUsers(data){
+		 for(var i=0; i<data.length; i++){
+		 	var newRow = '<tr><td>'+data[i].name+'</td>';
+		 	newRow += '<td>'+data[i].orders+'</td>';
+		 	newRow += '<td>$'+addCommas( Math.floor(data[i].sales))+'</td></tr>';
+			 $('#overview_users').append(newRow);
+		 }
+	 }
+	 
+	 function updateProducts(data){
+		 for(var i=0; i<data.length; i++){
+		 	var item_name = '';
+		 	if(data[i].details != 'undefined' && typeof data[i].details != 'null'){
+		 		item_name = data[i].details.name;
+		 	} 
+		 	var newRow = '<tr><td>'+data[i].item_id+' - '+item_name+'</td>';
+		 	newRow += '<td>'+data[i].orders+'</td>';
+		 	newRow += '<td>$'+addCommas( Math.floor(data[i].sales))+'</td></tr>';
+			 $('#overview_products').append(newRow);
+		 }
+	 }
+	 
+	 function drawChart(data) {
+	 	months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+	 	graph_array = [];
+	 	graph_array.push(['Fecha', 'Ventas', 'Ordenes']);
+	 	for(var i=0; i<data.length; i++){
+		 	var fecha = '';
+		 	
+				var month = months[ parseInt(data[i].date.substring(5,7))-1 ];
+			 	var day = parseInt(data[i].date.substring(8,10));
+			 	fecha = day+'-'+month; 	
+		 	
+		 	
+		 	graph_array.push([fecha, parseInt(data[i].sales), parseInt(data[i].orders)]);
+	 	}
+	 	var data = google.visualization.arrayToDataTable(graph_array);
+	 	var formatter = new google.visualization.NumberFormat({
+		      prefix: '$'
+		    });
+		formatter.format(data, 1);
+        
+
+        var options = {
+          
+          legend:{position: 'bottom', textStyle: {color: '#999', fontSize: 12}},
+          width: 920, height: 270,
+          colors:['#942984','#49C7F4'],
+          vAxes: { 0: {format:"'$'#,###"}, 1: {format: '#'} },
+          pointSize:5,
+          hAxis: {showTextEvery: 5},
+          series: {
+            0:{ type: "line", targetAxisIndex: 0 },
+            1: { type: "bar", targetAxisIndex: 1}
+        }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('graph'));
+        chart.draw(data, options);
+      }
+
+	 
+	 function refresh_sales_overview(data){
+	     if(data.sales.orders_yearly > 0){
+		     	get_sales_graph();
+		   		get_top_products();
+		   		get_top_users();
+	     } else {
+		     $('#graph_container').css('text-align','center');
+		     $('#graph_container').html('<h1 style="width:950px; text-align:center; margin:50px auto; color:#942984; font-family: Rockwell, Helvetica, Arial, sans-serif; font-size:40px;">No hay datos disponibles</h1>');
+	     }
+		 $('#ordenes_totales').html(data.sales.orders_yearly+'<br />Ordenes');
+		 $('#ordenes_30').html(data.sales.orders_monthly);
+		 $('#ordenes_7').html(data.sales.orders_weekly);
+		 $('#ordenes_1').html(data.sales.orders_daily);
+		 
+		 $('#ventas_totales').html('$ '+addCommas( Math.floor(data.sales.sales_yearly)));
+		 $('#ventas_30').html('$ '+addCommas( Math.floor(data.sales.sales_monthly)));
+		 $('#ventas_7').html('$ '+addCommas( Math.floor(data.sales.sales_weekly)));
+		 $('#ventas_1').html('$ '+addCommas( Math.floor(data.sales.sales_daily)));
+		 
+		 $('#pagos_totales').html('$ '+addCommas( Math.floor(data.payments.total_payments)));
+	 }
+	 
+	 function addCommas(str) {
+	    var amount = new String(str);
+	    amount = amount.split("").reverse();
+	
+	    var output = "";
+	    for ( var i = 0; i <= amount.length-1; i++ ){
+	        output = amount[i] + output;
+	        if ((i+1) % 3 == 0 && (amount.length-1) !== i)output = ',' + output;
+	    }
+	    return output;
+	}
+</script>
+</body>
+</html>

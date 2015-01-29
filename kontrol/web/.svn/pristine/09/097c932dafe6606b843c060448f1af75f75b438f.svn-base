@@ -1,0 +1,62 @@
+<?php
+    if(isset($_COOKIE["q1c4inkv2"])){
+        header("HTTP/1.1 303 See Other");
+        header("Location: http://sell.kichink.nb9.mx/".$_SERVER["PATH_INFO"]);
+        exit;
+    }
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            <?= (isset($page_title) ? $page_title : $this->lang->line('kichink_html_title') . ' -- Kichink') ?>
+        </title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="description" content=""/>
+        <meta name="author" content=""/>        
+        <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <?php $v = "3.11"; ?>
+        <script src="/js/jquery-1.9.1.min.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/jquery-ui-1.9.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/bootstrap.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/kontrol_lang_<?=(!$this->session->userdata('lang') ? 'es' : $this->session->userdata('lang'))?>.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/default.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/bootstrap-switch.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/jquery.callapi.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/validationK.jquery.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/dataTables.jquery.js?v=<?= @$v ?>"></script>     
+        <script type="text/javascript" src="/v2/js/dinamictable.jquery.js?v=<?= @$v ?>"></script>     
+        <script type="text/javascript" src="/v2/js/ajaxq.jquery.js?v=<?= @$v ?>"></script>     
+        <script type="text/javascript" src="/v2/js/jquery.cookie.js?v=<?= @$v ?>"></script>     
+        <script type="text/javascript" src="/v2/js/jstree/jstree.js?v=<?= @$v ?>"></script>
+        <script type="text/javascript" src="/v2/js/feather.js"></script>
+        <script type="text/javascript" src="/v2/js/preloader.jquery.js?v=<?= @$v ?>"></script>
+
+        <link rel="stylesheet" href="/v2/js/jstree/themes/default/style.css?v=<?= @$v ?>"/>
+        <link rel="stylesheet" href="/v2/css/stores.css?v=<?= @$v ?>"/>
+        <!--<script type="text/javascript" src="https://github.com/danbentley/placeholder/blob/master/js/jquery.placeholder.js"></script>-->
+        <!-- Le styles -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css">       
+        <!--link rel="stylesheet" href="/bootstrap3/css/bootstrap.min.css"/-->
+        <!--link rel="stylesheet" href="/v2/css/font-awesome.min.css"/-->
+        <link href="/bootstrap3/css/bootstrap-theme.css?v=<?= @$v ?>" rel="stylesheet"/>
+        <link href="/v2/css/style.css?v=<?= @$v ?>" rel="stylesheet"/>    
+        <link href="/v2/css/bootstrap-switch.css?v=<?= @$v ?>" rel="stylesheet"/>    
+        <!--[if lte IE 8]>
+        <link href="/css/introjs-ie.css" rel="stylesheet" />
+        <![endif]-->
+        
+        <link href="/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/img/icons/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/img/icons/apple-touch-icon-114x114.png">
+    </head>
+    <body>
+     

@@ -1,0 +1,650 @@
+<?=$this->load->view('layout/header.php', array('page_title'=> $store->name));
+
+if($store->name =='New Store'){
+  $title = $this->lang->line('stores_settings_title_text_default').'<br /><small>'.$this->lang->line('stores_settings_subtitle_text_default').'</small>';
+}else{
+  $title = $this->lang->line('stores_settings_title_text').'<br /><small>'.$this->lang->line('stores_settings_subtitle_text').'</small>';
+}
+?>
+
+<div class="container"> 
+  <div class="content">
+        <div class="page-header">
+          <h1><?=$title?></h1>
+          <a href="<?=base_url().'stores/id/'.$store->id?>" class="btn"><?=$this->lang->line('stores_page_back_button_text');?></a>
+          <a href="javascript:void(0);" onclick="javascript:startIntro();" class="btn success large" style="margin:0 20px 0 0;padding:9px;width:160px;text-align:center;float:right"><?=$this->lang->line('stores_orders_mostrar_tuto');?></a><br/><br/>
+        </div>
+        <ul class="tabs" data-tabs="tabs">
+            <li<?=(($this->session->userdata('settings_tab')=='details')?' class="active"':'')?>><a href="#details"><?=$this->lang->line('stores_settings_detailsTab_title_text')?></a></li>
+            <li<?=(($this->session->userdata('settings_tab')=='administrators')?' class="active"':'')?>><a href="#administrators"><?=$this->lang->line('stores_settings_administratorsTab_title_text')?></a></li>
+            <li<?=(($this->session->userdata('settings_tab')=='locations')?' class="active"':'')?>><a href="#locations"><?=$this->lang->line('stores_settings_locationsTab_title_text')?></a></li>
+            <li<?=(($this->session->userdata('settings_tab')=='pos')?' class="active"':'')?>><a href="#pos">Direcci&oacute;n de recolecci&oacute;n</a></li>
+            <li<?=(($this->session->userdata('settings_tab')=='payments')?' class="active"':'')?>><a href="#payments"><?=$this->lang->line('stores_settings_paymentsTab_title_text')?></a></li>
+            <? if($store->labs == 1){ ?> 
+            <li<?=(($this->session->userdata('settings_tab')=='labs')?' class="active"':'')?>><a href="#labs"><img src = "http://cdn5.iconfinder.com/data/icons/cosmo-education/40/326506-chemistry_2-128.png" width="16" height="16" />Labs</a></li>
+            <? } ?>
+        </ul>
+        <div id="my-tab-content" class="tab-content">
+        
+            <div id="details" class="<?=(($this->session->userdata('settings_tab')=='details')?'active':'')?> tab-pane settings_tab row">
+              <div class="span12">
+              
+                <? if(isset($details['flashMessage'])){ ?>
+                  <div class="alert-message warning span11">
+                    <a class="close" href="#">×</a>
+                    <?=$details['flashMessage']?>
+                  </div>
+                <? } ?>
+                <form method="post" action="<?=base_url()?>stores/settings/<?=$store->id?>" class="form-stacked">
+                    <fieldset>
+                          <div class="clearfix" id="step1_details">
+                              <label for="name"> <?=$this->lang->line('stores_settings_detailsTab_name_text')?> </label>
+                              <input type="text" name="name"  class="span7" value="<?=(isset($store->name)?$store->name:'')?>" />
+                          </div>
+                          <br />
+                          <div id="step2_details">
+                            <div class="clearfix">
+                                <label for="description"> <?=$this->lang->line('stores_settings_detailsTab_description_text')?> </label>
+                                <textarea name="description" class="span7"><?=(isset($store->description)?$store->description:'')?></textarea>  
+                            </div>
+                            <br />
+                            <div class="clearfix">
+                                <label for="description"> <?=$this->lang->line('stores_settings_detailsTab_descriptionEng_text')?> </label>
+                                <textarea name="description_eng" class="span7"><?=(isset($store->description_eng)?$store->description_eng:'')?></textarea>  
+                            </div>
+                            <br />
+                            <div class="clearfix">
+                                <label for="about_us"> <?=$this->lang->line('stores_settings_detailsTab_aboutUs_text')?> </label>
+                                <textarea name="about_us" class="span7"><?=(isset($store->about)?$store->about:'')?></textarea>  
+                            </div>
+                            <br />
+                            <div class="clearfix">
+                                <label for="about_us"> <?=$this->lang->line('stores_settings_detailsTab_aboutUsEng_text')?> </label>
+                                <textarea name="about_us_eng" class="span7"><?=(isset($store->about_eng)?$store->about_eng:'')?></textarea>  
+                            </div>
+                          </div>
+                          <br />
+                          <div id="step3_details">
+                            <div class="clearfix span7">
+                                <label for="options"><?=$this->lang->line('stores_settings_detailsTab_options_text')?></label>
+                                <!--<div class="row" style="border-bottom:#EEEEEE 1px solid; border-top:#EEEEEE 1px solid; margin:10px 0 0 0; padding:10px 0px">
+                                  <div class="span3">
+                                      <input type="checkbox" name="live" value="1" <? if(isset($store->live_store) AND $store->live_store == 1){ ?> checked="checked"<? }?>/><b style="font-size:15px; margin-left:10px"> <?=$this->lang->line('stores_settings_detailsTab_live_text_1')?></b> 
+                                    </div>
+                                    <div class="span3">
+                                      <p style="color:#AAA"><?=$this->lang->line('stores_settings_detailsTab_live_text_1.1')?></p><br />
+                                    </div>
+                                </div>--> 
+                                <div class="row" style="border-bottom:#EEEEEE 1px solid;border-top:#EEEEEE 1px solid; margin:10px 0 0 0; padding:10px 0px">
+                                  <div class="span3">
+                                      <input type="checkbox" name="inventories" value="1" <? if(isset($store->inventories) AND $store->inventories == 1){ ?> checked="checked"<? }?> /><b style="font-size:15px; margin-left:10px"> <?=$this->lang->line('stores_settings_detailsTab_Inventories_text_1')?> </b> 
+                                    </div>
+                                    <div class="span3">
+                                      <p style="color:#AAA"><?=$this->lang->line('stores_settings_detailsTab_Inventories_text_1.1')?></p><br />
+                                    </div>
+                                </div>
+                                <div class="row" style="border-bottom:#EEEEEE 1px solid;margin:0; padding:10px 0px">
+                                  <div class="span3">
+                                      <input type="checkbox" name="deliverables" value="1" <? if(isset($store->physical) AND $store->physical == 1){ ?> checked="checked"<? }?> /><b style="font-size:15px; margin-left:10px"> <?=$this->lang->line('stores_settings_detailsTab_deliverables_text_1')?> </b>
+                                    </div>
+                                    <div class="span3">
+                                      <p style="color:#AAA"><?=$this->lang->line('stores_settings_detailsTab_deliverables_text_1.1')?></p><br />
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="clearfix span7">
+                                <label for="options">Facturaci&oacute;n</label>
+                                <div class="span7">
+                                  <input style="float:left;margin-right:10px" type="checkbox" name="facturacion" value="1" <? if(isset($store->facturacion) AND $store->facturacion == 1){ ?> checked="checked"<? }?> />
+                                  <p style="color:#AAA">Habilita esta opci&oacute;n si deseas expedir facturas a tus consumidores</p><br />
+                                </div>
+                            </div>
+                          </div>
+                    </fieldset>
+              </div>
+              <div class="span4">
+                <br /><br />
+                <p style="text-align:center;">
+                  <input type="submit" name="submit_details" class="btn primary large" value="<?=$this->lang->line('stores_settings_detailsTab_save_button_text')?>" />
+                </p>
+                </form>
+                <h5><?=$this->lang->line('stores_settings_detailsTab_tips_subtitle_text')?></h5>
+                
+                <p><?=$this->lang->line('stores_settings_detailsTab_tips_text')?></p>
+              </div>
+            </div><!--End of details-->
+            
+            <div id="administrators" class="<?=(($this->session->userdata('settings_tab')=='administrators')?'active':'')?> tab-pane settings_tab row">
+              <div class="span12">
+              
+          <? if(isset($new_admin['flashMessage'])){ ?>
+                      <div class="alert-message warning span11">
+                          <a class="close" href="#">×</a>
+                          <?=$new_admin['flashMessage']?>
+                      </div>
+                  <? } 
+                    if(count($admins)<=1){ ?> 
+
+                      <? if(!$this->session->userdata('admin_client_stores')){ ?>
+
+                        <p><?=$this->lang->line('stores_settings_administratorsTab_text')?></p>
+
+                      <? }else{ ?>
+
+                        <? if($admins[0]->userId == $this->session->userdata('user_id')){ ?>
+                          <p style="margin-left:10px"><?=$this->lang->line('stores_settings_administratorsTab_text')?></p>
+                        <? }else{ ?>
+                          <p style="margin-left:10px"><?=$admins[0]->email.' - '.$admins[0]->name?></p>
+                        <? } ?> 
+
+                      <? } ?>
+
+                    <? }else{ ?>
+                        <table class="condensed-table span10">
+                          <thead>
+                            <tr>
+                              <th></th>
+                              <th><?=$this->lang->line('stores_settings_administratorsTab_user')?></th>
+                              <th><?=$this->lang->line('stores_settings_administratorsTab_name')?></th>
+                              <th><?=$this->lang->line('stores_settings_administratorsTab_action')?></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          <? $i=1;
+                             foreach($admins as $item){ ?>
+                                  <tr>
+                                      <td style="font-weight:700;height:20px"><?=$i?></td>
+                                      <td><?=$item->email.($item->userId == $this->session->userdata('user_id')?' (you)':'')?></td>
+                                      <td><?=$item->name?></td>
+                                      <? if($item->userId != $this->session->userdata('user_id')){ ?>
+                                      <td style="text-align:center">
+                                        <a href="javascript:if(confirm('<?=$this->lang->line('stores_settings_administratorsTab_deleteUser_confirm_1')?><?=$item->email?><?=$this->lang->line('stores_settings_administratorsTab_deleteUser_confirm_2')?>')){ location.href = '/stores/deleteUser/<?=$store->id?>/<?=$item->userId?>';};" alt="<?=$this->lang->line('stores_settings_administratorsTab_deleteUser')?>">
+                                          <img src="/img/remove_icon.png" width="16" height="16" style="padding-top:1px"/>
+                                        </a>
+                                      </td>
+                                      <? } ?>
+                                  </tr>
+                          <? $i++;
+                              } ?>
+                          </tbody>
+                        </table>
+                   <? } ?>
+                  <br /><br />
+                  <form method="post" action="<?=base_url()?>stores/add_admin/<?=$store->id?>" class="form-stacked">
+                      <fieldset>
+                          <div class="clearfix" id="step1_administrators">
+                            <label for="emailAdmin"> <?=$this->lang->line('stores_settings_administratorsTab_adminsubtitle_text')?> </label>
+                            <input type="text" name="emailAdmin" class="span7" placeholder="<?=$this->lang->line('stores_settings_administratorsTab_email_space_text')?>" />
+                          </div>
+                      </fieldset>
+              </div>
+              <div class="span4">
+                  <br /><br />
+                  <p style="text-align:center;">
+                      <input type="submit" name="submit_add_admin" class="btn primary large" value="<?=$this->lang->line('stores_settings_administratorsTab_addadmin_button_text')?>" />
+                  </p>
+                  </form>
+                  <h5><?=$this->lang->line('stores_settings_administratorsTab_tips_subtitle_text')?></h5>
+                  
+                  <p><?=$this->lang->line('stores_settings_administratorsTab_tips_text')?></p>
+              </div>
+              
+
+            </div><!--End of administrators-->
+            
+            <div id="locations" class="<?=(($this->session->userdata('settings_tab')=='locations')?'active':'')?> tab-pane settings_tab row">
+              
+              <div class="span12">
+                        <iframe src="/stores/add_store_location/<?=$store->id?>" frameborder="0" width="700" height="450" id="step1_locations">
+                        
+                        </iframe>
+                   
+                        <h3><?=$this->lang->line('stores_settings_locationsTab_locations_subtitle_text')?></h3>
+                        <div class="span11">
+                            <ul>
+                                <?
+                                $count = 0;
+                                
+                                if(isset($store->locations)){ 
+                                    $locations = json_decode($store->locations);
+                                    foreach($locations as $item){ 
+                                        if( isset( $item->address ) AND $item->address != '' ){ 
+                                            $count++;
+                                    ?>
+                                
+                                <li style="margin-top:10px;">
+                                    <div style="float:right; font-size:12px; text-align:right;">
+                                        <a href="<?=base_url()?>stores/delete_store_location/<?=$store->id?>/<?=$item->id?>" class="btn danger small"><?=$this->lang->line('stores_settings_locationsTab_locations_delete')?></a>
+                                    </div>
+                                    <?=$item->address?><br />
+                                    <span style="font-size:12px; color:#999;"><?=$item->range?> <?=$this->lang->line('stores_settings_locationsTab_locations_miles')?></span>
+                                </li>
+                                
+                                <? 
+                                        }
+                                    }
+                                } 
+                                if($count < 1) { ?>
+                                
+                                <li><?=$this->lang->line('stores_settings_locationsTab_locations_text')?></li>
+                                
+                                <? } 
+                                
+                                ?>
+                            </ul>
+                    </div>
+                </div>
+                <div class="span4">
+                    <br /><br />
+                    <h5><?=$this->lang->line('stores_settings_locationsTab_tips_subtitle_text')?></h5>
+                    
+                    <p><?=$this->lang->line('stores_settings_locationsTab_tips_text')?></p>
+                </div>
+            </div><!--End of locations-->
+
+            <div id="pos" class="<?=(($this->session->userdata('settings_tab')=='pos')?'active':'')?> tab-pane settings_tab row">
+              
+              <div class="span12">
+                <h3>Mis direcciones de recolecci&oacute;n</h3>
+                <table class="condensed-table span10">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Direcci&oacute;n</th>
+                      <th>Contacto</th>
+                      <!--<th>Acci&oacute;n</th>-->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <? if(!empty($store_pos)){ ?>
+                      <? $iS = 1; 
+                         foreach ($store_pos as $point) { ?>
+                          <tr>
+                              <td style="font-weight:700;height:20px"><?=$iS?></td>
+                              <td>
+                                <?=$point->calle.' '.$point->numero.' '.$point->interior?><br/>
+                                <?=$point->cp.' '.$point->colonia.' '.$point->ciudad?><br/>
+                                <?=$point->estado_nombre.' '.$point->pais_nombre?><br/>
+                              </td>
+                              <td>
+                                <?=$point->contacto?><br/>
+                                <?=$point->email?><br/>
+                                <?=$point->telefono?>
+                              </td>
+                              <!--
+                              <td style="text-align:center">
+                                  <img src="/img/remove_icon.png" width="16" height="16" style="padding-top:1px"/>
+                              </td>-->
+                          </tr>
+                      <?  $iS++; 
+                        } ?>
+                    <? } else{ ?>
+
+                      <tr>
+                          <td colspan="4" style="text-align:center">No tienes direcciones de recolecci&oacute;n agregadas actualmente</td>
+                      </tr>
+
+                    <? } ?>
+                  </tbody>
+                </table>
+                <h3>Agrega una nueva direcci&oacute;n de recolecci&oacute;n</h3>
+                <? if(isset($pos['error']['msg'])){ ?>
+                  <div class="alert-message warning span11">
+                    <a class="close" href="#">×</a>
+                    <?=$pos['error']['msg']?>
+                  </div>
+                <? } ?>
+                <form method="post" action="<?=base_url()?>stores/settings/<?=$store->id?>" class="form-stacked" id="step1_pos">
+                  <fieldset>
+                    <div style="float:left;margin-right:40px">
+                      <h4 style="border-bottom:1px solid #DDDDDD;margin-bottom:15px">Direcci&oacute;n</h4>
+
+                      <div class="clearfix">
+                          <label for="direccion_calle">Calle</label>
+                          <input type="text" name="direccion_calle" class="span5" value="<?=isset($pos['post']['direccion_calle'])? $pos['post']['direccion_calle'] : ''?>" />
+                      </div>
+
+                      <div class="clearfix">
+                        <div style="float:left;margin-right:10px">
+                          <label for="direccion_numero">N&uacute;mero</label>
+                          <input type="text" name="direccion_numero" class="span2" value="<?=isset($pos['post']['direccion_numero'])? $pos['post']['direccion_numero'] : ''?>" />
+                        </div>
+                        <div style="float:left">
+                          <label for="direccion_interior">Interior</label>
+                          <input type="text" name="direccion_interior" class="span2" value="<?=isset($pos['post']['direccion_interior'])? $pos['post']['direccion_interior'] : ''?>" />
+                        </div>
+                      </div>
+
+                      <div class="clearfix">
+                        <div style="float:left;margin-right:10px">
+                          <label for="direccion_colonia">Colonia</label>
+                          <input type="text" name="direccion_colonia" class="span3" value="<?=isset($pos['post']['direccion_colonia'])? $pos['post']['direccion_colonia'] : ''?>" />
+                        </div>
+                        <div style="float:left">
+                          <label for="direccion_cp">CP</label>
+                          <input type="text" name="direccion_cp" class="span2" value="<?=isset($pos['post']['direccion_cp'])? $pos['post']['direccion_cp'] : ''?>" />
+                        </div>
+                      </div>
+
+                      <div class="clearfix">
+                          <label for="direccion_ciudad">Ciudad</label>
+                          <input type="text" name="direccion_ciudad" class="span5" value="<?=isset($pos['post']['direccion_ciudad'])? $pos['post']['direccion_ciudad'] : ''?>"/>
+                      </div>
+
+                      <div class="clearfix">
+                        <div style="float:left;margin-right:10px">
+                          <label for="direccion_pais">Pa&iacute;s</label>
+                          <select id="direccion_pais" name="direccion_pais" class="span2" onChange="javascript:getStates();">
+                            <option value="112" selected>Mexico</option>
+                          </select>
+                        </div>
+
+                        <div style="float:left;">
+                          <label for="direccion_estado">Estado</label>
+                          <? if(isset($pos['post']['direccion_estado']) AND isset($pos['post']['direccion_pais']) AND $pos['post']['direccion_pais'] != 112 ){?>
+                            
+                            <input type="text" id="direccion_estado" name="direccion_estado" value="<?=$pos['post']['direccion_estado']?>" class="span3" />
+
+                          <? }else{ ?>
+
+                            <select id="direccion_estado" name="direccion_estado" class="span3">
+                              <? foreach ($states_pos as $state) { ?>
+                              <option value="<?=$state->id?>" <?=isset($pos['post']['direccion_estado']) ? ($pos['post']['direccion_estado']==$state->id ? "selected" : '' ) : ''?>><?=$state->state_name?></option>
+                              <? } ?>
+                            </select>
+                          <? } ?>
+                          <img src="/img/creating_store.gif" width="20" height="20" id="loading_states" style="display:none;margin: 2px 0 0 70px" />
+                        </div>
+                      </div>
+
+                    </div>
+                    <div style="float:left">
+                      <h4 style="border-bottom:1px solid #DDDDDD;margin-bottom:15px">Contacto</h4>
+                      <div class="clearfix">
+                          <label for="nombre_contacto">Nombre</label>
+                          <input type="text" name="nombre_contacto"  class="span5" value="<?=isset($pos['post']['nombre_contacto'])? $pos['post']['nombre_contacto'] : ''?>" />
+                      </div>
+                      <div class="clearfix">
+                          <label for="email_contacto">Email</label>
+                          <input type="text" name="email_contacto" class="span5" value="<?=isset($pos['post']['email_contacto'])? $pos['post']['email_contacto'] : ''?>" />
+                      </div>
+                      <div class="clearfix"> 
+                          <label for="telefono_contacto">Tel&eacute;fono</label>
+                          <input type="text" name="telefono_contacto" class="span5" value="<?=isset($pos['post']['telefono_contacto'])? $pos['post']['telefono_contacto'] : ''?>" />
+                      </div>
+
+                      <p style="text-align:center;padding:30px 0"><input type="submit" name="submit_pos" value="Agregar punto de venta" class="btn primary large" /></p>
+
+                    </div>
+                   
+                  </fieldset>
+                </form>
+              </div>
+              <div class="span4">
+                <br /><br />
+                <p>Agrega las direcciones en las cuales podr&aacute;n ser recolectados tus art&iacute;culos. Est&aacute; informaci&oacute;n ser&aacute; considerada para el procesamiento de la orden al momento en que tus clientes realizan una compra. Es indispensable agregar al menos una direcci&oacute;n para que tu tienda pueda ser publicada.</p>
+              </div>
+            </div><!--End of POS-->
+
+            <div id="payments" class="<?=(($this->session->userdata('settings_tab')=='payments')?'active':'')?> tab-pane settings_tab row">
+              <div class="span12">
+                
+                  <? if(isset($payments['flashMessage'])){ ?>
+                    <div class="alert-message warning span11">
+                      <a class="close" href="#">×</a>
+                      <?=$payments['flashMessage']?>
+                    </div>
+                  <? } ?>
+                  <form method="post" id="step1_payments" action="<?=base_url()?>stores/settings/<?=$store->id?>" class="form-stacked">
+                      <fieldset>
+                            <div class="clearfix">
+                                <label for="bank_account_titular"> Titular</label>
+                                <input type="text" name="bank_account_titular"  class="span7" value="<?=( isset($payments['bank_account_titular']) ? $payments['bank_account_titular'] : (isset($store->bank_account_titular)?$store->bank_account_titular:'') )?>" />
+                            </div>
+                            <br />
+                            <div class="clearfix">
+                                <label for="bank_account"> <?=$this->lang->line('stores_settings_paymentsTab_account')?></label>
+                                <input type="text" name="bank_account"  class="span7" value="<?=( isset($payments['bank_account_post']) ? $payments['bank_account_post'] : (isset($store->bank_account)?$store->bank_account:'') )?>" />
+                            </div>
+                            <br />
+                            <div class="clearfix">
+                                <label for="bank"> <?=$this->lang->line('stores_settings_paymentsTab_bank')?> </label>
+                                <select id="bank_accounts" name="bank_accounts">
+                                  <option value="0" <?=(isset($store->bank_id)?'':'selected="selected"')?>><?=$this->lang->line('stores_settings_paymentsTab_bank')?></option>
+                                <? foreach ($banks as $value){?>
+                                  <option value="<?=$value->id?>" <?=(isset($store->bank_id)?($store->bank_id==$value->id ? 'selected="selected"' : ''):'')?>><?=$value->bank_name?></option>
+                                <? } ?> 
+                                </select>
+                            </div>
+                            <br />
+                            <div class="clearfix" style="display:none">
+                                <label for="currency"><?=$this->lang->line('stores_settings_paymentsTab_currency')?> </label>
+                                <select id="currency" name="currency">
+                                  <option value="MXN" <?=$store->currency == 'MXN' ? 'selected="selected"' : '' ?>>MXN</option>
+                                  <option value="USD" <?=$store->currency == 'USD' ? 'selected="selected"' : '' ?>>USD</option>
+                                </select>
+                            </div>
+                      </fieldset>
+              </div>
+              <div class="span4">
+                <br /><br />
+                <p style="text-align:center;">
+                  <input type="submit" name="submit_payments" class="btn primary large" value="<?=$this->lang->line('stores_settings_paymentsTab_button')?>" />
+                </p>
+                </form>
+                <h5><?=$this->lang->line('stores_settings_paymentsTab_tips_subtitle_text')?></h5>
+                
+                <p><?=$this->lang->line('stores_settings_paymentsTab_tips_text')?></p>
+              </div>
+            </div><!--End of payments-->
+            
+            
+            <div id="labs" class="<?=(($this->session->userdata('settings_tab')=='labs')?'active':'')?> tab-pane settings_tab row">
+              <div class="span12">
+                
+                  <? if(isset($labs['flashMessage'])){ ?>
+                    <div class="alert-message warning span11">
+                      <a class="close" href="#">×</a>
+                      <?=$labs['flashMessage']?>
+                    </div>
+                  <? } ?>
+                  <form method="post" id="labs" action="<?=base_url()?>stores/settings/<?=$store->id?>" class="form-stacked">
+                      <fieldset>
+                            <div class="clearfix">
+                                <label for="bank_account_titular">Custom CSS Web</label>
+                                <textarea style="width:600px; height:200px; text-align:left;" id="custom_css" name="custom_css"><? if($store->custom_css AND $store->custom_css != '' ){ echo $store->custom_css; } ?></textarea>
+                            </div>
+                            <br />
+                            
+                            <div class="clearfix">
+                                <label for="bank_account_titular">Custom CSS Facebook</label>
+                                <textarea style="width:600px; height:200px; text-align:left;" id="custom_css_facebook" name="custom_css_facebook"><? if($store->custom_css_facebook  AND $store->custom_css_facebook != ''){ echo $store->custom_css_facebook; } ?></textarea>
+                            </div>
+                            <br />
+                            
+                            <div class="clearfix">
+                                <label for="bank_account_titular">Custom Meta Title</label>
+                                <input style="width:600px; text-align:left;" type="text"  id="custom_meta_title" name="custom_meta_title" value="<? if($store->custom_meta_title  AND $store->custom_meta_title != ''){ echo $store->custom_meta_title; } ?>" />
+                                
+                            </div>
+                            <br />
+                            
+                            <div class="clearfix">
+                                <label for="bank_account_titular">Custom Meta Description</label>
+                                <textarea style="width:600px; height:50px; text-align:left;" id="custom_meta_description" name="custom_meta_description"><? if($store->custom_meta_description  AND $store->custom_meta_description != ''){ echo $store->custom_meta_description; } ?></textarea>
+                            </div>
+                            <br />
+                            
+                            <div class="clearfix">
+                                <label for="bank_account_titular">Custom Facebook Title</label>
+                                <input style="width:600px; text-align:left;" type="text" id="custom_facebook_title" name="custom_facebook_title" value="<? if($store->custom_facebook_title  AND $store->custom_facebook_title != ''){ echo $store->custom_facebook_title; } ?>" />
+                                
+                            </div>
+                            <br />
+                            
+                             <div class="clearfix">
+                                <label for="bank_account_titular">Custom Facebook Image</label>
+                                <input style="width:600px; text-align:left;" type="text" id="custom_facebook_image" name="custom_facebook_image" value="<? if($store->custom_facebook_image  AND $store->custom_facebook_image != ''){ echo $store->custom_facebook_image; } ?>" />
+                                	
+                            </div>
+                            <br />
+                            
+                      </fieldset>
+              </div>
+              <div class="span4">
+                <br /><br />
+                <p style="text-align:center;">
+                  <input type="submit" name="submit_labs" class="btn primary large" value="<?=$this->lang->line('stores_settings_paymentsTab_button')?>" />
+                </p>
+                </form>
+                <h5>Labs</h5>
+                
+                <p>In this section you can find experimental options for your store. As features graduate they will be transfered to the Advanced settings tab, some features may not survive the gruesome lab testing prosses.</p>
+              </div>
+            </div><!--End of Labs-->
+            
+            
+    </div><!--End of my-tab-content-->
+        
+  </div><!--End of content-->
+
+<? 
+  $tab = $this->session->userdata('settings_tab');
+  switch($tab){
+    case 'details':
+      $t=1;
+      break;
+    case 'administrators':
+      $t=2;
+      break;
+    case 'locations':
+      $t=3;
+      break;  
+    case 'payments':
+      $t=4;
+      break;  
+    case 'pos':
+      $t=5;
+      break;  
+  }
+
+?>
+
+<script type="text/javascript">
+  
+  function getStates(){
+
+    var country       = $('#direccion_pais').val();
+    var estado_field  = $('#direccion_estado');
+    var states_img    =  $('#loading_states');
+
+    if(country != 112){
+      estado_field.replaceWith('<input type="text" name="direccion_estado" id="direccion_estado" class="span3">');
+    }else{
+      estado_field.hide();
+      states_img.show();
+
+      $.post("/stores/get_states",{country:country},
+      function(data) {
+
+        states_img.hide();
+        estado_field.show();
+
+        if(data=='error'){
+          estado_field.replaceWith('<input type="text" name="direccion_estado" id="direccion_estado" class="span3">');
+        }else{
+          estado_field.replaceWith(data);
+        }
+      });
+    }
+
+  }
+
+   function startIntro(){
+      var intro = introJs();
+      updateTab('step1_details');
+      var default_steps = [
+                            {
+                              element: document.getElementById('step1_details'),
+                              intro: "<?=$this->lang->line('stores_settings_step1_details')?>"
+                            },
+                            {
+                              element: document.getElementById('step2_details'),
+                              intro: "<?=$this->lang->line('stores_settings_step2_details')?>"
+                            },
+                            {
+                              element: document.getElementById('step3_details'),
+                              intro: "<?=$this->lang->line('stores_settings_step3_details')?>"
+                            },
+                            {
+                              element: document.getElementById('step1_administrators'),
+                              intro: "<?=$this->lang->line('step1_administrators')?>"
+                            },
+                            {
+                              element: document.getElementById('step1_locations'),
+                              intro: "<?=$this->lang->line('step1_locations')?>"
+                            },
+                            {
+                              element: document.getElementById('step1_pos'),
+                              intro: "<?=$this->lang->line('step1_pos')?>"
+                            },
+                            {
+                              element: document.getElementById('step1_payments'),
+                              intro: "<?=$this->lang->line('step1_payments')?>"
+                            }
+                          ];
+
+     
+      intro.setOptions({ steps: default_steps, skipLabel: '<?=$this->lang->line('stores_orders_skip');?>', nextLabel:'<?=$this->lang->line('stores_orders_next');?> &rarr;', prevLabel:'&larr; <?=$this->lang->line('stores_orders_prev');?>', doneLabel: '<?=$this->lang->line('stores_orders_done');?>' });
+      intro.start();
+
+      intro.onchange(function(targetElement) {  
+        var step = targetElement.id;
+        updateTab(step);        
+      });
+      intro.oncomplete(function(){ $.post("/stores/tutorials",{tuto:'store_settings'}); });
+  }
+
+  function updateTab(id){
+    tab = id.split('_');
+    $('ul.tabs li').removeClass('active');
+    $('#my-tab-content div').removeClass('active');
+    $('a[href="'+tab[1]+'"]').parent().addClass('active');
+    $('#'+tab[1]).addClass('active');
+  }
+
+
+  $(document).ready(function(){
+    <? if(isset($tuto) AND $tuto){ ?>
+        startIntro();
+    <? } ?>
+    $('.tabs').bind('change', function (e) {
+      var parts = decodeURI(e.target).split('#');
+      var tab = parts[1];
+      switch (tab){
+        case 'details':
+          var t=1;
+          break;
+        case 'administrators':
+          var t=2;
+          break;
+        case 'locations':
+          var t=3;
+          break;
+        case 'payments':
+          var t=4;
+          break;
+        case 'pos':
+          var t=5;
+          break;
+        default:
+          var t=0;
+      }
+      $.post("/stores/setting_tab", {"tab": tab});
+      $('small#version').html('S_3.3.'+t+'_0.2');
+    });
+      
+  }); 
+</script>
+
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_3.3._0.2' ))?>

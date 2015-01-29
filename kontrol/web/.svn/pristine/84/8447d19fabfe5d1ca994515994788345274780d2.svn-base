@@ -1,0 +1,153 @@
+<?php
+$page_title="Secci&oacute;n de Tutoriales";
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+?>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+        <link rel="stylesheet" href="/v2/css/tutorials.css">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.css" type="text/css" media="screen">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.theme.css" type="text/css" media="screen">
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $('#hero .container').owlCarousel({
+                    singleItem: true,
+                    stopOnHover: true,
+                    autoPlay: true,
+                    paginationSpeed: 1000,
+                    autoHeight: false,
+                    transitionStyle: "fade"
+                });
+            });
+        </script>
+        <style>
+            .articles.guides .info-block{
+                margin-bottom: 40px;
+                min-height: 182px;
+            }
+        </style>
+        <div id="hero">
+            <div class="container owl-carousel">
+                <div class="item">
+                    <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/bienvenido_kontrol.jpg" alt="">
+                </div>
+                <div class="item">
+                    <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/infografias_kontrol.jpg" alt="">
+                </div>
+                <div class="item">
+                    <img class="base" src="http://s3.amazonaws.com/kichink-tutoriales/reglamentos_kontrol.jpg" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="fence">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Consulta nuestros videotutoriales</h2>
+                    <p>Resuelve todas tus dudas paso a paso para cada una de las funciones que puedes encontrar en Kontrol!</p>
+                </div>
+            </div>
+        </div>
+        <div class="articles tutorials">
+            <div class="container">
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_request-payments.png" width="278" height="200" alt="¿Cómo solicitar pagos?">
+                        <h3>¿Cómo solicitar pagos?</h3>
+                    </a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_howto-photos.png" width="278" height="200" alt="¿Cómo tomar fotografía de producto?">
+                        <h3>¿Cómo tomar fotografía de producto?</h3>
+                    </a>
+                </div>
+                <div class="clearfix visible-sm"></div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_categories.png" width="278" height="200" alt="¿Cómo usar las categorías?">
+                        <h3>¿Cómo usar las categorías?</h3>
+                    </a>
+                </div>
+                <div class="clearfix visible-md"></div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_templates.png" width="278" height="200" alt="Control de inventarios y plantillas">
+                        <h3>Control de inventarios y plantillas</h3>
+                    </a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_items-screen.png" width="278" height="200" alt="Nueva pantalla de artículos">
+                        <h3>Nueva pantalla de artículos</h3>
+                    </a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_facebook-store.png" width="278" height="200" alt="Tienda de Facebook y Webpage">
+                        <h3>Tienda de Facebook y Webpage</h3>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="fence">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Infografías y guías</h2>
+                    <p>Te decimos cómo y con qué puedes tener mejores fotos, descripciones y paquetes, para que tus clientes tengan una increíble experiencia de compra en línea</p>
+                </div>
+            </div>
+        </div>
+        <div class="articles guides">
+            <div class="container">
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="http://s3.amazonaws.com/kichink-tutoriales/guia_descripciones.pdf" target="_blank"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_descripciones.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="http://s3.amazonaws.com/kichink-tutoriales/guia_de_empaque-02.jpg" target="_blank"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_empaque.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="http://s3.amazonaws.com/kichink-tutoriales/guia_foto.pdf" target="_blank"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_foto.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/guia_plantillas.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block"> 
+                    <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/info_comocomprar.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/info_formaspago.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/info_pagoefectivo.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/manual_RSS.png" class="img-responsive"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 col-xs-6 info-block">
+                    <a href="#"><img src="http://s3.amazonaws.com/kichink-tutoriales/manual_usologo.png" class="img-responsive"></a>
+                </div>
+            </div>
+        </div>
+        <div class="fence">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Reglamentos</h2>
+                    <p>No olvides consultar de manera regular las normas a seguir para el buen uso y mantenimiento de tu tienda en línea dentro de la plataforma</p>
+                </div>
+            </div>
+        </div>
+        <div class="articles rules">
+            <div class="container">
+                <div align="center" class="col-sm-6 col-md-6 center-block">
+                    <a href="#"><img src="/img/tutorials/reglamento_almacen.png" alt="Reglamento de almacen"></a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-6 center-block">
+                    <a href="#"><img src="/img/tutorials/reglamento_tiendas.png" alt="Reglamento de tiendas"></a>
+                </div>
+            </div>
+        </div>
+        
+<?php
+$this->load->view('v2/layout/footer');
+?>
+

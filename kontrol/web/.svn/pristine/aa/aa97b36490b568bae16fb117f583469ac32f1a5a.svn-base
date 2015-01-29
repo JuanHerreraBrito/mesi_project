@@ -1,0 +1,21 @@
+<?=$this->load->view('layout/header_noAuth')?>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1>Kichink <small><?=$this->lang->line('login_page_subtitle_text');?></small></h1>
+        </div>
+        <div class="row" style="min-height:350px">
+          <div class="span16">
+          
+                <div class="alert-message block-message info" style="margin:0 auto">
+                    <p>El sistema tiene hipo. Todos los Kichinks est&aacute;n ya trabajando hist&eacute;ricamente para arreglarlo</p><!--db-->
+                </div>
+
+          </div>
+          
+        </div>
+      </div>
+
+<?=$this->load->view('layout/footer.php')?>

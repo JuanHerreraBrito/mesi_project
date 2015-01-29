@@ -1,0 +1,186 @@
+<?php
+
+class Apps extends CI_Controller {
+
+    var $method = 'post';
+    var $function;
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    public function index(){
+        $this->build_response('ERROR', array(), 'API_INDEX error');
+    }
+
+    public function route(){
+
+        if($function = $this->uri->segment(2)){
+            if($function == 'auth'){
+                $this->auth();
+            }
+            else{
+                $this->execute_call();
+            }
+        } else {
+            $this->build_response('ERROR', array(), 'ACTION error');
+        }
+
+    }
+    
+    private function auth()
+    {
+
+        $method = $this->method;
+
+        if(!$api_key = $this->input->$method('api_key') OR $api_key != 'chal-se-chy-pawh-ro-zigh-gho-lyl'){
+            $this->build_response('ERROR', array(), 'API_KEY error');
+        }
+        
+        $this->load->model('../../../../shared_resources/v3/models/apps_model', 'Apps_model', TRUE);
+        $params = array();
+                
+        // Call method
+        $this->benchmark->mark('code_start');
+        
+        $params['email']        = $this->input->$method('email');
+        $params['password']     = $this->input->$method('password');
+        $result = $this->Apps_model->auth($params);
+        $this->benchmark->mark('code_end');
+        $this->build_response('OK', $result);
+        
+    }
+
+    private function execute_call() {
+
+        // Auth
+        $method = $this->method;
+
+        if(!$user_id = $this->validate_token($this->input->$method('token'))){
+            $this->build_response('ERROR', array(), 'TOKEN error');
+        }
+
+        if(!$api_key = $this->input->$method('api_key') OR $api_key != 'chal-se-chy-pawh-ro-zigh-gho-lyl'){
+            $this->build_response('ERROR', array(), 'API_KEY error');
+        }
+
+        // Call method
+        $this->benchmark->mark('code_start');
+
+        if($result = $this->execute_function($user_id)) {
+            $this->benchmark->mark('code_end');
+            $this->build_response('OK', $result);
+        } else {
+            $this->benchmark->mark('code_end');
+            $this->build_response('ERROR', array(), 'No results');
+        }
+
+    }
+
+    private function validate_token($token){
+
+        include('../../../shared_resources/v3/libraries/Mcrypt.php');
+        $Mcrypt = new Mcrypt;
+
+        if($token){
+            $data = $Mcrypt->decrypt($token);
+            $dataE = explode('-', $data);
+            $user_id = $dataE[0];
+            $store_id = $dataE[1];
+
+            $this->db->select('user_perm.access');
+            $this->db->from('user_perm');
+            $this->db->join('app_stores', 'app_stores.store_id = user_perm.store_id');
+            $this->db->join('apps', 'apps.id = app_stores.app_id');
+            $this->db->where('apps.active', 1);
+            $this->db->where('app_stores.active', 1);
+            $this->db->where('user_perm.user_id', $user_id);
+            $this->db->where('user_perm.store_id', $store_id);
+            $q = $this->db->get();
+
+            if($r = $q->result()){
+                $access = $r[0]->access;
+                $accessE = explode(',', $access);
+                $read = $accessE[0];
+                if(ctype_digit($read) AND $read >= 3){
+                    return $user_id;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function execute_function($user_id){
+
+        $action = $this->uri->segment(2);
+        $this->load->model('../../../../shared_resources/v3/models/apps_model', 'Apps_model', TRUE);
+        $params = array();
+        $params['user_id'] = $user_id;
+
+        switch($action){
+
+            case 'scan':
+                $method = $this->method;
+                $params['id'] = $this->input->$method('id');
+                $params['store_id'] = $this->input->$method('store_id');
+                $result = $this->Apps_model->scan($params);
+                return $result;
+                break;
+
+            case 'redeem':
+                $method = $this->method;
+                $params['id'] = $this->input->$method('id');
+                $params['store_id'] = $this->input->$method('store_id');
+                $params['duplicated'] = (($this->input->$method('duplicated') == 'true' OR $this->input->$method('duplicated') == '1') ? 1 : 0);
+                $result = $this->Apps_model->redeem($params);
+                return $result;
+                break;
+
+            case 'mark_attempt_redeem':
+                $method = $this->method;
+                $params['id'] = $this->input->$method('id');
+                $result = $this->Apps_model->mark_attempt_redeem($params);
+                return $result;
+                break;
+
+            case 'get_status':
+                $method = $this->method;
+                $params['store_id'] = $this->input->$method('store_id');
+                $result = $this->Apps_model->get_status($params);
+                return $result;
+                break;
+    
+            default:
+                $this->build_response('ERROR', array(), 'ACTION error: unknown');
+                break;
+        }
+
+    }
+
+
+    private function build_response($status, $result, $error = false) {
+
+        header('Content-type: application/json');
+
+        $response = array();
+        $response['status'] = $status;
+        $response['function'] = $this->uri->segment(2);
+        $response['response_time'] = $this->benchmark->elapsed_time('code_start', 'code_end');
+        if (!$error) {
+            $response['result_count'] = count($result);
+            $response['data'] = $result;
+        } else {
+            $response['data'] = false;
+            $response['error'] = $error;
+        }
+        // return info
+        echo json_encode($response);
+        exit();
+
+    }
+
+
+}
+
+/* End of file welcome.php */
+/* Location: ./system/application/controllers/welcome.php */

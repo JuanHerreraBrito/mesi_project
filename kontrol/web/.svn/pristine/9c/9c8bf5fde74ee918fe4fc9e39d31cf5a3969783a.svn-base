@@ -1,0 +1,379 @@
+body{
+    background: #f2f2f2;
+    font-family: "Helvetica Neue", Helvetica, Verdana, Arial, times;
+}
+footer {
+    height: 90px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: #BBB;
+    padding-top: 60px;
+}
+.container > footer p {
+    text-align: center; /* center align it with the container */
+}
+.container {
+    /* width: 820px; */ /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
+}
+
+/* The white background content wrapper */
+.content {
+    background-color: #fff;
+    padding: 20px;
+    margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
+    -webkit-border-radius: 0 0 6px 6px;
+    -moz-border-radius: 0 0 6px 6px;
+    border-radius: 0 0 6px 6px;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+/* Page header tweaks */
+.page-header {
+    background-color: #f5f5f5;
+    padding: 20px 20px 10px;
+    margin: -20px -20px 20px;
+}
+
+/* Styles you shouldn't keep as they are for displaying this base example only */
+.content .span10,
+.content .span4 {
+    min-height: 500px;
+}
+/* Give a quick and non-cross-browser friendly divider */
+.content .span4 {
+    margin-left: 0;
+    padding-left: 19px;
+    border-left: 1px solid #eee;
+}
+
+.topbar .btn {
+    border: 0;
+}
+
+.card {
+    background-color: #f5f5f5;
+    padding: 20px 25px 30px;
+    margin: 0 auto 25px;
+    width: 100%;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid #ececec;
+}
+.signin-card {
+    margin:90px auto 0;
+    width: 354px;
+}
+.card h1 {
+    font-family: 'Open Sans', arial, helvetica;
+    -webkit-font-smoothing: antialiased;
+    color: #555;
+    font-size: 18px;
+    font-weight: 400;
+    padding-bottom: 20px;
+}
+.card .person{
+    height: 120px;
+    width: 120px;
+    background: url(https://www.kichink.com/v3/img/como_funciona/servicio_al_cliente.png) no-repeat -56px -31px #e2e2e2;
+    opacity: 0.90;
+    -webkit-filter: grayscale(100%);
+    margin: 20px 0;
+
+}
+.card input[type=password]{
+    margin-top: -1px !important;
+
+}
+.card input.form-control:focus{
+    outline: none;
+    display:inline-block;
+    border: 1px solid #66afe9;
+    -moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    z-index:3;
+}
+
+.card input{
+    margin: 0;
+    height:44px;
+    z-index:1;
+    font-size: 18px;
+    border-radius: 0;
+}
+.card button{
+    margin:20px 0;
+    display:block;
+    width:100%;
+}
+.card a{
+    text-decoration: none;
+    font-size: 12px;
+    color:#532E63;
+}
+
+#sidebar-left{
+    background:#edf2f8;
+    overflow:hidden;
+    border-bottom: 1px solid #DCE9EB;
+    border-right:1px solid #DCE9EB;
+    color: #606271;
+    padding-top: 35px;
+    min-width: 240px;
+}
+
+.allstores{
+    min-width:240px;
+}
+
+.yourstorename{
+    display: inline-block;
+    width:250px;
+    overflow: hidden;
+}
+
+#sidebar-right {
+    display: none;
+    width:0px;
+    height: 100%;
+    background: url(https://www.kichink.com/v3/img/como_comprar/como_comprar_kichinks.png) no-repeat left bottom rgba(0,0,0,0.95);
+    position: fixed;
+    right: 0;
+    max-width: 300px;
+    top: 0;
+    z-index: 1030;
+    color: #f2f2f2;
+    padding: 0;
+    margin:0;
+    box-shadow: -1px 0 18px #222;
+}
+
+#sidebar-right ul{
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+
+
+
+#sidebar-right ul li:first-child{
+    border-top:none;
+    color:#9a79a8;
+}
+
+#sidebar-right ul li{
+    display: block;
+    padding: 10px 0;
+    border-top: 1px solid #333;
+}
+
+#sidebar-right ul li a:hover{
+    text-decoration: none;
+}
+
+#sidebar-right ul li a.social:hover{
+    text-decoration: none;
+    color:#ffffff;
+}
+
+#sidebar-right ul li a.social{
+    color:#CCCCCC;
+}
+
+#sidebar-right ul li a.social .fa{
+    width:20px;
+}
+
+a.close-help {
+    display:none;
+    position: absolute;
+    top: 20px;
+    left: -40px;
+    width: 40px;
+    height: 40px;
+    -webkit-border-radius: 5px 0 0 5px;
+    -moz-border-radius: 5px 0 0 5px;
+    border-radius: 5px 0 0 5px;
+    background: rgba(0,0,0,0.5);
+    color: #ccc;
+    text-align: center;
+    opacity: 1;
+    padding-top: 5px;
+    text-shadow: 0 0 0 transparent;
+}
+
+.close:hover, .close:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 1;
+    background: rgba(0,0,0,0.8);
+
+}
+
+@media (max-width:767px)  {
+    #sidebar-left,.allstores{
+        width:100%;
+    }
+}
+
+
+#sidebar-left a{
+    color:#3dc5f5;
+}
+
+/*---------header------------*/
+#stats{
+    margin:15px 0;
+}
+.stats-box{
+    display: block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid #e2e2e2;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.stats-box p{
+    color: #abacb5;
+}
+
+#main-content{
+    padding-top:25px;
+    color:#606271;
+}
+
+.navbar ul{
+    float:right;
+}
+.navbar-nav > li > a{
+    padding-left:20px;
+    padding-right:20px;
+}
+.header-bottom{
+    background:#262836;
+    min-height:50px;
+    margin-top:55px;
+    color:#ffffff;
+}
+.header-bottom a{
+    color:#ffffff;
+
+}
+
+.circle{
+    background:url("../img/tab-icon.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    padding:3px 9px;
+    width:29px;
+    height:18px;
+    text-align:center;
+    color:#9a79a8;
+    font-size:11px;
+}
+.header-bottom-right{
+    margin-top:10px;
+    float:right;
+
+}
+.header-bottom-right p{
+    margin-top:5px;
+}
+.first-list{
+    padding-left:53px;
+
+}
+.preview{
+    color:#ffffff;
+}
+.publish{
+    color:#3dc5f5;
+}/*-------------////-------------*/
+/*---------------------items-----------------*/
+.item{
+    background:#ffffff;
+    padding:15px;
+}
+.item p{
+    color:#606271;
+    font-size:12px;
+}
+.item-banner{
+    background:#ffffff;
+    padding:5px;
+    margin-top:20px;
+}
+.border{
+    border:#dfe7f0 solid 1px;
+    margin:15px -15px !important;
+    padding:0px !important;
+}
+.social-box{
+    border:#dfe7f0 solid 1px;
+    border-radius:4px;
+    padding:10px;
+    margin-bottom:15px;
+}
+
+/*------------------------------ Responsive CSS ------------------------*/
+/*---------- small devices-------------*/
+@media screen  (max-width: 650px){
+
+
+}/*----------/////-----*/
+
+
+
+/*---------- mobile and iphone-------------*/
+@media (max-width:768px)  {
+    .navbar ul{
+        float:left;
+    }
+    .header-bottom-right{
+        float:left;
+    }
+    .first-list{
+        padding-left:0px;
+    }
+
+}/*----------/////-----*/
+/*---------- tablet-------------*/
+@media screen and (min-width: 768px) and (max-width: 980px){
+    /*----------/////-----*/
+    .navbar-nav > li{font-size:13px;}
+    .item p{font-size:9px;}
+    .first-list{
+        padding-left:43px;
+    }
+    .navbar-nav > li > a {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+/*---------- ipad-------------*/
+@media screen and (min-width: 980px) and (max-width: 1180px){
+    .item p{font-size:9px;}
+    .first-list{
+        padding-left:82px;
+    }
+
+}/*----------/////-----*/

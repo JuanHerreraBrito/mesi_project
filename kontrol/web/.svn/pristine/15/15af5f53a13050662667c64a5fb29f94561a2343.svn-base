@@ -1,0 +1,417 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class ApiTest extends CI_Controller {
+
+    public function index($_ident = NULL, $_method = NULL)
+    {
+        // Informacion a enviar a la vista
+        $data = array();
+        $data['ident_selected'] = NULL;
+        $data['method_selected'] = NULL;
+
+        // Obtiene informacion gral de la api
+        $info = $this->getInfoApi();
+
+        // Obtiene las secciones de la api si no se ha seleccionado ninguna
+        $data['idents'] = $this->getIdents($info);
+
+        $this->load->view('v2/api_index.php', $data);
+
+    }
+
+    public function category($_ident = NULL, $_method = NULL)
+    {
+        // Informacion a enviar a la vista
+        $data = array();
+        $data['ident_selected'] = NULL;
+        $data['method_selected'] = NULL;
+
+        // Obtiene informacion gral de la api
+        $info = $this->getInfoApi();
+
+        // Obtiene las secciones de la api si no se ha seleccionado ninguna
+        $data['idents'] = $this->getIdents($info);
+
+        // Obtiene los metodos de una seccion de la api si no se ha seleccionado ninguna
+        if(!empty($_ident)){
+            $data['methods'] = $this->getIdentMethods($_ident, $info);
+            $data['ident_selected'] = $_ident;
+        }
+
+        // Obtiene todas las propiedades del metodo seleccionado
+        if(!empty($_ident) && !empty($_method)){
+            $data['method'] = $this->getMethod($_ident, $_method, $info);
+            $data['method_selected'] = $_method;
+        }
+        $this->load->view('v2/api_index.php', $data);
+
+    }
+
+    public function execute($_ident, $_method)
+    {
+        $data = array();
+        $data_connect = array();
+        $result = array();
+        $warnnings = array();
+        $timeout = 30;
+        $log = false;
+        $method_copy_name = '';
+        
+        $params = $_POST; // Los parametros para la llamada de la api
+        if(empty($params['username_login_testing']) || empty($params['password_login_testing'])){
+            echo json_encode(array('result' => array(
+                                    'success' => 'error',
+                                    'msg' => 'Se necesitan los datos de login...')
+                            )); exit;
+        }
+        
+        // Cambio a update_store_settings
+        switch($_method){
+            case 'update_store_info':
+                $method_copy_name = $_method;
+                $_method = 'update_store_settings';
+                $params['seccion'] = 'info';
+                break;
+            case 'add_store_users':
+                $method_copy_name = $_method;
+                $_method = 'update_store_settings';
+                $params['seccion'] = 'add_users';
+                break;
+            case 'remove_store_users':
+                $method_copy_name = $_method;
+                $_method = 'update_store_settings';
+                $params['seccion'] = 'remove_users';
+                break;
+            case 'add_store_address':
+                $method_copy_name = $_method;
+                $_method = 'update_store_settings';
+                $params['seccion'] = 'add_address';
+                break;
+            case 'remove_store_address':
+                $method_copy_name = $_method;
+                $_method = 'update_store_settings';
+                $params['seccion'] = 'remove_address';
+                break;
+            case 'add_store_payment':
+                $method_copy_name = $_method;
+                $_method = 'update_store_settings';
+                $params['seccion'] = 'payments';
+                break;
+        }
+
+        // Obtiene informacion gral de la api
+        $info = $this->getInfoApi();
+
+        // Timeout
+        if(isset($info['timeout']))
+            $timeout = $info['timeout'];
+
+        // Log
+        if(isset($info['log']))
+            $log = $info['log'];
+
+        // Url completa para llamar a la API
+        $data_connect = $this->getDataConnect($_ident, $info);
+        $data_connect['url_api'] = $data_connect['host'].$data_connect['url_api'].'/'.$_ident.'/'.$_method;
+        $data_connect['url_login'] = $data_connect['host'].$data_connect['url_login'];
+
+        $result = $this->callApiCurl($data_connect, $params, $timeout, $log);
+
+        //Verificar tipo de dato de regreso
+        if(is_string($result)){
+            $data = json_decode($result, TRUE);
+            
+            // Switch para update_store_settings
+            if($method_copy_name != '') $_method = $method_copy_name;
+            
+            $warnnings = $this->CheckResult($_ident, $_method, $info, $data['data']);
+        }
+        
+        
+        if(is_array($result) AND array_key_exists('success', $result['result']) AND $result['result']['success'] == 'error')
+            echo json_encode(array_merge($result, array('warnnings' => $warnnings,'url_info' => array($data_connect['url_api'], $data_connect['url_login']))));
+        else
+            echo json_encode(array('result' => $result, 'warnnings' => $warnnings,'url_info' => array($data_connect['url_api'], $data_connect['url_login'])));
+        exit;
+    }
+    private function CheckResult($_ident, $_method, $_info, $_result)
+    {
+        $data = array();
+        $long = 0;
+        $warnnings = array(
+            'return_type' => array(
+                'result_type' => false,
+                'result_count' => false,
+                'type' => NULL,
+            ),
+        );
+
+        // Obtiene el tipo de dato que deberia regresar la api
+        $data['method'] = $this->getMethod($_ident, $_method, $_info);
+        $warnnings['return_type']['type'] = $data['method']['return']['type'];
+
+        // Se verifica el tipo de dato
+        switch($data['method']['return']['type'])
+        {
+            case 'array':
+                $warnnings['return_type']['result_type'] = is_array($_result);
+                break;
+            case 'bool':
+                $warnnings['return_type']['result_type'] = is_bool($_result);
+                break;
+            case 'double':
+                $warnnings['return_type']['result_type'] = is_double($_result);
+                break;
+            case 'float':
+                $warnnings['return_type']['result_type'] = is_float($_result);
+                break;
+            case 'int':
+                $warnnings['return_type']['result_type'] = is_int($_result);
+                break;
+            case 'numeric':
+                $warnnings['return_type']['result_type'] = is_numeric($_result);
+                break;
+            case 'real':
+                $warnnings['return_type']['result_type'] = is_real($_result);
+                break;
+            case 'string':
+                $warnnings['return_type']['result_type'] = is_string($_result);
+                break;
+        }
+
+        if($warnnings['return_type']['result_type'])
+        {
+            // Se verifica la longitud del resultado
+            if(!empty($data['method']['return']['size']) &&
+               array_key_exists('size', $data['method']['return']))
+            {
+                // Se verifica el tipo de dato
+                switch($data['method']['return']['type'])
+                {
+                    case 'array':
+                        $long = count($_result);
+                        break;
+                    case 'double':
+                    case 'float':
+                    case 'int':
+                    case 'numeric':
+                    case 'real':
+                        preg_match_all('/[0-9]/i', $_result, $arr);
+                        $long = count($arr[0]);
+                        break;
+                    case 'string':
+                        $long = strlen($_result);
+                        break;
+                }
+
+                if($long <= $data['method']['return']['size']){
+                    $warnnings['return_type']['result_count'] = true;
+                }
+            }
+            else $warnnings['return_type']['result_count'] = true;
+
+        }
+
+        return $warnnings;
+
+    }
+    private function getDataConnect($_ident, $_api)
+    {
+        $arr_data = array();
+
+        foreach($_api['ident'] as $ident)
+        {
+            if($ident['name'] == $_ident)
+            {
+                $arr_data = $ident['data_connect'];
+                break;
+            }
+        }
+        return $arr_data;
+    }
+    private function getFileCookie(){
+        // Archivo para guardar la sesion
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cookie_file = "C:/xampp/htdocs/tool.api.kichink/content/cookie.txt"; // Testing
+        }
+        else{
+            $cookie_file = "/tmp/cookie.txt";
+        }
+        return $cookie_file;
+    }
+    private function setConfigCurl($_ch, $_url, $_params, $_timeout = 30)
+    {
+        $cookie_file = $this->getFileCookie();
+
+        if(!file_exists($cookie_file)){
+            file_put_contents($cookie_file, '');
+        }
+        
+        $_params = http_build_query($_params,'');
+        $options = array(
+            CURLOPT_URL => $_url,               // url a llamar
+            CURLOPT_HEADER => 0,                // Envia header en peticion
+            CURLOPT_POST => 1,                  // Envio de parametros POST
+            CURLOPT_POSTFIELDS => $_params,     // Datos POST
+            CURLOPT_RETURNTRANSFER => 1,        // Regresa lo que genera la url llamada en un String
+            CURLOPT_TIMEOUT => $_timeout,       // Segundos para esperar una respuesta de la llamada
+            CURLOPT_FAILONERROR => 1,           // Error con codigos HTTP mayores de 400 para petición
+            CURLOPT_FOLLOWLOCATION => 1,        // Seguimiento de redirecciones
+            CURLOPT_COOKIEFILE => $cookie_file, // Archivo Cookie para mantener sesiÛn en CI
+            CURLOPT_COOKIEJAR => $cookie_file,
+        );
+        curl_setopt_array($_ch, $options);
+        return $_ch;
+    }
+
+    private function setLoginCurl($_username, $_password, $_url)
+    {
+
+        // Configuracion de curl
+        $params = array();
+        $params['username'] = $_username;
+        $params['password'] = $_password;
+
+        $ch = curl_init();
+        $ch = $this->setConfigCurl($ch, $_url, $params);
+        $result = curl_exec($ch);
+
+        if($result === FALSE) $result = $this->setMsgErrorCurl($ch, $_url);
+        else $result = true;
+
+        curl_close($ch); unset($ch);
+
+        return $result;
+    }
+    private function setMsgErrorCurl($_ch, $_url)
+    {
+        $result = array();
+        $result['result']['success'] = 'error';
+
+        switch(curl_errno($_ch))
+        {
+            case 22: // Error server > 400
+                $result['result']['msg'] = htmlentities(curl_error($_ch)).' ('.$_url.')';
+                break;
+            case 3: // Url malformed
+                $result['result']['msg'] = 'Error Curl: '.htmlentities(curl_error($_ch)).' ('.curl_errno($_ch).') '.$_url;
+                break;
+            default:
+                $result['result']['msg'] = 'Error Curl: '.htmlentities(curl_error($_ch)).' ('.curl_errno($_ch).').';
+                break;
+        }
+        return $result;
+    }
+
+    private function callApiCurl($_dataConnect, $_params, $_timeout, $_log)
+    {
+
+        // Login
+        $result = $this->setLoginCurl($_params['username_login_testing'], $_params['password_login_testing'], $_dataConnect['url_login']);
+        if($result !== true && is_array($result)){
+            echo json_encode($result); exit;
+        }
+
+        // Llamada al método
+        $url = $_dataConnect['url_api'];
+        
+        // Elimina los datos del login del apitest a $_POST (para evitar inconsistencias)
+        unset($_params['username_login_testing']);
+        unset($_params['password_login_testing']);
+        
+        // Configuración de curl
+        $ch = curl_init();
+        $ch = $this->setConfigCurl($ch, $url, $_params, $_timeout);
+        $result = curl_exec($ch);
+
+        // Error al llamar a la funcion de call api
+        if($result === FALSE) $result = $this->setMsgErrorCurl($ch, $url);
+
+        // Cierra la conexión
+        curl_close($ch); unset($ch);
+        // Elimina el archivo cookie
+        unlink($this->getFileCookie());
+
+        return $result;
+    }
+
+    private function getUrlApi($_info)
+    {
+        return $_info['url'];
+    }
+
+    private function getInfoApi()
+    {
+        $info_api = file_get_contents('api.json');
+        $info_api = json_decode($info_api, TRUE);
+
+        return $info_api;
+    }
+
+    public function getIdents($_api)
+    {
+        $arr_idents = array();
+
+        if(isset($_api['ident'])){
+            foreach($_api['ident'] as $ident)
+            {
+                $arr_idents[] = $ident['name'];
+            }
+        }
+
+        return $arr_idents;
+    }
+
+    public function getIdent($_ident, $_api)
+    {
+        $arr_ident = array();
+
+        if(isset($_api['ident'])){
+            foreach($_api['ident'] as $ident)
+            {
+                if($_ident == $ident['name']){
+                    $arr_ident = $ident;
+                    break;
+                }
+            }
+        }
+        return $arr_ident;
+    }
+
+    public function getIdentMethods($_ident, $_api)
+    {
+        $arr_methods = array();
+
+        $arr_ident = $this->getIdent($_ident, $_api);
+
+        foreach($arr_ident['methods'] as $method)
+        {
+            $arr_methods[] = $method['name'];
+        }
+
+        return $arr_methods;
+    }
+
+    public function getMethod($_ident, $_method, $_api)
+    {
+        $arr_method = array();
+
+        foreach($_api['ident'] as $ident)
+        {
+            if($ident['name'] == $_ident)
+            {
+                foreach($ident['methods'] as $method)
+                {
+                    if($method['name'] == $_method){
+                        $arr_method = $method;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        return $arr_method;
+    }
+}
+?>

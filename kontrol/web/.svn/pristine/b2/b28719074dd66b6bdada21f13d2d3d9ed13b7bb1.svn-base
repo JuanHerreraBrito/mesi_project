@@ -1,0 +1,19 @@
+/* 
+ * V2 Sell.Kichink
+ */
+
+$(document).ready(function() {
+    $('#languagedrowdown').find("a").each(function(i, e) {
+        $(e).click(function() {
+            //var pais = $('#pais-options').val();
+            if (!$(this).hasClass("selected")) {
+                var lang = $(this).data().value;
+                $.post("/login/usrPref", {lang: lang},
+                function(data) {
+                    location.reload();
+                });
+            }
+        });
+    });
+});
+

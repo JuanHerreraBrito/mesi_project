@@ -1,0 +1,140 @@
+/* 
+ * V2 Sell.Kichink
+ * Order Details
+ */
+$(document).ready(function() {
+
+    $("#items-order").DinamicTable({
+        tableClass: "table table-responsive table-items",
+        numered: true, //Si va numerada
+        selectable: false, //Si lleva checkboxes o no
+        types: {
+            image: "image",
+            discount: "money",
+            price: "money",
+            total: "money"
+        },
+        dataTable: null,
+        actions: [//Tpdas las acciones que quiero agregar
+        ]
+    });
+
+    call_api('/api/orders/get_order_sell', 'post', {"store_id": store_id, "order_id": order_id}, function(data) {
+        var obj = jQuery.parseJSON(data.toString());
+        var items = [];
+        console.log(obj.data);
+
+        $("#order-status").addClass(obj.data.status);
+        $("#order-status").html(obj.data.status);
+        if(obj.data.status!="new")
+         $("#programar_recoleccion").remove();
+
+        for (var i in obj.data.items) {
+            items.push({
+                "image": obj.data.items[i].image,
+                "id": obj.data.items[i].item_id,
+                "name": obj.data.items[i].name,
+                "units": obj.data.items[i].units,
+                "price": obj.data.items[i].price,
+                "discount": obj.data.items[i].discount,
+                "total": parseFloat((obj.data.items[i].price * obj.data.items[i].units) - obj.data.items[i].discount).toFixed(2),
+                "comments": obj.data.items[i].comments
+            });
+        }
+
+        var visible = ["image", "id", "name", "units", "price", "discount", "total"];
+        if (items.length > 0) {
+            $("#items-order").data().DinamicTable.methods.setHeader({"image": ""});
+            $("#items-order").data().DinamicTable.methods.setContent(items);
+            $("#items-order").data().DinamicTable.methods.setVisibleFields(visible);
+            $("#items-order").data().DinamicTable.methods.drawTable();
+        } else {
+            $("#items-order").html("<span class='no'>No hay items</span>");
+        }
+
+        if (obj.data.consumidor != undefined) {
+            var tr = document.createElement("div");
+            var td = document.createElement("div");
+            var p = 0;
+
+            if (obj.data.consumidor.nombre != undefined) {
+                $(td).attr("align", "center");
+                $(td).addClass("name");
+                $(td).append("<img src='/img/person_avatar.jpg'/><br/>" + obj.data.consumidor.nombre);
+                $(tr).append(td);
+            } else {
+                p++;
+            }
+
+            if (obj.data.consumidor.email != undefined) {
+                td = document.createElement("div");
+                $(td).attr("align", "center");
+                $(td).append("<a href='mailto:" + obj.data.consumidor.email + "'><span class='glyphicon glyphicon-envelope'></span>&nbsp;" + obj.data.consumidor.email + "</a>");
+                $(tr).append(td);
+            } else {
+                p++;
+            }
+
+            if (obj.data.consumidor.telefono != undefined) {
+                td = document.createElement("div");
+                $(td).attr("align", "center");
+                $(td).append("<span class='glyphicon glyphicon-earphone'></span>&nbsp;" + obj.data.consumidor.telefono + "</a>");
+                $(tr).append(td);
+                $("#consumidor").append(tr);
+            } else {
+                p++;
+            }
+
+            if (p >= 3) {
+                $("#consumidor").remove();
+            }
+
+        }
+
+        if (obj.data.datos_recoleccion_tienda != undefined) {
+            
+            $(".recoleccion").find(".calle").html(obj.data.datos_recoleccion_tienda.calle);
+            $(".recoleccion").find(".numero").html(obj.data.datos_recoleccion_tienda.numero);
+            $(".recoleccion").find(".interior").html(obj.data.datos_recoleccion_tienda.interior);
+            $(".recoleccion").find(".colonia").html(", "+obj.data.datos_recoleccion_tienda.colonia+",");
+            $(".recoleccion").find(".cp").html("C.P. "+obj.data.datos_recoleccion_tienda.cp);
+            $(".recoleccion").find(".ciudad").html(obj.data.datos_recoleccion_tienda.ciudad);
+            $(".recoleccion").find(".estado_nombre").html(", "+obj.data.datos_recoleccion_tienda.estado_nombre+",");
+            $(".recoleccion").find(".pais_nombre").html(obj.data.datos_recoleccion_tienda.pais_nombre);
+            $(".recoleccion").find(".referencias").html(obj.data.datos_recoleccion_tienda.referencias);
+            
+            /*for (var key in obj.data.datos_recoleccion_tienda) {
+                var el = "table.recoleccion ." + key;
+
+                if ($(el).length > 0) {
+                    if (obj.data.datos_recoleccion_tienda[key] != "")
+                        $(el).html(obj.data.datos_recoleccion_tienda[key]);
+                    else
+                        $(el).html("-");
+                }
+            }*/
+        }
+
+        if (obj.data.horario_recoleccion.from) {
+            $(".res-item .from").html(obj.data.horario_recoleccion.from)
+        }
+        if (obj.data.horario_recoleccion.to) {
+            $(".res-item .to").html(obj.data.horario_recoleccion.to);
+        }
+
+        if (obj.data.facturacion.length>0) {
+            for (var key in obj.data.facturacion) {
+                var el = "table.facturacion ." + key;
+
+                if ($(el).length > 0) {
+                    if (obj.data.facturacion[key] != "")
+                        $(el).html(obj.data.facturacion[key]);
+                    else
+                        $(el).html("-");
+                }
+            }
+        } else {
+             $("#facturacion").remove();
+        }
+    });
+});

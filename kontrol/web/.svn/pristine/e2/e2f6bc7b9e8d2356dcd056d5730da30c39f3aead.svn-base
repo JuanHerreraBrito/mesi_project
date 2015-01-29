@@ -1,0 +1,15 @@
+<?php
+
+if(empty($size) AND empty($content)){
+    echo '<meta charset="utf-8"><script>alert("Ha ocurrido un problema, favor de notificarlo..."); self.close ();</script>'; exit;
+}
+else
+{
+    header("Content-Type: $type");
+    header('Content-Disposition: inline; filename="'.$name.'.'.$extension.'"');
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . $size);
+    header('Accept-Ranges: bytes');
+    readfile(html_entity_decode($content));
+}
+?>

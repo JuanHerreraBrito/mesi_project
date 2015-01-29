@@ -1,0 +1,231 @@
+<?
+$store_id = $this->uri->segment(3);
+?>
+<? $this->load->view('v2/layout/header_new.php'); ?>
+<?/* $this->load->view('layout/header.php'); */?>
+<style type="text/css">
+	table td{
+	    border-bottom: 1px solid #CCCCCC;
+	}
+	table th, table td {
+	    line-height: 16px;
+	    padding: 7px 7px 9px;
+	    text-align: left;
+	}
+	.comprobacion{
+		font-weight:bolder;font-size:16px;
+	}
+	.error{
+		color:#FF2424;
+	}
+</style>
+<div class="container" style="margin-top:55px;">
+
+    <div class="content">
+
+        <div class="page-header" style="background: #942984;">
+          <h1 style="font-family: Rockwell, Helvetica, Arial, sans-serif; font-weight:normal; text-align:center; color:#FFF;">Actualizaci&oacute;n de inventarios</h1>
+        </div>
+
+        <div class="row">
+
+	        <div class="span16" style=" text-align:left;">
+	          	<h2 style="float:left;width:50%">Total art&iacute;culos: <?=($inventarios ? count($inventarios) : '-')?></h2>
+	          	<h2 style="float:right;width:50%;text-align:right">Total art&iacute;culos seleccionados: <span id="selected_items">0</span></h2>
+
+	          	<table id="overview_table" class="table bordered-table" style="width:940px;border-bottom:0px">
+	          		<tr>
+	          			<td width="3%">
+		          			<input type="checkbox" id="select_all" />
+	          			</td>
+	          			<td width="5%">
+		          			<h4>Id</h4>
+	          			</td>
+	          			<td width="22%">
+		          			<h4>Nombre</h4>
+	          			</td>
+	          			<td width="10%">
+		          			<h4>SKU</h4>
+	          			</td>
+	          			<td width="8%">
+		          			<h4>Live</h4>
+	          			</td>
+	          			<td width="17%">
+		          			<h4>Inventarios totales</h4>
+	          			</td>
+	          			<td width="35%">
+		          			<h4>Opciones de compra</h4>
+	          			</td>
+	          		</tr>
+	          		
+	          		<? if($inventarios){ ?>
+	          			<? foreach ($inventarios as $inventario) { ?>
+	          				<tr>
+	          					<td><input type="checkbox" class="row_checkbox" item_id="<?=$inventario->id?>" /></td>
+			          			<td style="text-align:center"><?=$inventario->id?></td>
+			          			<td><?=($inventario->name ? $inventario->name : $inventario->name_eng)?></td>
+			          			<td><?=$inventario->sku?></td>
+			          			<td style="text-align:center"><img src="http://www.kichink.com/img/emails/check_<?=$inventario->live ? 'verde' : 'rojo'?>.png" alt="Status_<?=$inventario->id?>" width="18" /></td>
+			          			<td style="text-align:center">
+			          				<input type="text" onblur="javascript:check_units(<?=$inventario->id?>)" id="units_ava_<?=$inventario->id?>" name="units_ava_<?=$inventario->id?>" value="<?=$inventario->units_availible?>" <?=($inventario->options ? 'disabled' : '')?>  class="span2" style="text-align:center" />
+			          				<input type="hidden" class="inv_ids" value="<?=$inventario->id?>" />
+			          			</td>
+			          			<td width="25%">
+				          		<? 	if($inventario->options){ 
+				          				$json = json_decode($inventario->options); 
+				          				$sum_items = 0;
+				          		?>
+			          					<table style="margin-bottom:0px" id="purchase_table_<?=$inventario->id?>">
+			          					<? foreach ($json as $opts) { ?>
+			          						<tr>
+			          							<td style="border:1px solid #CCCCCC" width="60%"><?=$opts->label?></td>
+			          							<td style="border:1px solid #CCCCCC;text-align:center" width="40%">
+			          								<input onblur="javascript:check_opts(<?=$inventario->id?>);" class="span2 inputs_<?=$inventario->id?>" type="text" style="text-align:center" label="<?=$opts->label?>" value="<?=($opts->units ? $opts->units : '0')?>"  />
+			          							</td>
+			          							<? $sum_items += $opts->units; ?>
+			          						</tr>
+			          					<?	} ?>
+			          						<tr>
+			          							<td style="border:0px;text-align:right"><b>Comprobaci&oacute;n</b></td>
+			          							<td style="border:0px;text-align:center">
+			          								<span id="total_opts_<?=$inventario->id?>" class="comprobacion">
+			          									<?=$sum_items?>
+			          								</span>
+			          							</td>
+			          						<tr>
+			          					</table>
+				          		<? 	}  ?>
+			          			</td>
+			          		</tr>
+	          			<? } ?>
+	          		<? } ?>
+	          	</table>
+	          	<p style="text-align:center"><input type="submit" class="btn btn-success btn-large" onclick="javascript:update_inventarios();return false;" value="Actualizar inventarios" style="width:350px;font-size:16px" /></p>
+	       	    <div id="msg_response" style="color:red;text-align:center;font-size:20px;margin:8px 0;height:50px"></div>
+
+	        </div>
+
+	        <div class="span16" style="text-align:left;margin-top:30px">
+				
+	          	<h2 style="text-align:left;margin:30px 0 10px 0">Exportaci&oacute;n</h2>
+				<p>Genera archivo csv</p>
+		        <a href="/inventarios/generate_csv/<?=$store_id?>" class="btn btn-primary">Generar csv</a>
+
+				<h2 style="text-align:left;margin:30px 0 10px 0">Importaci&oacute;n</h2>
+
+	          	<form method="post" action="" enctype="multipart/form-data">
+	          		Selecciona archivo csv<br/><br/>
+	          		<input type="file" name="image" />
+	          		<input type="hidden" name="store_id" value="1"/><br/><br/>
+	          		<input type="submit" name="submit" value="Importar csv" class="btn btn-primary" />
+	          		<? if(isset($import_csv)){ ?>
+						<p style="color:red"><?=$import_csv?></p>
+	          		<? } ?>
+	          	</form>
+        	</div>
+        
+        </div>  
+    </div>
+</div>
+
+<script type="text/javascript">
+
+	function check_opts(id){
+		var units = 0;
+		$('.inputs_'+id).each(function(){
+			var value = this.value;
+			if(isNaN(value) || value < 1){ value = 0;}
+			units = units + parseInt(value);
+			this.value = value;
+			$(this).val(parseInt(value));
+		});
+		$('#total_opts_'+id).html(parseInt(units));
+	}
+	function check_units(id){
+		var value = $('#units_ava_'+id).val();
+		if(isNaN(value) || value < 1){ 
+			value = 0;
+		}
+		$('#units_ava_'+id).val(parseInt(value));
+	}
+	function update_inventarios(){
+
+		var items = [];
+		$('#msg_response').html('');
+
+		$('.row_checkbox').each(function(){
+
+			if($(this).is(':checked')){
+				var id = $(this).attr('item_id');
+				var units = parseInt($('#units_ava_'+id).val());
+				var purchase_opts = [];
+				if($('#purchase_table_'+id).length > 0){
+					$('.inputs_'+id).each(function(){ 
+						purchase_opts.push({label:$(this).attr('label'),units:parseInt(this.value)}); 
+					});
+				}else{
+					purchase_opts = false;
+				}
+				items.push({id:id,units:units,purchase_opts:purchase_opts});
+			}
+			
+		});
+
+		if(items.length<1){
+			alert('No hay artículos seleccionados');
+		}else{
+			items = JSON.stringify(items);
+			var response = call_action(items);
+			$('#msg_response').html(response.msg);
+		}
+				
+	}
+	$('#select_all').change(function(){
+        $('.row_checkbox').each(function(){
+            $(this).attr('checked', false);
+        });
+        var pos = false;
+        if($(this).is(':checked')){
+          pos = true;
+        } 
+        $('.row_checkbox').each(function(){
+            var checkbox = $(this);
+            checkbox.attr('checked', pos);
+        });
+        get_selected_count();
+	});
+
+	$('.row_checkbox').change(function(){ 
+		get_selected_count(); 
+	});
+
+	function get_selected_count(){
+		var counter = 0;
+		$('.row_checkbox').each(function(){
+			if($(this).is(':checked')){ counter++; }
+		});
+		$('#selected_items').html(counter);
+	}
+
+	function call_action( items ){
+    	var response = false;
+		$.ajax({
+		   	type: "POST",
+		    async: false,
+		    dataType: "json",
+		    url: "/inventarios/update_table",
+		    data: {items:items, store_id:<?=$store_id?>}
+		}).done(function( result ) {
+            response = result;
+            return false;
+	    }).fail(function(jqXHR, textStatus) {
+	    	response = {status:'error',msg:textStatus};
+	    	return false;
+		});
+		return response;
+	}
+</script>
+
+
+</body>
+</html>

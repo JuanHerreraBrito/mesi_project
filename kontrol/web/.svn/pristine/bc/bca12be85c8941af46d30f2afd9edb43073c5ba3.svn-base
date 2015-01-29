@@ -1,0 +1,75 @@
+<?= $this->load->view('v2/layout/header_new.php') ?>
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $("#accept-btn").click(function() {
+            $('#slide-left-modal').modal("hide");
+
+            call_api('/api/notifications/notification_read', 'post', {"notification_id": $('#slide-left-modal').data().id, store_id: <?= $store_id ?>}, function() {
+                show_pending_notification();
+            });
+        });
+
+        $("#cancel-btn").on("click", function() {
+            $('#slide-left-modal').remove();
+            window.location.href = "/login/doLogout";
+
+        });
+
+
+        function show_pending_notification() {
+            call_api('/api/notifications/notifications_important', 'post', {}, function(data) {
+
+                var obj = jQuery.parseJSON(data.toString());
+                if (obj) {
+                    var counter = 0;
+                    for (var i in obj.data) {
+                        if ((obj.data[i].type == "important") && (obj.data[i].read == false)) {
+                            var u = obj.data[i].url;
+                            var v = getdatafromvideo(u);
+                            if (v != undefined) {
+                                if (v.videourl != "") {
+                                    u = v.videourl + "?rel=0&autoplay=1";
+                                }
+                            }
+                            $("#slide-left-modal").find("h4").html(obj.data[i].title);
+                            $("#slide-left-modal").find("iframe").attr("src", u);
+                            $("#slide-left-modal").attr("data-id", obj.data[i].title);
+                            $("#slide-left-modal").data("id", obj.data[i].id);
+                            $("#slide-left-modal").modal("show");
+                            counter++;
+                            break;
+                        }
+                    }
+                    if (counter == 0) {
+                        window.location.href = "/stores";
+                    }
+                }
+            });
+        }
+
+        show_pending_notification();
+
+    });
+</script>     
+<div class="container" style="height:600px">    
+</div>
+<div id="slide-left-modal" class="modal fade" data-backdrop="static" data-keyboard="false"> 
+    <div class="modal-dialog" style="max-height: 350px;">
+    <div class="modal-content" style="height: 100%;">
+            <div class="modal-header">
+                <h4 class="modal-title">Aviso importante</h4>
+            </div>
+            <div class="modal-body" style="-webkit-overflow-scrolling:touch">
+                <iframe width="100%" height="315px" frameborder="0" src=""></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="cancel-btn">No acepto</button>
+                <button type="button" class="btn btn-primary" id="accept-btn">Acepto</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<?=
+$this->load->view('v2/layout/footer.php')?>

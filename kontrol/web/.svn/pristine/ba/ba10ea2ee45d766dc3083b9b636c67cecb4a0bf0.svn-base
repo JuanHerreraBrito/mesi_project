@@ -1,0 +1,910 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Stores extends CI_Controller {
+
+    var $sitio = 'SELL';
+
+    function __construct() {
+        parent::__construct();
+        checkForSession();
+        geoIP();
+    }
+
+    /**
+     * Index Page for this controller.
+     *
+     * Shows all stores of a particular user
+     */
+    public function index() {
+        $this->load->model('sell_model');
+
+        $data['user_terms_checked'] = false;
+
+        $q = $this->db->get_where('users', array('id' => $this->session->userdata('user_id'), 'sell_terms' => 1));
+
+        if ($r = $q->result()) {
+            $data['user_terms_checked'] = true;
+        }
+
+        $data['user_stores'] = $this->sell_model->get_all_user_stores();
+        $data['tuto'] = $this->sell_model->get_tuto('stores');
+
+
+        //print_r($data['user_stores']);
+        $this->load->view('stores/index_view', $data);
+    }
+
+
+    /**
+     * ID Page for this controller.
+     *
+     * Shows a specific store determined by its ID
+     */
+    public function id() {
+        if (!$storeId = $this->uri->segment(3)) {
+            page_not_found();
+        } else {
+            $data["store"]=new stdClass();
+            $data["store"]->id=$storeId;
+            $this->load->view('v2/stores/id_view', $data);
+        }
+    }
+
+    /**
+     * Store functions.
+     *
+     * Specific functions for stores
+     */
+    public function add_store() {
+        $this->load->model('sell_model');
+
+        $validate = $this->validate_add_store();
+
+        if (!$validate) {
+
+            $store = $this->input->post('store_name');
+            // Validate -> Process -> Store
+            if ($store_id = $this->sell_model->insert_store($store)) {
+                // Redirect
+                echo json_encode(array('msg' => 'Success', 'datos' => $store_id));
+                //redirect('stores/id/'.$store_id);
+            } else {
+                echo json_encode(array('msg' => 'error', 'datos' => 'Ha ocurrido un error'));
+            }
+        } else {
+
+            echo json_encode(array('msg' => 'error', 'datos' => $validate));
+        }
+    }
+
+    function validate_add_store() {
+
+        $this->load->model('sell_model');
+        $error = false;
+        $errorMsg = '';
+
+
+        if (!$this->input->post('acuerdo') || $this->input->post('acuerdo') != 1) {
+            $error = true;
+            $errorMsg .= '<p>Por favor acepta nuestros t&eacute;rminos</p>';
+        }
+        if (!$this->input->post('store_name')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo nombre de tienda</p>';
+        }
+        if (!$this->input->post('telefonos')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo telefonos</p>';
+        }
+        if (!$this->input->post('direccion')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo direcci&oacute;n</p>';
+        }
+        if (!$this->input->post('ciudad')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo ciudad</p>';
+        }
+        if (!$this->input->post('estado')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo estado</p>';
+        }
+        if (!$this->input->post('pais')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo pa&iacute;s</p>';
+        }
+        if (!$this->input->post('cp')) {
+            $error = true;
+            $errorMsg .= '<p>Verificar campo C.P.</p>';
+        }
+
+
+        if ($error) {
+            return $errorMsg;
+        }
+    }
+
+    public function delete_store() {
+        // Validate -> Process -> Store
+        // Redirect
+    }
+
+    public function update_store() {
+        // Validate -> Process -> Store
+        // Redirect
+    }
+
+    public function goLive() {
+
+        $store_id = $this->input->post('store_id');
+
+        //PERMISSIONS
+        $uri_segment = array('store_id' => $store_id);
+        checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+        //END OF PERMISSIONS
+
+        if ($store_id) {
+
+            $this->load->model('sell_model');
+
+            $this->sell_model->goLive($store_id);
+            redirect('http://kichink.com/stores/id/' . $store_id);
+        }
+    }
+
+    public function goOffline() {
+
+        $store_id = $this->input->post('store_id');
+
+        //PERMISSIONS
+        $uri_segment = array('store_id' => $store_id);
+        checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+        //END OF PERMISSIONS
+
+        if ($store_id) {
+
+            $this->load->model('sell_model');
+
+            $this->sell_model->goOffline($store_id);
+            redirect(base_url() . 'stores/id/' . $store_id);
+        }
+    }
+
+    public function payments(){
+        if (!$store_id = $this->uri->segment(3)) {
+
+            page_not_found();
+        } else {
+
+            $user_id = $this->session->userdata('user_id');
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($user_id, $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+
+            $q = $this->db->get_where('stores', array('tienda_pruebas' => 0, 'id' => $store_id));
+            $r = $q->result();
+
+            if (!$r) {
+                redirect('/stores');
+            } else {
+
+                $this->load->model('sell_model');
+                $CI = & get_instance();
+                $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+                // Agregue un objeto que traiga los datos de la tienda para poder actualizar el titulo y descripcion
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+                // Getting user fields preferences
+                //$data['user_pref'] = $this->get_user_preferences();
+                $data['user_pref'] = $user_pref = array("name", "id", "units_total", "total_sale_price", "currency", "time_left", "order_created", "", "total_order_MXN", "total_order_USD");
+                $data['user_stores'] = $this->sell_model->get_all_user_stores();
+
+                // Vieja Vista
+                //$this->load->view('v2/orders/index_view', $data);
+                // Nueva Vista
+                $this->load->view('v2/layout/header_new', $data);
+                $this->load->view('v2/stores/menu_store', $data);
+                $this->load->view('v2/stores/sidebar_left', $data);
+                $this->load->view('v2/stores/payments_store_view', $data);
+            }
+        }
+    }
+
+    
+    public function apps() {
+    
+        $store_id = $this->uri->segment(3);
+
+        if (!$store_id) {
+
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            $data['admins'] = $this->sell_model->get_admins($store_id);
+            $data['banks'] = $this->sell_model->get_banks();
+            $data['states_pos'] = $CI->shared_model->get_states($country_mex_id = 112);
+            $data['paises_pos'] = $CI->shared_model->get_countries('shipping');
+            $data['tuto'] = $this->sell_model->get_tuto('store_settings');
+
+            if ($this->input->post('submit_pos')) {
+                $data['pos'] = $this->process_pos_form($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            if ($this->input->post('submit_details')) {
+                $data['details'] = $this->sell_model->update_store_info($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            if ($this->input->post('submit_payments')) {
+                $data['payments'] = $this->sell_model->update_storePayment_info($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            if ($this->input->post('submit_labs')) {
+                $data['labs'] = $this->sell_model->update_labs_info($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            $data['store_pos'] = $this->sell_model->get_store_pos($store_id);
+
+            $this->load->view('v2/layout/header_new', $data);
+            $this->load->view('v2/stores/menu_store', $data);
+            $this->load->view('v2/stores/sidebar_left', $data);
+            $this->load->view('v2/stores/apps_view', $data);
+        }
+    }   
+    
+
+    public function preview() {
+
+        $store_id = $this->uri->segment(3);
+
+        if (!$store_id) {
+
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            $category = $this->uri->segment(4);
+
+            // Agregue un objeto que traiga los datos de la tienda para poder actualizar el titulo y descripcion
+            $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            $data['items_store'] = $this->sell_model->get_all_store_items($store_id, $category);
+            $data['store_categories'] = $CI->shared_model->get_store_categories($store_id, $this->sitio);
+
+            $this->load->view('stores/id_preview_view_2', $data);
+        }
+    }
+
+    public function settings() {
+
+        $store_id = $this->uri->segment(3);
+
+        if (!$store_id) {
+
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            $data['admins'] = $this->sell_model->get_admins($store_id);
+            $data['banks'] = $this->sell_model->get_banks();
+            $data['states_pos'] = $CI->shared_model->get_states($country_mex_id = 112);
+            $data['paises_pos'] = $CI->shared_model->get_countries('shipping');
+            $data['tuto'] = $this->sell_model->get_tuto('store_settings');
+            $data['option'] = $this->uri->segment(4);
+
+            if ($this->input->post('submit_pos')) {
+                $data['pos'] = $this->process_pos_form($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            if ($this->input->post('submit_details')) {
+                $data['details'] = $this->sell_model->update_store_info($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            if ($this->input->post('submit_payments')) {
+                $data['payments'] = $this->sell_model->update_storePayment_info($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            if ($this->input->post('submit_labs')) {
+                $data['labs'] = $this->sell_model->update_labs_info($store_id);
+                $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            }
+
+            $data['store_pos'] = $this->sell_model->get_store_pos($store_id);
+
+            $this->load->view('v2/layout/header_new', $data);
+            $this->load->view('v2/stores/menu_store', $data);
+            $this->load->view('v2/stores/sidebar_left', $data);
+            $this->load->view('v2/stores/settings_view', $data);
+        }
+    }
+
+    public function get_states() {
+
+        $this->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+        if ($country = $this->input->post('country')) {
+
+            $states = $this->shared_model->get_states($country);
+            if ($states) {
+
+                echo '<select id="direccion_estado" name="direccion_estado" class="span3">';
+
+                foreach ($states as $value) {
+                    echo '<option value="' . $value->id . '">' . $value->state_name . '</option>';
+                }
+
+                echo '</select>';
+            } else {
+                echo 'error';
+            }
+        } else {
+            echo 'error';
+        }
+    }
+
+    private function process_pos_form($store_id) {
+
+        $this->load->model('sell_model');
+
+        if ($validatePosForm = $this->validatePosForm()) {
+
+            $validate = array();
+
+            $validate['error']['msg'] = $validatePosForm;
+
+            foreach ($_POST as $key => $value) {
+                $validate['post'][$key] = $value;
+            }
+
+            return $validate;
+        } else {
+            $this->sell_model->insert_store_pos($store_id);
+            return false;
+        }
+    }
+
+    private function validatePosForm() {
+
+        $error = false;
+        $fields = 0;
+        $post_values = array('direccion_calle', 'direccion_numero', 'direccion_colonia', 'direccion_cp', 'direccion_ciudad', 'direccion_pais', 'direccion_estado', 'nombre_contacto', 'email_contacto', 'telefono_contacto');
+        $post_values = array_reverse($post_values);
+        $total_fields = count($post_values);
+
+        $this->load->model('sell_model');
+
+        foreach ($post_values as $value) {
+
+            if (!$this->input->post($value)) {
+
+                // Validamos que ninguno este vacio
+                $campo = ucwords(str_replace('_', ' ', $value));
+                $error = 'Campo <b>' . $campo . '</b> es obligatorio';
+                $fields++;
+            } else {
+
+                // Valido email
+                if ($value == 'email_contacto' AND !$this->sell_model->validEmail($this->input->post($value))) {
+                    $error = '<b>Email contacto</b> inv&aacute;lido';
+                }
+
+                if ($value == 'direccion_pais' AND $this->input->post($value) != 112) {
+                    $error = 'Valor en <b>direcci&oacute;n pa&iacute;s</b> es incorrecto';
+                }
+            }
+        }
+
+        if ($fields == $total_fields) {
+            $error = 'Todos los campos son requeridos, excepto N&uacute;mero Interior';
+        }
+
+        return $error;
+    }
+
+    public function add_admin() {
+
+        $store_id = $this->uri->segment(3);
+
+        if (!$store_id) {
+
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            $email = $this->input->post('emailAdmin');
+
+            $data['store'] = $CI->shared_model->get_store($store_id, $filter_live = FALSE, $this->sitio);
+            $data['admins'] = $this->sell_model->get_admins($store_id);
+
+            if ($email) {
+                $data['new_admin'] = $this->sell_model->add_store_admin($email, $store_id);
+            }
+
+            $this->load->view('stores/settings_view', $data);
+        }
+    }
+
+    public function add_store_location() {
+
+        if (!$this->uri->segment(3)) {
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $this->uri->segment(3));
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            if ($this->input->post('store_id')) {
+
+                //PERMISSIONS
+                $uri_segment = array('store_id' => $this->input->post('store_id'));
+                checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+                //END OF PERMISSIONS
+
+                if ($stores = $CI->shared_model->get_store($this->input->post('store_id'), $filter_live = FALSE, $this->sitio)) {
+
+                    if (isset($stores->locations)) {
+                        $locations = json_decode($stores->locations);
+                    } else {
+                        $locations = array();
+                    }
+
+                    $locations[] = array('id' => uniqid('store_'),
+                        'address' => $this->input->post('address'),
+                        'range' => $this->input->post('range'),
+                        'coords' => array('x' => $this->input->post('lat'),
+                            'y' => $this->input->post('long')
+                        )
+                    );
+                    $update = json_encode($locations);
+                    $this->db->update('stores', array('locations' => $update), 'id = ' . $this->input->post('store_id'));
+                    $url = base_url() . 'stores/settings/' . $this->input->post('store_id');
+                    echo "<script type='text/javascript'>
+							 top.location.href = '$url';
+			       		  </script>";
+                    return false;
+                }
+            }
+
+            $this->load->view('stores/mapGeocode');
+        }
+    }
+
+    public function delete_store_location() {
+
+        if (!$this->uri->segment(3) OR !$this->uri->segment(4)) {
+
+            page_not_found();
+        } else {
+
+            $id = $this->uri->segment(3);
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('sell_model');
+            $CI = & get_instance();
+            $CI->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            if ($store = $CI->shared_model->get_store($id)) {
+
+                if ($loc_id = $this->uri->segment(4)) {
+
+                    $locations = json_decode($store->locations);
+                    $new_locations = array();
+                    foreach ($locations as $item) {
+                        if ($item->id != $loc_id) {
+                            $new_locations[] = $item;
+                        }
+                    }
+                    $update = json_encode($new_locations);
+                    $this->db->update('stores', array('locations' => $update), 'id = ' . $id);
+                }
+            }
+            redirect('stores/settings/' . $id);
+        }
+    }
+
+    public function setting_tab() {
+        $tab = $this->input->post('tab');
+        $this->session->set_userdata('settings_tab', $tab);
+    }
+
+    public function addCategory() {
+
+        $this->load->model('sell_model');
+        $store_id = $this->uri->segment(3);
+        $category = $this->input->post('category');
+
+        if ($category) {
+            $id_category = $this->sell_model->insert_category($store_id, $category);
+            echo json_encode(array('category' => $category, 'id_category' => $id_category, 'response' => true));
+        } else {
+            echo json_encode(array('response' => false));
+        }
+    }
+
+    public function deleteCategory() {
+
+        $this->load->model('sell_model');
+        $cat_id = $this->input->post('cat_id');
+
+        if ($cat_id) {
+            $this->sell_model->delete_category($cat_id);
+            echo json_encode(array('response' => true));
+        } else {
+            echo json_encode(array('response' => false));
+        }
+    }
+
+    public function updateCategory() {
+
+        $this->load->model('sell_model');
+        $cat_id = $this->input->post('cat_id');
+        $name = $this->input->post('name');
+
+        if ($cat_id) {
+            $this->sell_model->update_category($cat_id, $name);
+            echo json_encode(array('response' => true, 'name' => $name));
+        } else {
+            echo json_encode(array('response' => false));
+        }
+    }
+
+    public function getCategory() {
+
+        $this->load->model('sell_model');
+        $cat_id = $this->input->post('cat_id');
+
+        if ($cat_id) {
+            if ($name = $this->sell_model->get_category($cat_id)) {
+                echo $name->name;
+            } else {
+                echo 'error';
+            }
+        } else {
+            echo 'error';
+        }
+    }
+
+    public function updateColors() {
+
+        $this->load->model('sell_model');
+        $back = $this->input->post('back');
+        $text = $this->input->post('text');
+        $store_id = $this->uri->segment(3);
+
+        if ($back AND $text AND $store_id) {
+            $this->sell_model->update_itemsPriceColors($back, $text, $store_id);
+            echo 'Actualizacion exitosa';
+        } else {
+            return false;
+        }
+    }
+
+    public function updateOrder() {
+
+        $this->load->model('sell_model');
+        $store_id = $this->uri->segment(3);
+
+        //PERMISSIONS
+        $uri_segment = array('store_id' => $store_id);
+        checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+        //END OF PERMISSIONS
+
+        $this->sell_model->update_items_order($this->input->post('neworder'));
+    }
+
+    public function updateCategoriesOrder() {
+
+        $this->load->model('sell_model');
+        $store_id = $this->uri->segment(3);
+
+        //PERMISSIONS
+        $uri_segment = array('store_id' => $store_id);
+        checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+        //END OF PERMISSIONS
+
+        $this->sell_model->update_categories_order($this->input->post('neworderCats'));
+    }
+
+    public function deleteUser() {
+
+        if ($user_id = $this->uri->segment(4) AND $store_id = $this->uri->segment(3)) {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->db->delete('user_perm', array('user_id' => $user_id, 'store_id' => $store_id));
+            $this->session->set_userdata('settings_tab', 'administrators');
+            redirect('stores/settings/' . $store_id);
+        } else {
+
+            redirect('stores');
+        }
+    }
+
+    public function tutorials() {
+        if ($tutorial = $this->input->post('tuto')) {
+            switch ($tutorial) {
+                case 'orders':
+                    $field = 'sell_orders';
+                    break;
+                case 'store':
+                    $field = 'sell_store';
+                    break;
+                case 'stores':
+                    $field = 'sell_stores';
+                    break;
+                case 'store_settings':
+                    $field = 'sell_store_settings';
+                    break;
+                case 'item':
+                    $field = 'sell_item';
+                    break;
+                default:
+                    $field = false;
+                    break;
+            }
+            if ($field) {
+                $user_id = $this->session->userdata('user_id');
+                // Checo si existe en user_tutorials
+                $q = $this->db->get_where('user_tutorials', array('user_id' => $user_id));
+                if ($r = $q->result()) {
+                    if (!$r[0]->$field) {
+                        $this->db->update('user_tutorials', array($field => 1), array('id' => $r[0]->id));
+                    }
+                } else {
+                    $this->db->insert('user_tutorials', array('user_id' => $user_id, $field => 1));
+                }
+                echo 'success';
+            }
+        }
+    }
+
+    public function notify() {
+
+        $this->load->model('../../../../shared_resources/models/emails_model', 'Emails_model', TRUE);
+
+        if ($store_id = $this->input->post('store_id')) {
+
+            $this->db->select('stores.name, stores.solicitud_publicacion');
+            $q = $this->db->get_where('stores', array('id' => $store_id));
+            $r = $q->result();
+            $store = $r[0];
+
+            if (!$store->solicitud_publicacion) {
+
+                // Agregar registro en tickets
+                if ($this->db->insert('solicitud_publicacion', array('store_id' => $store_id))) {
+
+                    $sp_id = $this->db->insert_id();
+                    $this->db->update('stores', array('solicitud_publicacion' => $sp_id), array('id' => $store_id));
+
+                    // Get lugar
+                    $lugar = $this->lugar_tienda_publicacion($sp_id);
+
+                    // Mandar correos a ventas/tiendas
+
+                    $vars_array = array('subject' => 'Tienda quiere ser publicada',
+                        'body' => 'La tienda ' . $store->name . ' ha solicitado ser publicada por ' . $this->session->userdata('username'));
+                    $stores_team = array('asanchez@kichink.com', 'msanchez@kichink.com');
+
+                    $this->Emails_model->send_email('generico_kichink_team', 'K', $search_by = array('param' => 'users.email', 'param_data' => 'morozco@kichink.com'), $vars_array, 'es', $stores_team);
+
+                    // Respuesta
+                    echo json_encode(array('msg' => $this->lang->line('stores_publishModal_request_ok'), 'data' => $lugar));
+                } else {
+
+                    // Respuesta
+                    echo json_encode(array('msg' => 'Ha ocurrido un error al procesar tu solicitud, por favor intenta de nuevo', 'data' => 0));
+                }
+            } else {
+
+                // Get lugar
+                $lugar = $this->lugar_tienda_publicacion($store->solicitud_publicacion);
+
+                echo json_encode(array('msg' => $this->lang->line('stores_publishModal_request_already'), 'data' => $lugar));
+            }
+        } else {
+
+            // Respuesta
+            echo json_encode(array('msg' => 'Ha ocurrido un error al procesar tu solicitud, por favor intenta de nuevo', 'data' => 0));
+        }
+    }
+
+    private function lugar_tienda_publicacion($solicitud_publicacion) {
+
+        $this->db->select('count(solicitud_publicacion.id) as lugar');
+        $this->db->from('solicitud_publicacion');
+        $this->db->where('solicitud_publicacion.publicada', 0);
+        $this->db->where('solicitud_publicacion.id <=', $solicitud_publicacion);
+        $q = $this->db->get();
+        $r = $q->result();
+
+        return $r[0]->lugar;
+    }
+
+    public function change_lang() {
+        /// Get lang from GET
+
+        if ($this->input->get('currency', TRUE) == 'MXN') {
+
+            $this->session->set_userdata(array('currency' => 'MXN'));
+            echo 'MXN';
+        } elseif ($this->input->get('currency', TRUE) == 'USD') {
+
+            $this->session->set_userdata(array('currency' => 'USD'));
+            echo 'USD';
+        }
+
+        // Get lang from GEt
+        if ($this->input->get('lang', TRUE) == 'en') {
+
+            $this->session->set_userdata(array('lang' => 'en'));
+            echo 'en';
+        } elseif ($this->input->get('lang', TRUE) == 'es') {
+
+            $this->session->set_userdata(array('lang' => 'es'));
+            echo 'es';
+        }
+    }
+
+    public function publicar() {
+
+        $data = array();
+
+        if (!$store_id = $this->uri->segment(3)) {
+
+            page_not_found();
+        } else {
+
+            //PERMISSIONS
+            $uri_segment = array('store_id' => $store_id);
+            checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+            //END OF PERMISSIONS
+
+            $this->load->model('../../../../shared_resources/models/shared_model', 'shared_model', TRUE);
+
+            /*
+              1. Header y logo
+              2. Por lo menos un artículo / Artículos en ON
+              3. Dirección de recolección y datos de contacto
+              4. Datos bancarios
+             */
+            $data['checklist'] = array('header' => true, 'logo' => true, 'item' => true, 'pickup_data' => true, 'bank_data' => true);
+
+            if (!$this->shared_model->getImagebyRole($store_id, $role = 'header', $type = 'img_bordered')) {
+                $data['checklist']['header'] = false;
+            }
+
+            if (!$this->shared_model->getImagebyRole($store_id, $role = 'logo', $type = 'img_bordered')) {
+                $data['checklist']['logo'] = false;
+            }
+
+            if (!$this->check_item($store_id)) {
+                $data['checklist']['item'] = false;
+            }
+
+            if (!$this->check_pickup_data($store_id)) {
+                $data['checklist']['pickup_data'] = false;
+            }
+
+            if (!$this->check_bank_data($store_id)) {
+                $data['checklist']['bank_data'] = false;
+            }
+
+            $i = 0;
+            $data['publish'] = false;
+
+            foreach ($data['checklist'] as $check) {
+                if ($check) {
+                    $i++;
+                }
+            }
+
+            if ($i == 5) {
+                $data['publish'] = true;
+            }
+
+            $data['store_id'] = $store_id;
+
+            $this->load->view('stores/id_publicar_view', $data);
+        }
+    }
+
+    private function check_item($store_id) {
+
+        $q = $this->db->get_where('items', array('store_id' => $store_id, 'deleted !=' => 1, 'live' => 1));
+
+        if ($r = $q->result()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function check_pickup_data($store_id) {
+
+        $q = $this->db->get_where('stores_puntos_de_venta', array('store_id' => $store_id, 'status !=' => 1));
+
+        if ($r = $q->result()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function check_bank_data($store_id) {
+
+        $this->db->where('(bank_account is not null AND bank_account != "")');
+        $this->db->where('(bank_account_titular is not null AND bank_account_titular != "")');
+        $this->db->where('(bank_id is not null AND bank_id != "" AND bank_id != 0)');
+        $this->db->where('id', $store_id);
+        $q = $this->db->get('stores');
+
+        if ($r = $q->result()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

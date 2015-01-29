@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Secci&oacute;n de Tutoriales Kontrol -- Kichink!</title>
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/v2/css/tutorials.css">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.css" type="text/css" media="screen">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.theme.css" type="text/css" media="screen">
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $('#hero .container').owlCarousel({
+                    singleItem: true
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <header class="top" role="header">
+            <div class="container">
+                <a href="#" class="navbar-brand pull-left"><img src="/img/tutorials/kontrol-logo.png" alt="Kontrol!" width="176" height="32"></a>
+                <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="glyphicon glyphicon-align-justify"></span>
+                </button>
+                <nav class="navbar-collapse collapse navbar-right" role="navigation">
+                    <ul class="navbar-nav nav">
+                        <li><a href="#">Tienda</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <div id="hero">
+            <div class="container owl-carousel">
+                <div class="item">
+                    <img class="overlay img-responsive" src="/img/tutorials/banner_text.png" alt="Bienvenido a la sección de tutoriales Kontrol!">
+                    <img class="base" src="/img/tutorials/banner.jpg" alt="">
+                </div>
+                <div class="item">
+                    <img class="overlay img-responsive" src="/img/tutorials/banner_text.png" alt="Bienvenido a la sección de tutoriales Kontrol!">
+                    <img class="base" src="/img/tutorials/banner.jpg" alt="">
+                </div>
+                <div class="item">
+                    <img class="overlay img-responsive" src="/img/tutorials/banner_text.png" alt="Bienvenido a la sección de tutoriales Kontrol!">
+                    <img class="base" src="/img/tutorials/banner.jpg" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="fence">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Consulta nuestros videotutoriales</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat libero at adipiscing viverra. Etiam lobortis ornare lectus dapibus porta. Quisque porttitor mattis justo id vestibulum. Nunc velit enim, sollicitudin sit amet interdum vel, convallis vel urna. Sed ut ultrices nunc.</p>
+                </div>
+            </div>
+        </div>
+        <div class="articles tutorials">
+            <div class="container">
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_request-payments.png" width="278" height="200" alt="¿Cómo solicitar pagos?">
+                        <h3>¿Cómo solicitar pagos?</h3>
+                    </a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_howto-photos.png" width="278" height="200" alt="¿Cómo tomar fotografía de producto?">
+                        <h3>¿Cómo tomar fotografía de producto?</h3>
+                    </a>
+                </div>
+                <div class="clearfix visible-sm"></div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_categories.png" width="278" height="200" alt="¿Cómo usar las categorías?">
+                        <h3>¿Cómo usar las categorías?</h3>
+                    </a>
+                </div>
+                <div class="clearfix visible-md"></div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_templates.png" width="278" height="200" alt="Control de inventarios y plantillas">
+                        <h3>Control de inventarios y plantillas</h3>
+                    </a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_items-screen.png" width="278" height="200" alt="Nueva pantalla de artículos">
+                        <h3>Nueva pantalla de artículos</h3>
+                    </a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-4 center-block">
+                    <a href="#">
+                        <img src="/img/tutorials/video_facebook-store.png" width="278" height="200" alt="Tienda de Facebook y Webpage">
+                        <h3>Tienda de Facebook y Webpage</h3>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="fence">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Infografías y guías</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat libero at adipiscing viverra. Etiam lobortis ornare lectus dapibus porta. Quisque porttitor mattis justo id vestibulum. Nunc velit enim, sollicitudin sit amet interdum vel, convallis vel urna. Sed ut ultrices nunc.</p>
+                </div>
+            </div>
+        </div>
+        <div class="articles guides">
+            <div class="container">
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/guide_packaging.png" class="img-responsive" alt="Guía de empaque"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/guide_item-photo.png" class="img-responsive" alt="Guía de fotografía"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/guide_descriptions.png" class="img-responsive" alt="Guía de descripciones"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/guide_descriptions.png" class="img-responsive" alt="Elemento por definir"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/infographic_how-to_h.png" class="zero base" alt="Infografía: Cómo comprar en Kichink"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/infographic_payment-methods_h.png" class="img-responsive" alt="Infografía: Formas de pago"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/infographic_pay-cash_h.png" class="img-responsive" alt="Infografía: Pago en efectivo"></a>
+                </div>
+                <div align="center" class="col-sm-4 col-md-3 center-block">
+                    <a href="#"><img src="/img/tutorials/infographic_pay-cash_h.png" class="img-responsive" alt="Elemento por definir"></a>
+                </div>
+            </div>
+        </div>
+        <div class="fence">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Reglamentos</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat libero at adipiscing viverra. Etiam lobortis ornare lectus dapibus porta. Quisque porttitor mattis justo id vestibulum. Nunc velit enim, sollicitudin sit amet interdum vel, convallis vel urna. Sed ut ultrices nunc.</p>
+                </div>
+            </div>
+        </div>
+        <div class="articles rules">
+            <div class="container">
+                <div align="center" class="col-sm-6 col-md-6 center-block">
+                    <a href="#"><img src="/img/tutorials/reglamento_almacen.png" class="img-responsive" alt="Reglamento de almacen"></a>
+                </div>
+                <div align="center" class="col-sm-6 col-md-6 center-block">
+                    <a href="#"><img src="/img/tutorials/reglamento_tiendas.png" class="img-responsive" alt="Reglamento de tiendas"></a>
+                </div>
+            </div>
+        </div>
+        <footer>&copy; 2014 Kichink!</footer>
+    </body>
+</html>

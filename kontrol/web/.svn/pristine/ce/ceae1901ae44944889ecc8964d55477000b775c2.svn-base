@@ -1,0 +1,527 @@
+<?php
+
+class Login extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();	
+		geoIP();
+	}
+        
+        public function v1(){
+            setcookie("q1c4inkv2", strtotime("now"), time()+86400, "/");
+            header("HTTP/1.1 303 See Other");
+            header("Location: http://sell.kichink.nb9,mx/");
+        }
+	
+	public function index()
+	{	
+            if($this->session->userdata('user_id')){
+                redirect('/stores/');
+			return false;
+            }else
+		$this->load->view('v2/login/login_view');
+	}
+	
+	public function doLogin()
+	{
+		$domain = $_SERVER['HTTP_HOST'];
+		if($this->input->post('username') AND $this->input->post('password') AND $domain){
+		
+			$r = $this->getUser();
+
+			if(!$r){
+				$this->load->view('v2/login/login_view', array('flashMessage'=> $this->lang->line('v3_login_flashMessage')));
+			} else {
+
+				$newdata = array(
+				                   'username'  				=> $this->input->post('username'),
+				                   'name'  					=> $r[0]->name,
+				                   'domain'  				=> $domain,
+				                   'lang' 					=> $r[0]->usr_language,
+				                   'currency' 				=> $r[0]->usr_currency,
+				                   'admin_client_stores'  	=> FALSE,
+				                   'user_id'  				=> $r[0]->id,
+								   'settings_tab' 			=> 'details',
+				                   'logged_in' 				=> TRUE,
+				                   'sell_terms' 			=> $r[0]->sell_terms
+				               );
+
+				$this->session->set_userdata($newdata);
+
+				// Actualizo campo user_id en kichink sessions
+				// Esto es principalmente por asignacion de permisos en kontrol
+				$this->db->where('session_id', $this->session->userdata('session_id'));
+				$this->db->update('kichink_sessions', array('user_id' => $this->session->userdata('user_id')));
+
+				$host = 'http://'.$_SERVER['HTTP_HOST'];
+				$redirect = $host.'/stores/id/'.$r[0]->store_id;
+
+				if($this->input->post('refer') AND substr($this->input->post('refer'),0,strlen($host)) == $host){
+
+					if($this->uri->segment(1) == 'login' AND (!$this->uri->segment(2) OR $this->uri->segment(2) == 'doLogin' OR $this->uri->segment(2) == 'recover' )){
+						redirect($redirect);
+					}else{
+						redirect($this->input->post('refer'));
+					}
+
+				}else{
+					redirect($redirect);
+				}
+			}
+		}else{
+			redirect(base_url().'login');
+		}
+	}
+
+		private function getUser(){
+		
+			$domain = $_SERVER['HTTP_HOST'];
+			$this->db->select('users.*, user_perm.access, user_perm.store_id');
+			$this->db->join('user_perm','user_perm.user_id = users.id');
+			$this->db->where(array('email'	=>	$this->input->post('username')));
+			$this->db->order_by('user_perm.store_id', 'ASC');
+			$q = $this->db->get('users');
+			//echo $this->db->last_query();
+
+			if($r = $q->result()){
+				
+				$this->load->library('encrypt');
+				if ($this->encrypt->decode($r[0]->password) == $this->input->post('password')){
+					return $r;
+				}else{
+					return false;
+				}
+				
+			}else{
+				return false;
+			}
+				
+		}
+
+	public function online_signup(){
+
+		$domain = $_SERVER['HTTP_HOST'];
+
+		if( $user = $this->check_user($this->uri->segment(3), $this->uri->segment(4)) ){
+
+			// Da acceso desde www.kichink.com/home/crea_tu_tienda_online si el registro fue exitoso
+			// Habilitado solo dentro de las primeras 24 hrs de creacion de registro
+			$newdata = array(
+			                   'username'  				=> $user->email,
+			                   'name'  					=> $user->name,
+			                   'domain'  				=> $domain,
+			                   'lang' 					=> $user->usr_language,
+			                   'currency' 				=> $user->usr_currency,
+			                   'admin_client_stores'  	=> FALSE,
+			                   'user_id'  				=> $user->id,
+							   'settings_tab' 			=> 'details',
+							   'profile'				=> $user->access,
+			                   'logged_in' 				=> TRUE,
+			                   'sell_terms' 			=> $user->sell_terms,
+			                   'online_signup'  		=> TRUE
+			               );
+			
+			$this->session->set_userdata($newdata);
+
+			// Actualizo campo user_id en kichink sessions
+			// Esto es principalmente por asignacion de permisos en kontrol
+			$this->db->where('session_id', $this->session->userdata('session_id'));
+			$this->db->update('kichink_sessions', array('user_id' => $this->session->userdata('user_id')));
+
+			$emails = array('support@kichink.com', $user->email);
+			//send_email($emails, 'bienvenida_tienda', $user->usr_language, $vars_array = array('name' => $user->name), $type = 'S');
+			redirect('http://'.$domain.'/stores/id/'.$user->store_id_created);
+		}else{
+			redirect('http://'.$domain.'/login');
+		}
+
+	}	
+
+		// Helpers para online_signup
+
+		private function get_stores_total(){
+
+			$this->db->select('COUNT(*) as total, store_id');
+			$this->db->where('user_id', $this->session->userdata('user_id'));
+			$this->db->where('( owner = 1 OR admin = 1 )');
+			$q = $this->db->get('user_perm');
+			$r = $q->result();
+
+			if( $r[0]->total == 1 ){
+				return $r[0]->store_id;
+			}else{
+				return false;
+			}
+
+
+		}
+
+		private function check_user($id, $key){
+
+			if($id AND $key){
+
+				$this->db->select('users.id, users.name, users.email, users.usr_language, users.usr_currency, users.sell_terms, beta_testers.timestamp_created, user_perm.access, beta_testers.store_id_created');
+				$this->db->join('users', 'users.email = beta_testers.email');
+				$this->db->join('user_perm', 'user_perm.user_id = users.id');
+				$this->db->where('beta_testers.user_key', $key);
+				$this->db->where('beta_testers.id', $id);
+				$q = $this->db->get('beta_testers');
+
+				if($r = $q->result()){
+
+					$now 	 = strtotime(date('Y-m-d H:i:s'));
+					$created = strtotime($r[0]->timestamp_created);
+					$diff 	 = ($now - $created) / 3600;
+					if( $diff > 24 ){
+						return false;
+					}elseif(!$r[0]->store_id_created) {
+						return false;
+					}else{
+						return $r[0];
+					}
+
+				}else{
+					return false;
+				}
+
+			}else{
+				return false;
+			}
+
+		}
+
+	public function getPassword(){
+		$this->load->library('encrypt');
+		//echo $password_encrypted = $this->encrypt->encode($this->uri->segment(3));
+	}
+	
+	public function doLogout(){
+		$this->session->sess_destroy();
+		$redirect =  'http://'.$_SERVER['HTTP_HOST'].'/login';
+		redirect($redirect);
+	}
+
+	public function contratoK(){
+		$this->load->view('login/contratoK');
+	}
+	
+	public function register(){
+		// Anterior online signup 
+		redirect('https://www.kichink.com/home/crea_tu_tienda_online');
+
+		if($this->input->post('username')){
+			$data['flashMessage'] = $this->process_registro();
+		}
+		$this->load->view('login/registro_view');
+	}
+
+
+	public function manual_register(){
+		$this->load->model('sell_model');
+		$data = '';
+		if($this->uri->segment(3)){
+			$data['email'] = urldecode($this->uri->segment(3));
+		}
+		if ($this->input->post('name')){
+			$data['manual_user'] = $this->sell_model->insert_user_manually();
+		}
+		$this->load->view('login/registro_manual_view', $data);
+	}
+
+	public function usrPref(){
+		
+		$this->load->model('sell_model');
+		$lang = $this->input->post('lang');
+		$pais = $this->input->post('pais');
+
+		$this->sell_model->update_usrPref($lang, $pais);
+		$this->session->set_userdata( array('lang' => $lang) );
+		
+		//echo 'updateded';
+
+	}
+	
+	public function requestPass(){
+		
+		$data = '';
+		$this->load->model('sell_model');
+		
+		if($this->input->post('email')){
+			
+			$data['recovery'] = $this->sell_model->passRecoveryRequest(); 
+			
+		}
+		
+		$this->load->view('login/request_pass_view', $data);
+	}
+	
+	public function recover(){
+		
+		$this->load->model('sell_model');
+		$data = '';
+		
+		if($this->uri->segment(3) AND $this->uri->segment(4)){
+			
+			if(!$this->sell_model->checkDataRecovery(urldecode($this->uri->segment(3)), $this->uri->segment(4))){
+				
+				redirect(base_url().'login');
+				
+			}else{
+				//echo urldecode($this->uri->segment(3))."<br />";
+				//echo urldecode($this->uri->segment(4))."<br />";
+				$data['display'] = true;
+				
+				if($this->input->post('submit')){
+					
+					if(($this->input->post('password') AND $this->input->post('password2')) AND ($this->input->post('password') == $this->input->post('password2'))){
+						
+						$this->sell_model->recoverPassword(urldecode($this->uri->segment(3)), $this->input->post('password'));
+						$data['flashMessage'] = $this->lang->line('password_recovery_success');
+						//$data['next_url']	  = 'http://www.kichink.com';
+						$data['next_url']	  = '/';
+						$this->load->view('v2/login/login_view',$data);
+						
+					}else{
+						
+						$data['flashMessage'] = $this->lang->line('password_recovery_error');
+						
+						$this->load->view('login/recover_pass_view', $data);
+					}
+					
+				} else {
+					
+					$this->load->view('login/recover_pass_view', $data);
+				}
+				
+			}
+			
+		}else{
+			
+			redirect(base_url().'login');
+			
+		}
+		
+	}
+
+
+
+	// Descontinuados
+
+	private function create_online_signup(){
+
+		$this->load->model('sell_model');
+
+		$validateOnlineSignUp = $this->validateOnlineSignUp();
+		
+		if(!$validateOnlineSignUp){
+
+			// Crear usuario y crear tienda
+			if(!$this->sell_model->onlineSignUp()){
+				echo '<p>Ha ocurrido un error al crear tu tienda. Intenta nuevamente.</p>';
+			}else{
+
+				// Registro en beta_tester
+				$this->db->insert('beta_testers', array(  'email' 		=> $this->input->post('email'),
+														  'name' 		=> $this->input->post('contact_name'),
+														  'current' 	=> $this->input->post('current'),
+														  'store_name' 	=> $this->input->post('store_name'),
+														  'details' 	=> $this->input->post('details'),
+														  'user_key' 	=> uniqid(), 
+														  'rfc'			=> $this->input->post('rfc'),
+														  'approved'	=> 1,
+														  'lang' 		=> getLang()
+														));
+				echo 'Success';
+
+			}
+
+
+		}else{
+
+			echo $validateOnlineSignUp;
+
+		}
+		
+	}
+
+	private function validateOnlineSignUp(){
+
+		$this->load->model('sell_model');
+		$error = false;
+		$errorMsg = '';
+
+		if(!$this->sell_model->validEmail($this->input->post('email'))){
+			$error = true;
+			$errorMsg .= '<p>Correo electr&oacute;nico incorrecto</p>';
+		}
+		if($this->sell_model->userExists($this->input->post('email'), 'manual')){
+			$error = true;
+			$errorMsg .= '<p>Este usuario ya existe en Kichink. Ingresa directamente</p>';
+		}
+		if(!$this->input->post('acuerdo') || $this->input->post('acuerdo') != 1){
+			$error = true;
+			$errorMsg .= '<p>Por favor acepta nuestros t&eacute;rminos</p>';
+		}
+		if(!$this->input->post('store_name')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo nombre de tienda</p>';
+		}
+		if(!$this->input->post('telefonos')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo telefonos</p>';
+		}
+		if(!$this->input->post('direccion')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo direcci&oacute;n</p>';
+		}
+		if(!$this->input->post('ciudad')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo ciudad</p>';
+		}
+		if(!$this->input->post('estado')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo estado</p>';
+		}
+		if(!$this->input->post('pais')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo pa&iacute;s</p>';
+		}
+		if(!$this->input->post('cp')){
+			$error = true;
+			$errorMsg .= '<p>Verificar campo C.P.</p>';
+		}
+		if($this->input->post('current') != 'brick' AND $this->input->post('current') != 'online' AND $this->input->post('current') != 'none'){
+			$error = true;
+			$errorMsg .= '<p>Especifica la forma de venta de tu producto y/o servicio</p>';
+		}
+		if($this->input->post('person_type') != 'Fisica' AND $this->input->post('person_type') != 'Moral'){
+			$error = true;
+			$errorMsg .= '<p>Especifica tipo de persona</p>';
+		}
+		if(!$this->input->post('rfc') || strlen($this->input->post('rfc')) < 10){
+			$error = true;
+			$errorMsg .= '<p>Verifica campo RFC</p>';
+		}
+		if(!$this->input->post('contact_name')){
+			$error = true;
+			$errorMsg .= '<p>Verifica campo nombre de contacto</p>';
+		}
+		if(!$this->input->post('details')){
+			$error = true;
+			$errorMsg .= '<p>Especifica detalles de tu tienda</p>';
+		}
+		if(!$this->input->post('password')){
+			$error = true;
+			$errorMsg .= '<p>Especifica password</p>';
+		}
+
+		if($error){
+			return $errorMsg;
+		}
+
+
+	}
+
+	
+	private function process_registro(){
+		
+		$username = $this->input->post('username');
+		$email = $this->input->post('email');
+		$nombre = $this->input->post('nombre');
+		$key = $this->input->post('key');
+		
+		$clave = hash_hmac('sha512', $this->input->post('password') . $this->input->post('username'), md5('Pick3389012nc'.$this->input->post('username')));
+		
+		
+		$insertObject = array('username' => $username,
+						     'clave'	=> $clave,
+						     'nombre'	=> $nombre,
+						     'email'	=> $email);
+		
+		if($username AND $clave AND $nombre AND $email AND $key == 'sRKrZXr38nCGHbNmCCHRpy'){
+			
+			if($this->db->insert('users', $insertObject)){
+				
+				redirect('/admin');						     
+			} else {
+				return 'Error';
+			}
+		} else {
+			return 'Error';
+		}
+
+	}
+
+	
+	private function add_tester(){
+
+		$this->load->model('sell_model');
+		$data = '';
+		
+		if ($this->input->post('name')){
+			
+			$data['tester_user'] = $this->sell_model->insert_beta_signup();
+			if($data['tester_user'] == false){
+				
+				$name 		= $this->input->post('name');
+				$email 		= $this->input->post('email');
+				$vars_array = array('name' => $name);
+				$lang 		= getLang();
+
+				$success = send_email($email, 'thanks_signingup_beta', $lang, $vars_array, 'S');
+				send_email('support@kichink.com', 'thanks_signingup_beta', $lang, $vars_array, 'S');
+	
+				if($success){
+					redirect(base_url().'login/registro_view');
+				}
+				
+			}else{
+				
+				//Pendiente
+					
+			}
+		}
+		$this->load->view('login/registro_view', $data);
+	}
+	
+	private function registro_view(){
+		$this->load->view('login/registro_thanks_view');
+	}
+	
+	private function signup(){
+		
+		$this->load->model('sell_model');
+		
+		if($this->uri->segment(3) AND $this->uri->segment(4)){
+
+			$data['exists'] = false;
+			$data['signup_user'] = $this->sell_model->get_beta($this->uri->segment(3), $this->uri->segment(4));
+			
+			if(!$data['signup_user']){
+				$data['signup_user'] = array('flashMessage' => $this->lang->line('signup_message_dataIncorrect2'));
+			}else{
+				if($this->sell_model->userExists($data['signup_user']['email'], $registerType = 'manual')){
+					$data['exists'] = true;
+				}
+			}
+			
+		}else{
+			$data['signup_user'] = array('flashMessage' => $this->lang->line('signup_message_dataIncorrect'));
+		}
+
+		if($this->input->post('submit')){
+
+			if(!$data['signup_user'] = $this->sell_model->create_user($this->uri->segment(3), $this->uri->segment(4))){
+				$data['signup_user'] = array('flashMessage' => $this->lang->line('signup_message_dataIncorrect3'));
+			}
+			
+		}
+		$this->load->view('login/registro_signup_view', $data);
+	}
+	
+	
+}
+
+/* End of file welcome.php */
+/* Location: ./system/application/controllers/welcome.php */

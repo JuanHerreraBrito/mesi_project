@@ -1,0 +1,39 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Importante extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+        //checkForSession();
+		geoIP();
+	}
+	/**
+	 * Index Page for this controller.
+	 *
+	 */
+	public function index(){	
+
+		$this->db->where('user_id', $this->session->userdata('user_id'));
+        $this->db->where('(owner = 1 OR admin = 1)');
+        $q = $this->db->get('user_perm');
+        $r = $q->result();
+        $data['store_id'] = $r[0]->store_id;
+
+		$this->load->view('v2/importante/index', $data);
+		
+	}
+
+	public function terminos(){
+		$this->load->view('v2/importante/terminos');
+	}
+
+	public function bienvenido_kontrol(){
+		$this->load->view('v2/importante/bienvenido_kontrol');
+	}
+
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

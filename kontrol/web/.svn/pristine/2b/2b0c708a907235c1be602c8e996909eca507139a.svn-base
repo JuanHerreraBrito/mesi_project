@@ -1,0 +1,25 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class User extends CI_Controller {
+	
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows user's profile view
+	 */
+	public function index()
+	{           
+		$this->load->view('v2/user/index_view', $data);
+	}
+	
+}
+
+/* End of file user.php */
+/* Location: ./application/controllers/user.php */

@@ -1,0 +1,50 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Stats extends CI_Controller {
+	
+	var $sitio = 'SELL';
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Shows all stores of a particular user
+	 */
+	public function store_stats()
+	{
+		$this->load->view('stats/index_view');
+	    
+		
+	}
+	
+	/*
+$this->load->model('sell_model');
+		
+		$data['user_terms_checked'] = false;
+
+		$q = $this->db->get_where('users', array('id' => $this->session->userdata('user_id'), 'sell_terms' => 1));
+
+		if($r = $q->result()){
+			$data['user_terms_checked'] = true;
+		}
+
+		$data['user_stores'] = $this->sell_model->get_all_user_stores();
+		$data['tuto'] 		 = $this->sell_model->get_tuto('stores');
+
+		//print_r($data['user_stores']);
+		$this->load->view('stores/index_view', $data);
+*/
+	
+	
+
+	
+	
+}
+
+/* End of file stores.php */
+/* Location: ./application/controllers/stores.php */

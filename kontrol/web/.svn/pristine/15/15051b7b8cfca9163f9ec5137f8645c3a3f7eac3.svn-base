@@ -1,0 +1,284 @@
+$(document).ready(function(){
+    
+    
+    // Set tab active
+    var tab = location.hash;
+    
+    // Thumbnails de imagenes para items
+    var thumbnailsImages = new Array();
+    // Instantiate the widget
+    var featherEditor = new Aviary.Feather({
+        apiKey: '6282e2a3c',
+        apiVersion: 2,
+        language : 'en',
+        tools: ['crop', 'resize', 'enhance','effects','stickers','orientation','brightness','contrast','saturation','sharpness','draw','text','redeye','whiten','blemish'],
+        //initTool : 'crop',
+        onSave: function() {
+            //alert(newURL);
+            location.reload();
+        },
+        postUrl: base_url + 'mediaAv/saveAviary'
+    });
+    // Categorias seleccionadas del item
+    var items_categories = new Array();
+    
+    function createPageImage(index, element){        
+         //Add images to pager
+         return '<li><a href="#"><img class="img-responsive" src="'+thumbnailsImages[index]+'" /></a></li>';
+    }
+    
+    $('#editPicture').bind('click', function(){
+        var id = $(this).data('id');
+        var src = $(this).data('src');
+        
+        featherEditor.launch({
+            image: id,
+            url: src,
+            postData : id,
+            cropPresets : ['700x500']
+        });
+        return false;
+    });
+    
+    function onAfter() {
+        var getId = $('.slide').children('img:visible').attr('id');
+        var getAlt =  $('.slide').children('img:visible').attr('alt');
+
+        var get_objectName = $('.slide').children('img:visible').attr('alt');
+        get_objectName = get_objectName.split('-');
+
+        var id = getId.split('&');
+
+        var origExt = $('.slide').children('img:visible').attr('class').split(' ');
+
+        $('#image_id').attr('value', id[0]);
+        $('#object_name').attr('value',get_objectName[1]);
+        $('#counter_span').html(get_objectName[0]);
+
+        var itemURL = $('.slide').children('img:visible').attr('src');
+        var launchId = getId;
+        var launchSrc = itemURL.substr( 0, itemURL.length-6) + '_b.' + origExt[1];
+        
+        $('a#editPicture').data('id', launchId);
+        $('a#editPicture').data('src', launchSrc);
+    }
+    
+    function createObjectDataTree(data){
+        var stringJSON = '';
+
+        // Arma recursivamente el JSON para dibujar el arbol
+        $.each(data, function(index, val){
+            stringJSON+= "{";
+            stringJSON+= '"id" : "'+val.id+'",';
+            stringJSON+= '"text" : "'+val.name+'",';
+            stringJSON+= '"state" : { "opened" : true},';
+            stringJSON+= '"a_attr" : { "href" : "#'+val.id+'"}';
+            
+            if(typeof val.subcats != 'undefined' && val.subcats.length > 0){
+                stringJSON+= ',"children" : [';
+                stringJSON += createObjectDataTree(val.subcats);
+                stringJSON+= "]";
+            }
+            
+            stringJSON+= "}";
+            if((index+1) < data.length) stringJSON+= ",";
+        });
+        
+        return stringJSON;
+    }
+    
+    function doTreeItem(tree, plugins, data) {
+        if (plugins == undefined)
+            plugins = [];
+        
+        /*
+         * Data que se pasar‡ al arbol para que se dibuje
+         */
+        var dataTree = '["All"';
+        if(data.length > 0){
+            dataTree+= ",";
+            dataTree += createObjectDataTree(data);
+        }
+        dataTree += "]";
+        dataTree = jQuery.parseJSON(dataTree.toString());
+        
+        $(tree).jstree({
+            "checkbox": {
+                real_checkboxes: true
+            },
+            "xml_data": {
+                "ajax": {
+                    cache: false
+                }
+            },
+            "core": {
+                "animation": 0,
+                "check_callback": true,
+                "themes": {"dots": true, "stripes": true},
+                "data": dataTree
+            },
+            "types": {
+                "#": {"max_children": 1, "max_depth": 6, "valid_children": ["root"]},
+                "root": {"icon": "glyphicon glyphicon-tags", "valid_children": ["default"], "max_depth": 5},
+                "default": {"icon": "glyphicon glyphicon-tag", "valid_children": ["default", "file"]}
+            },
+            "plugins": plugins
+        });
+    
+    }
+    
+    function AddOptionPurchase(data){
+        var html = '';
+        
+        html+= data.group_name;
+        
+        $.each(data.options, function(i, val){
+            html+= '<div style="width: 80%; margin-left: auto; margin-right: auto;" class="input-group">';
+            html+= '	<span style="width: 30%;" class="input-group-addon">'+val.label+'</span>';
+            html+= '	<input value="'+val.units+'" type="text" class="form-control" id="'+val.label+'"';
+            html+= '		    placeholder="Num Units">';
+            html+= '</div>';
+        });
+        $('#settings_opts_panel_1 > #option_item').html(html);
+    }
+    
+    // Des/Seleccion de categorias
+    $('#jstree_categories_items').on('changed.jstree', function (_event,_data){
+        switch(_data.action){
+            case 'deselect_node':
+                items_categories = _data.selected;
+                break;
+            case 'select_node':
+                items_categories = _data.selected;
+                break;
+        }        
+    });
+    
+    /* Manejo del arbol */
+    call_api('/api/items/get_categories', 'post', {"store_id": store_id}, function(cats) {
+        cats = jQuery.parseJSON(cats.toString());
+        
+        if(cats !== null)
+        {
+                
+            doTreeItem('#jstree_categories_items', ["wholerow","types", "checkbox", "sort"], cats.data);
+            
+            // Selecciona categorias del item
+            call_api('/api/items/get_item_categories', 'post', {"store_id": store_id, "item_id": item_id}, function(result) {
+                result = jQuery.parseJSON(result.toString());
+                if(result !== null){
+                    if(result.data.length > 0){
+                        $.each(result.data, function(i, val){
+                            // Selecciona la categoria en el arbol
+                            $("#jstree_categories_items").jstree("select_node", "#"+val.id);
+                        });
+                    }
+                }
+                else{
+                    // Mensaje de error
+                }
+            });
+        }
+        else
+        {
+            // Mensaje de error
+        }
+    });
+    /* END Manejo del arbol */
+    
+    call_api('/api/items/get_item_details', 'post', {store_id: store_id, item_id: item_id}, function(resp){
+        resp = jQuery.parseJSON(resp);
+        var alt = '';
+        var id = '';
+        
+        if(resp !== null){
+            
+            // Carga de datos
+            /* Items Settings */
+            $('#item_name').val(resp.data.name);
+            $('#description').val(resp.data.description);
+            $('#item_name_eng').val(resp.data.name_eng);
+            $('#description_eng').val(resp.data.description_eng);
+            $('#price').val(resp.data.precio.MXN);
+            $('#priceUSD').val(resp.data.precio.USD);
+            /* END Items Settings */
+            
+            /* Inventories */
+            $('#sku').val(resp.data.sku);
+            $('#units_availible').val(resp.data.units_availible);
+            //resp.data.managed_inv = '1';
+            if(resp.data.managed_inv == "1"){ // Inventario administrado por Kichink!
+                $('#manager_inventories,#purchase_options_title, #purchase_options_init,#settings_opts_panel_1,#settings_opts_panel_2_active').remove();
+                $('#units_availible_read').val(resp.data.units_availible);
+                $('#item_without_options').show();
+            }
+            else if(resp.data.managed_inv == "0"){
+                $('#units_availible').val(resp.data.units_availible);
+                $('#inventories_kichink_units, #inventories_kichink_options_purcharse').hide();
+            }
+            
+            
+            if(resp.data.inventories == "1") $('#inventories_num').attr('checked', 'checked');
+            else{
+                // 1 sola unidad en inventario
+                $('#inventories_unique').attr('checked', 'checked');
+                //$('#units_availible').hide();
+            }
+            
+            //resp.data.opciones_compra = {};
+            if(typeof resp.data.opciones_compra.group_name != 'undefined'){ // exiten opciones de compra
+                $('#settings_opts_check_1').attr('checked', 'checked');
+                //$('#settings_opts_check_2').attr('checked', 'checked'); // Debe ser en otra opcion
+                $('#purchase_options_init, #new_options_item').hide();
+                AddOptionPurchase(resp.data.opciones_compra);
+            }
+            else{
+                $('#option_item').remove();
+                $('#purchase_options_title, #new_options_item').hide();
+            }
+            
+            /* END Inventories */
+            
+            // Existen imagenes
+            if(resp.data.imagenes.length > 0){
+                
+                // Carga las imagenes
+                $.each(resp.data.imagenes, function(indice, data){
+                    if(indice == 0){
+                        $('.slide, #nav').html('');
+                        $('#nav-slider').show();
+                    }
+                    
+                    alt = (indice+1)+'-'+data.object_name;
+                    id = data.id+'&amp;'+'items&amp;'+ data.object_name;
+                    if(data.extension == 'jpeg') data.extension = 'jpg';
+                    
+                    // Carga las imagenes
+                    $('.slide').append('<img class="img-responsive '+data.extension+'" src="'+data.bordered+'" alt="'+alt+'" id="'+id+'" />');
+                    thumbnailsImages.push(data.thumbnail);
+                });
+                
+                $('.slide').cycle({
+                    fx:     'fade',
+                    speed:  'fast',
+                    timeout: 0,
+                    pager:  '#nav-slider',
+                    after:   onAfter,
+                    height:  'auto',
+                    pagerAnchorBuilder: createPageImage,
+                });
+                
+            }
+            else{
+                // Deshabilita botones
+                $('#editPicture, #deletePicture').hide();
+            }
+        }
+        else{
+            // Mensaje de error
+        }
+    });
+    
+    // Desactiva el scroll en body
+    $('body').css('overflow', 'hidden');
+});

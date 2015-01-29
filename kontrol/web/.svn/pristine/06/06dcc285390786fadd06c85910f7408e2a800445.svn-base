@@ -1,0 +1,136 @@
+<?=$this->load->view('layout/header_previews', array('page_title'=>$store_name.': '.(isset($item_data[0]->name) ? $item_data[0]->name : '')))?>
+<?
+//HEADER
+if(!empty($store->images['header'])){ //Getting the header_image
+	$url_header = $store->images['header']['default'][0]->url.$store->images['header']['default'][0]->object_name.'_b.'.$store->images['header']['default'][0]->extension;
+	$resize_header = resize($url_header, 980 , 0, TRUE);
+	$scrollTo=100;
+}else{
+  	$background_noHeader= 'style="background:#EEEEEE;height:105px"';
+	$scrollTo=0;
+}
+ //LOGO
+ if(!empty($store->images['logo'])){ 
+	$url_logo = $store->images['logo']['default'][0]->url.$store->images['logo']['default'][0]->object_name.'_b.'.$store->images['logo']['default'][0]->extension;
+ }else{
+	$url_logo = 'http://placehold.it/160x160';
+ }
+?>
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.slide').cycle({
+			fx:     'fade', 
+    		speed:  'fast', 
+    		timeout: 0, 
+    		next:   '#next', 
+    		prev:   '#prev' ,
+    		after:   onAfter
+		});
+		
+		function onAfter() { 
+			var getId = $('.slide').children('img:visible').attr('id');
+			var id = getId.split('-');
+			var urlEdit = '<?=base_url().'media/save/'?>';
+			$('#item_counter').html(id[0]);
+			$('a#editPicture').attr('href', urlEdit + id[1]); 
+		}
+	});
+
+	
+</script>
+   
+    
+  
+    <div class="container">
+	    <div id="imageCover-preview" <?=isset($background_noHeader)?$background_noHeader:''?> >
+		    <? if(!isset($background_noHeader)){ ?>
+		    <img src="<?=$url_header?>" width="<?=$resize_header['height']?>" height="<?=$resize_header['width']?>" />
+		    <? } ?>
+	      	 <!--<div style="position:absolute;bottom:0;right:20px;height:50px;">
+	      	 	<div style="float:left;width:110px">-->
+		            <!-- AddThis Button BEGIN -->
+		            <!--<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+		              <a class="addthis_button_preferred_1"></a>
+		              <a class="addthis_button_preferred_2"></a>
+		              <a class="addthis_button_preferred_3"></a>
+		            </div>
+		            <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4fbee3b26afe1231"></script>-->
+		            <!-- AddThis Button END -->
+		        <!--</div>
+		        <div style="float:left">
+		        	<? is_array($item_data[0]->image) ? $url_pin = $item_data[0]->image[0]->imageData['default'][0]->url.$item_data[0]->image[0]->imageData['default'][0]->object_name.'_b.'.$item_data[0]->image[0]->imageData['default'][0]->extension : $url_pin='http://placehold.it/700x500' ?>
+		          	<a href="<?='http://pinterest.com/pin/create/button/?url='.urlencode(base_url().$this->uri->uri_string()).'&media='.urlencode($url_pin).'&description='.urlencode($store->name.' | '.$store->description)?>" class="pin-it-button" count-layout="horizontal"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>
+		        </div>
+			</div>-->
+  		</div>
+      	<div class="content">
+	        <div class="page-header" style="padding:20px 20px 0px;min-height:90px;background:#fff;border-bottom:none">
+	        	<div id="logoCover" class="logoCoverImageContainer borderProfile">
+	              <img src="<?=$url_logo?>" width="160" height="160" />
+	            </div>
+	            <h1 style="float:left;margin:-50px 0 15px 190px;width:570px"><a href="<?=base_url().'stores/preview/'.$item_data[0]->store_id?>"><?=$item_data[0]->store_name?></a>
+	            	<br><small><?=$store->description?></small>
+	           	</h1>
+	            <div style="clear:both;"></div> 
+	        </div>
+	        <div class="row">
+	         	<div class="span12">
+		          	 <?=$item_data[0]->units_availible<1 ? '<div class="ribbon">'.$this->lang->line('stores_itempagePreview_ribbon').'</div>' : ''?>
+		          	 <div class="slide" style="position:relative; margin-bottom:10px; width:700px; height:500px; background-color:#eee">
+		             <? if(is_array($item_data[0]->image)){ 
+					 		$c=0;
+					 		for($i=0; $i<=count($item_data[0]->image); $i++){ 
+								if(!empty($item_data[0]->image[$i]->imageData['default'])){
+								$c=$c+1;
+								?>
+		                        <img class="thumbnail" src="<?=$item_data[0]->image[$i]->imageData['default'][0]->url.$item_data[0]->image[$i]->imageData['default'][0]->object_name.'_b.'.$item_data[0]->image[$i]->imageData['default'][0]->extension?>" alt="<?=$item_data[0]->image[$i]->imageData['default'][0]->object_name?>" id="<?=$c.'-'.$item_data[0]->image[$i]->imageData['default'][0]->MediaID?>" width="<?=$item_data[0]->image[$i]->imageData['default'][0]->width?>" height="<?=$item_data[0]->image[$i]->imageData['default'][0]->height?>" style="max-width:700px; max-height:500px"/>
+		                    <? 	}
+							
+							} ?>
+		             </div>
+		            <div id="imageNav" style="float:right;">
+						<a class="btn default" id="prev" href="#">&larr;</a>
+						<a class="btn disabled"><span id="item_counter"></span> / <?=$c?></a>
+						<a class="btn default" id="next" href="#">&rarr;</a>
+					</div>
+		            <? }else{ ?>
+		                	<img class="thumbnail" src="http://placehold.it/700x500" style=""/>
+		                </div>
+		            <? } ?>
+	         	</div>
+	         	<div class="span4">
+					<h2 style="font-size:20px; font-weight:bold;line-height:22px;text-align:center" name="name"><?=(isset($item_data[0]->name) ? $item_data[0]->name : '')?></h2>
+					<h2 style="font-weight:300;;text-align:center">$ <?=(isset($item_data[0]->price) ? number_format($item_data[0]->price,2) : '')?></h2>
+					<?=$item_data[0]->units_availible==1 ? '<h4 style="color:#b32723;text-align:center">'.$this->lang->line('stores_itempagePreview_uniqueItem').'</h4>' : ''?>
+					<br />
+					<input type="button" class="btn big primary" id="buy_button" style="font-size:18px; width:100%; height:40px;text-align:center;" value="<?=$this->lang->line('stores_itempagePreview_buy_button_text');?>" disabled="disabled"  />
+		          	<br /><br /><br />
+
+					<ul class="tabs" data-tabs="tabs">
+					    <li class="active"><a href="#details"><?=$this->lang->line('stores_itempagePreview_details_tab');?></a></li>
+					    <li><a href="#reviews"><?=$this->lang->line('stores_itempagePreview_reviews_tab');?></a></li>
+				    </ul>
+				   
+					<div id="my-tab-content" class="tab-content">
+						<div id="details" class="active tab-pane settings_tab">
+							<br /><br />
+		                    <input type="hidden" name="store_id" value="<?=(isset($item_data[0]->store_id) ? $item_data[0]->store_id : '')?>" class="span1" />
+		                    <input type="hidden" name="id" value="<?=(isset($item_data[0]->id) ? $item_data[0]->id : '')?>" class="span1" />
+							<p style="height:270px;overflow:hidden" name="description"><?=(isset($item_data[0]->description) ? $item_data[0]->description : '')?></p>
+						</div>
+					</div>
+	    		</div>
+	    	</div>
+		</div>  
+   		<br />   <br />   <br />
+	    <div class="container">
+	        <div class="content">
+	        	<div class="page-header">
+	        		<h2><?=$this->lang->line('stores_itempagePreview_bottom_header');?></h2>
+	        	</div>
+	        </div>
+	    </div>
+ 
+<?=$this->load->view('layout/footer.php')?>

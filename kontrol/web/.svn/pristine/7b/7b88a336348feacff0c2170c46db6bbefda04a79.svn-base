@@ -1,0 +1,415 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Items extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();	
+		checkForSession();
+		geoIP();
+	}
+
+	
+	/**
+	 * ID Page for this controller.
+	 *
+	 * Shows a specific item determined by its ID
+	 */
+	public function id()
+	{
+
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			
+			$data['store_name'] = 'Editing item';
+			$data['item_data'] = $this->sell_model->get_item_for_Edit($itemId);
+			$data['x_rate'] = $this->sell_model->get_xRates();
+			$data['shipments'] = $this->sell_model->get_delivery_groups($data['item_data'][0]->store_id);
+			$data['delivery_times'] = $this->sell_model->get_delivery_times();
+
+			//print_r($data['shipments']);
+			if($this->input->post('submit_update')){
+
+				$update = $this->update_item();
+				if(!$update){
+					// Redirect
+					redirect('stores/id/'.$this->input->post('store_id'));
+				}else{
+					$data['flashMessage'] = $update;
+					$data['postValues'] = array('shipment_options' => $this->input->post('shipment_options'),
+												'name' => $this->input->post('name'),
+												'name_eng' => $this->input->post('name_eng'),
+												'price' => $this->input->post('price'),
+												'description' => $this->input->post('description'),
+												'description_eng' => $this->input->post('description_eng'),
+												'live_item' => $this->input->post('live_item'),
+												'units_availible' => $this->input->post('units_availible'),
+												'inventories' => $this->input->post('inventories'),
+												'physical' => $this->input->post('physical'),
+												'sku' => $this->input->post('sku'),
+												'sizes_options' => $this->input->post('sizes_options'),
+												'category_options' => $this->input->post('category_options'),
+												'inventories_xs' => $this->input->post('inventories_xs'),
+												'inventories_s' => $this->input->post('inventories_s'),
+												'inventories_m' => $this->input->post('inventories_m'),
+												'inventories_l' => $this->input->post('inventories_l'),
+												'inventories_xl' => $this->input->post('inventories_xl'),
+												'inventories_xxl' => $this->input->post('inventories_xxl') 
+												);
+				}
+			}
+			
+			
+			
+			switch($data['item_data'][0]->type){
+				case 'ticket':
+					$this->load->view('items/ticket_view', $data);
+					break;	
+				default:
+					$this->load->view('items/id_view', $data);
+					break;	
+			}
+			
+
+		}
+		
+	}
+	
+	/**
+	 * ID Page for this controller.
+	 *
+	 * Shows a specific item determined by its ID
+	 */
+	public function edit_item()
+	{
+		
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			
+			$data['store_name'] = 'Editing item';
+			$data['item_data'] = $this->sell_model->get_item_for_Edit($itemId);
+			$data['x_rate'] = $this->sell_model->get_xRates();
+			$data['shipments'] = $this->sell_model->get_delivery_groups($data['item_data'][0]->store_id);
+			$data['delivery_times'] = $this->sell_model->get_delivery_times();
+
+			//print_r($data['shipments']);
+			if($this->input->post('submit_update')){
+
+				$update = $this->update_item();
+				if(!$update){
+					// Redirect
+					redirect('stores/id/'.$this->input->post('store_id'));
+				}else{
+					$data['flashMessage'] = $update;
+					$data['postValues'] = array('shipment_options' => $this->input->post('shipment_options'),
+												'name' => $this->input->post('name'),
+												'name_eng' => $this->input->post('name_eng'),
+												'price' => $this->input->post('price'),
+												'description' => $this->input->post('description'),
+												'description_eng' => $this->input->post('description_eng'),
+												'live_item' => $this->input->post('live_item'),
+												'units_availible' => $this->input->post('units_availible'),
+												'inventories' => $this->input->post('inventories'),
+												'physical' => $this->input->post('physical'),
+												'sku' => $this->input->post('sku'),
+												'sizes_options' => $this->input->post('sizes_options'),
+												'category_options' => $this->input->post('category_options'),
+												'inventories_xs' => $this->input->post('inventories_xs'),
+												'inventories_s' => $this->input->post('inventories_s'),
+												'inventories_m' => $this->input->post('inventories_m'),
+												'inventories_l' => $this->input->post('inventories_l'),
+												'inventories_xl' => $this->input->post('inventories_xl'),
+												'inventories_xxl' => $this->input->post('inventories_xxl') 
+												);
+				}
+			}
+			
+			$this->load->view('items/id_new_view', $data);
+			
+			
+
+		}
+		
+	}
+	
+	public function delete_discount(){
+		checkForPermission($this->session->userdata('user_id'), $uri_segment = array('id_item' => $this->uri->segment(3) ),'items');
+		$this->db->delete('discounts', array('id' => $this->uri->segment(4) ) );
+		redirect('/items/id/'.$this->uri->segment(3));
+	}
+	
+	public function generate_tickets(){
+		
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+			
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			
+			$data['store_name'] = 'Editing item';
+			$data['item_data'] = $this->sell_model->get_item_for_Edit($itemId);
+			
+			if($data['item_data'][0]->type=='ticket'){
+				$random = sha1( uniqid('Arquine-Duetos'.time(), true) );
+				$this->gc_qrcode->size(250)
+		                ->data('http://tickets.kichink.com/acceso/'.$random)
+		                ->output_encoding('UTF-8')
+		                ->error_correction_level('L')
+		                ->margin(0);
+		        $codigo = $this->gc_qrcode->url();
+		        
+				 $boleto = imagecreatefrompng('img/Congreso_Cupon_vacio.png');
+				 $codigo = imagecreatefrompng($codigo);
+				 $im = imagecreate(100, 100);
+				 $grey = imagecolorallocate($im, 160, 160, 170);
+				 imagettftext($boleto, 18, 0, 710, 425, $grey, 'img/ArialRounded.ttf', substr($random,0,10));
+				 imagecopymerge($boleto, $codigo, 700, 490, 0, 0, 250, 250, 100);
+				
+				 # Save the image to a file
+				 imagepng($boleto, 'img/tickets/boleto_'.substr($random,0,10).'.png');
+				
+				 # Output straight to the browser.
+				 //header('Content-type: image/png');
+				 //imagepng($boleto);
+				 
+				 $this->db->insert( 'tickets', array( 'event_id' => $itemId,
+				 								      'token'	 => $random,
+				 								      'ticket_url'=>  'boleto_'.substr($random,0,10).'.png') );
+				 
+				 
+			}
+		}
+		$next = $this->uri->segment(4)+1;
+		if($next < 4000){
+			redirect('/items/generate_tickets/180/'.$next,'refresh');	
+		}
+		
+	}
+	
+	public function preview()
+	{
+
+		if(!$itemId = $this->uri->segment(3)){
+
+			page_not_found();
+
+		}else{
+			
+			// PERMISSIONS
+			$uri_segment = array('id_item' => $itemId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$data['store_name'] = 'Kichink';
+			$data['item_data'] = $this->sell_model->get_item($itemId);
+			$data['store']	= $this->sell_model->get_store($data['item_data'][0]->store_id);
+			
+			//print_r($data['item_data']);
+			$this->load->view('items/id_preview_view', $data);
+
+		}
+	}
+	
+	
+	
+	/**
+	 * Store functions.
+	 *
+	 * Specific functions for stores
+	 */
+	
+	public function add_item()
+	{
+		
+		// Validate -> Process -> Store
+		if($storeId = $this->uri->segment(3)){
+
+			// PERMISSIONS
+			$uri_segment = array('store_id' => $storeId);
+			checkForPermission($this->session->userdata('user_id'), $uri_segment, 'stores');
+			//  END OF PERMISSIONS
+
+			$this->load->model('sell_model');
+			$item = $this->lang->line('stores_itempage_name_space_text');
+			$item_id = $this->sell_model->insert_item($storeId, $item);
+			// Redirect
+			redirect('items/id/'.$item_id);
+			
+		}else{
+			page_not_found();
+		}
+		
+	}
+	 
+	public function delete_item()
+	{
+		// Validate -> Process -> Store		
+		$item_id = $this->input->post('item_id');
+		$store_id = $this->input->post('store_id');
+		
+		// PERMISSIONS
+		$uri_segment = array('id_item' => $item_id);
+		checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+		//  END OF PERMISSIONS
+
+		$this->load->model('sell_model');
+
+		if($item_id){
+			$this->sell_model->delete_item($item_id);	
+			redirect('stores/id/'.$store_id);
+		}
+
+	}
+	
+	public function update_item()
+	{
+
+		$item_id = $this->input->post('id');
+
+		// PERMISSIONS
+		$uri_segment = array('id_item' => $item_id);
+		checkForPermission($this->session->userdata('user_id'), $uri_segment,'items');
+		//  END OF PERMISSIONS
+
+		$this->load->model('sell_model');
+		
+		if($validate = $this->validateUpdate()){
+			
+			return $validate;
+			
+		}else{
+			
+			$this->sell_model->update_item($item = $item_id);
+			return false;
+			
+		}
+		
+				
+	}
+	
+	private function validateUpdate(){
+		
+		$error = false;
+		$shipment = $this->input->post('shipment_options');
+		$name = $this->input->post('name');
+		$name_eng = $this->input->post('name_eng');
+		$price = $this->input->post('price');
+		$description = $this->input->post('description') == '<br>' ? '' : $this->input->post('description');
+		$description_eng = $this->input->post('description_eng') == '<br>' ? '' : $this->input->post('description_eng');
+		$units = $this->input->post('units_availible');
+		$inventories = $this->input->post('inventories');
+		$sizes_options = $this->input->post('sizes_options');
+		$sku = $this->input->post('sku');
+		
+		if(!$shipment AND !$price AND !$units){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields');
+		}
+		if(!$name AND (!$name_eng)){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields_name');
+		}
+		if(!$description AND !$description_eng){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredFields_description');
+		}
+		//if(!is_numeric($price)){
+			//$error = $this->lang->line('stores_itempage_flashMessages_formatPrice');
+		//}
+		if(!is_numeric($units)){
+			$error = $this->lang->line('stores_itempage_flashMessages_formatUnits');
+		}
+		if($units <= 0){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredUnits');
+		}
+		if($price <= 0){
+			$error = $this->lang->line('stores_itempage_flashMessages_requiredPrice');
+		}
+		if($shipment == ''){
+			$error = $this->lang->line('stores_itempage_flashMessages_selectShipment');
+		}
+		if(count($shipment) > 1){
+			$error = $this->lang->line('stores_itempage_flashMessages_deliveryGroup');
+		}
+		if($inventories == 0 AND $units>1){
+			$error = $this->lang->line('stores_itempage_flashMessages_uniqueItem');
+		}
+		if($sizes_options){
+
+			$sumInventories = 0;
+			foreach ($sizes_options as $value) {
+				$sumInventories = $sumInventories+$this->input->post('inventories_'.$value);
+			}
+
+			if($sumInventories != $units){
+				$error = 'Unidades totales no coinciden con unidades por talla';
+			}
+
+			if(in_array('xs', $sizes_options)){
+				if(!ctype_digit($this->input->post('inventories_xs')) || $this->input->post('inventories_xs')<1){
+					$error = 'Ingresa unidades en talla XS';
+				}
+			}
+			if(in_array('s', $sizes_options)){
+				if(!ctype_digit($this->input->post('inventories_s')) || $this->input->post('inventories_s')<1 ){
+					$error = 'Ingresa unidades en talla S';
+				}
+			}
+			if(in_array('m', $sizes_options)){
+				if(!ctype_digit($this->input->post('inventories_m')) || $this->input->post('inventories_m')<1){
+					$error = 'Ingresa unidades en talla M';
+				}
+			}
+			if(in_array('l', $sizes_options)){
+				if(!ctype_digit($this->input->post('inventories_l')) || $this->input->post('inventories_l')<1 ){
+					$error = 'Ingresa unidades en talla L';
+				}
+			}
+			if(in_array('xl', $sizes_options)){
+				if(!ctype_digit($this->input->post('inventories_xl')) || $this->input->post('inventories_xl')<1){
+					$error = 'Ingresa unidades en talla XL';
+				}
+			}
+			if(in_array('xxl', $sizes_options)){
+				if(!ctype_digit($this->input->post('inventories_xxl')) || $this->input->post('inventories_xxl')<1){
+					$error = 'Ingresa unidades en talla XLL';
+				}
+			}
+
+		}
+		if($error){
+			return $error;
+		}
+		
+	}
+	
+	
+}
+
+/* End of file items.php */
+/* Location: ./application/controllers/items.php */

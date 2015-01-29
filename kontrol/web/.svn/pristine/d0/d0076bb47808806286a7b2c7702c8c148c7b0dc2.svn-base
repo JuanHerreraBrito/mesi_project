@@ -1,0 +1,22 @@
+			<h1><?=$this->lang->line('stores_imageadmin_title_text');?></h1>
+        </div> <!--End of page-header-->
+    	<div class="row">
+        	<div class="span16" style="margin-bottom:100px">
+            	<div class="alert-message error">
+                   <a class="close" href="#">×</a>
+                   <?=$flashMessage?>
+                </div>
+              	<form method="post" action="/media/save" class="form-stacked" enctype="multipart/form-data">
+					  <fieldset>
+                          <small><?=$this->lang->line('stores_imageadmin_text');?> </small><br /><br />
+                          <input type="file" class="input-file" name="image"/><br />
+                          <input type="hidden" name="table" value="<?=$table?>" />
+                          <input type="hidden" name="role" value="<?=$role?>" />
+                          <input type="hidden" name="from" value="<?=$from?>" />
+                          <input type="hidden" name="tableID" value="<?=$tableID?>" />
+                          <input type="submit" name="submit" value="<?=$this->lang->line('stores_imageadmin_upload_button_text');?>" class="btn primary small" />
+                       </fieldset>
+				</form>        		
+        	</div>
+        </div>
+        

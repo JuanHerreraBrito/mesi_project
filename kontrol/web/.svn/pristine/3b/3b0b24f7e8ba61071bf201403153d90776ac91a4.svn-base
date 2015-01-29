@@ -1,0 +1,270 @@
+<?php
+    //var_dump($method);
+?>
+<html>
+<head>
+<title>Api Tool</title>
+    <meta name="description" content="Api Tool">
+    <meta name="title" content="Api Tool">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <!-- Bootstrap -->
+    <link href="/bootstrap3/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="/bootstrap3/js/jquery.js"></script>
+    <script src="/bootstrap3/js/bootstrap.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/bootstrap3/js/html5shiv.js"></script>
+      <script src="/bootstrap3/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <div class="container clearfix">
+		<h4>Método a ejecutar</h4>
+    	<div class="row">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+
+                    <!--Ident-->
+                    <div class="form-group">
+                        <label for="ident">Secciones: </label>
+                        <select class="form-control" name="ident" id="ident">
+                            <option value="">Categoria</option>
+                        <?
+                        foreach($idents as $ident)
+                        {
+                        ?>
+                            <option <?= ($ident_selected == $ident) ? 'selected' : '' ?> value="<?=$ident?>"><?=$ident?></option>
+                        <?
+                        }
+                        ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <!--Methods-->
+                    <div class="form-group">
+                        <label for="method">Métodos: </label>
+                        <select class="form-control" name="method" id="method">
+                            <option value="">Método</option>
+                        <?
+                        foreach($methods as $method_name)
+                        {
+                        ?>
+                            <option <?= ($method_selected == $method_name) ? 'selected' : '' ?> value="<?=$method_name?>"><?=$method_name?></option>
+                        <?
+                        }
+                        ?>
+                        </select>
+                    </div>
+                </div>
+                <!--<div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+                    <button id="select_api" class="btn btn-large btn-primary">Seleccionar</button>
+                </div>-->
+        </div> <!--/.row-->
+
+        <h4>Parametros</h4>
+            <form id="params" class="form-inline" role="search">
+            <?
+            if(!empty($method) && isset($method)){
+
+				$row_open = '<div class="row">';
+				$row_end = '</div>';
+				$params_arr = array_chunk($method['params'], 4);
+
+                foreach($params_arr as $params){
+                    echo $row_open;
+                    foreach($params as $param){
+
+            ?>
+                    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                        <!--Methods-->
+                        <div class="input-group">
+                            <label for="<?=$param['name']?>"><?=$param['name']?></label>
+                            <input class="form-control" value="" placeholder="" name="<?=$param['name']?>" id="<?=$param['name']?>" />
+
+                        </div>
+                    </div>
+            <?
+                    }
+                    echo $row_end;
+                }
+            }
+            ?>
+            </form>
+        <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button id="execute" <?= (!isset($params_arr)) ? 'disabled="disabled"' : '' ?> class="btn btn-large btn-primary">Ejecutar</button>
+                </div>
+        </div> <!--/.row-->
+
+		<h4>Login</h4>
+		<div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+
+                    <div class="form-group">
+                        <label for="username_login_testing">User: </label>
+                        <input name="username_login_testing" required="required" id="username_login_testing" class="form-control" placeholder="Username" />
+					</div>
+                </div>
+
+				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+
+					<div class="form-group">
+                        <label for="password_login_testing">Password: </label>
+                        <input name="password_login_testing" required="required" type="password" id="password_login_testing" class="form-control" placeholder="Password" />
+					</div>
+                </div>
+        </div> <!--/.row-->
+
+		<h4>Respuesta</h4>
+        <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <div class="form-group">
+                        <textarea rows="10" class="form-control" name="result_call" id="result_call"></textarea>
+                    </div>
+                </div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="alert-danger" class="alert"></div>
+                    <div id="alert-warning" class="alert"></div>
+					<div id="alert-success" class="alert"></div>
+
+					<div id="url_api"></div>
+					<div id="url_login"></div>
+                </div>
+        </div> <!--/.row-->
+
+    </div><!-- /. main-container -->
+	
+	<!--Modal - Loading-->
+	<div class="modal fade" id="loading" tabindex="-1" role="dialog">
+	  <div class="modal-dialog">
+		<div class="modal-content" style="text-align: center;">
+		  <strong>Cargando....</strong><img src="/img/loading.gif" />
+		</div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+<script>
+    $(document).ready(function(){
+
+        var base_url = '/apitest/'
+
+		$('#ident, #method').change(function(){
+			var url = base_url+"category/";
+			if($(this).val() != ""){
+				url += $('#ident').val()+'/';
+				if($(this).attr('id') == "method"){
+				  url += $('#method').val()+'/';
+				}
+				window.location.href = url;
+			}
+		});
+
+		function clear(){
+			// Clear alerts
+            $('.alert').html('');
+            $('.alert').attr('class','');
+			
+			// Clear url info
+			$('#url_api').html('');
+			$('#url_login').html('');
+			
+			//Clear resp api
+			$('#result_call').html('');
+		}
+
+		function showMsg(msg, classAlert){
+
+			$('#alert-danger').addClass('alert');
+			$('#alert-danger').html(msg);
+			$('#alert-danger').addClass(classAlert);
+
+		}
+		function callApi(){
+
+			var url = base_url+"execute/";
+            var params = $('#params').serialize();
+
+			// Usuario y Password
+			params = $('#params').serialize() + '&' + $.param($('#username_login_testing')) + '&' + $.param($('#password_login_testing'));
+
+            // Url contruct
+            url += $('#ident').val()+'/';
+            url += $('#method').val()+'/';
+
+            var request = $.ajax({
+                url: url,
+                data: params,
+                type: 'POST',
+                dataType: 'json',
+				beforeSend: function(){
+				  clear();
+				  $('#loading').modal({
+					  backdrop: 'static',
+					  keyboard: false
+				  });
+				},
+				complete: function(){
+				  $('#loading').modal('hide');
+				}
+            });
+
+            request.done(function(data){
+				AddInfoUrl(data.url_info);
+
+                if(typeof data != 'object'){
+					showMsg('La respuesta no tiene el formato correcto', 'alert-warning');
+				}
+				else if(data.result.success == 'error'){
+					showMsg(data.result.msg, 'alert-danger');
+				}
+
+				if(data.warnnings.return_type.result_type){
+					showMsg('Return Type: Correct', 'alert-success');
+				}
+				else{
+					showMsg('Return Type: Error (se esperaba '+data.warnnings.return_type.type+' )', 'alert-danger');
+				}
+
+				// Impresion de la respuesta, tal cual regresa la api
+				$('#result_call').html(data.result);
+            });
+            request.fail(function(jqXHR, textStatus){
+                //console.log(jqXHR); console.log(textStatus);
+				var msg = '';
+				AddInfoUrl(data.url_info);
+
+				if(textStatus != 'error')
+				  msg = 'La respuesta no tiene el formato correcto';
+				else
+				  msg = jqXHR.status + ': ' + jqXHR.statusText+' (server test error)'
+
+				showMsg(msg, 'alert-danger');
+
+            });
+		}
+		
+		var AddInfoUrl = function(data_url){
+		  if(typeof data_url != 'undefined'){
+			$('#url_api').html('Api Url: ' + data_url[0]);
+			$('#url_login').html('Login Url: ' + data_url[1]);
+		  }	
+		}
+
+        $('#execute').bind('click', function(){
+
+			if($('#username_login_testing').val() == '' || $('#password_login_testing').val() == ''){
+				showMsg('Se necesitan los datos de login...', 'alert-danger');
+			}
+			else{
+				callApi();
+			}
+        });
+    });
+</script>
+</body>
+</html>

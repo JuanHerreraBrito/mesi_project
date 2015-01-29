@@ -1,0 +1,198 @@
+.pagination{
+    margin:0 0 0 10px;
+}
+.gotoPage{
+    max-width:100px;
+}
+
+.dataTables_wrapper{
+border: 1px solid #ccc;
+padding: 15px;
+max-width: 830px;
+border-radius: 5px;
+background: #FFFFFF;
+box-shadow: 2px 2px 6px #DDD;
+margin-bottom:10px;
+}
+div .no{
+    margin-left: 15px;
+    color: #ABABAB;
+    font-weight: lighter;
+    font-size: 18px;
+}
+.btn.ver{
+    border:none;
+    color:orange;
+    outline:none;
+}
+.btn.ver:active,.btn.ver:hover{
+    box-shadow: none;
+    -webkit-box-shadow:none;
+    color:#f96338;
+    background: transparent;
+}
+
+.btn.ver {
+    border: none;
+    color: orange;
+    padding: 0 0 10px;
+    font-size: 14px;
+}
+
+.actions{
+    text-align:center;
+}
+
+td.col-id{
+    font-weight:bold !important;
+}
+
+td.col-orders_count:after{
+    content:" unidades";
+}
+
+td.col-total_price:before{
+    content:"$";
+}
+
+.title{
+    display: inline-block;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.title h4{
+    margin-top:0;
+}
+
+.title span{
+    color: #999;
+}
+
+.table.transparent{
+    margin:10px;
+    display: inline-block;
+    max-width:800px;
+}
+
+.col-id:before{
+    content:"No. ";
+}
+.col-units_total:after{
+    content:" artículos";
+}
+.col-total_sale_price{
+    text-align: right;
+}
+.col-currency{
+    color:#BBB;
+    text-transform: uppercase;
+}
+
+.table.transparent th{
+    display: none;
+}
+
+.table.transparent td{
+    min-width:14%;
+    width: 114px;
+}
+
+.table.transparent,.table.transparent tr,.table.transparent td, .table.transparent th{
+    border:none;
+    background: none;
+}
+
+.delivered {
+    background: #46a546;
+}
+
+.confirmed {
+    background: #ae217d;
+}
+
+.incomplete {
+    background: #b32723;
+}
+
+.closed {
+    background: #8864ec;
+}
+
+.cancelled {
+    background: #238d89;
+}
+
+.to_be_canceled {
+    background: #898d76;
+}
+
+.pending {
+    background: #f96338;
+}
+
+.new {
+    background: #00438A;
+}
+
+.late {
+    background: #F89406;
+}
+
+.waiting_for_payment {
+    background: #95dbf0;
+}
+
+.sin_fondos {
+    background: #758b36;
+}
+
+.en_ruta {
+    background: #8e2c05;
+}
+
+@media 
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+    /* Force table to not be like tables anymore */
+    table, thead, tbody, th, td, tr { 
+        display: block !important; 
+        border:none;
+        text-align: left !important;
+        color: #666666 !important;
+        width:auto;
+    }
+
+    thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    td { 
+        border: none;
+        border-bottom: 1px solid #eee; 
+        position: relative;
+        padding: 8px 8px 8px 50% !important; 
+    }
+
+    table tr{
+        margin-bottom: 5px;
+        border-top: 1px solid #ccc !important;
+    }
+
+    .table-bordered td{
+        border: none !important;
+    }
+
+    td:before { 
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 45%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+    }    
+
+}

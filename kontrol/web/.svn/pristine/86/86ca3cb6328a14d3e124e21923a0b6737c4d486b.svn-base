@@ -1,0 +1,133 @@
+<?
+$this->load->helper('text');
+$this->load->view('v2/layout/header_new');
+$this->load->view('v2/stores/menu_store');
+$this->load->view('v2/stores/sidebar_left');
+?>
+<style>
+    td.actions > a{ display: block; }
+</style>
+<script type="text/javascript" src="/v2/js/stores.js"></script>
+<script type="text/javascript" src="/v2/js/payments.js"></script>
+<link href="/v2/css/orders.css" rel="stylesheet"/>
+<div class="col-lg-9 col-md-8 col-sm-8">
+    <div class="col-lg-12" id="main-content">
+        <div class="well" style="max-width: 835px;display:none;" id="getdeposit">
+            <div class="col-lg-9 col-md-7 col-sm-7">
+                <?= $this->lang->line('v3_payments_deposito') ?>
+                <br/>
+            </div>
+            <div class="col-lg-3 col-md-5 col-sm-5" align="right">
+                <button id="solicitar-deposito-btn" class="btn btn-primary"><?= $this->lang->line('v3_payments_deposito_button') ?></button> 
+            </div>            
+        </div>
+        <div class="modal fade" id="modal-pagos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title"><?= $this->lang->line('v3_payments_confirmation_button') ?></h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <?= $this->lang->line('v3_payments_confirmation_text') ?>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><?= $this->lang->line('v3_payments_cancel_button') ?></button>
+                        <button type="button" class="btn btn-primary"><?= $this->lang->line('v3_payments_confirm_button') ?></button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <section>
+            <div class="title">
+                <h3><a href="/payments/store/<?=$store->id?>/general">General</a></h3>
+                <span><?= $this->lang->line('v3_payments_general_text') ?></span>
+            </div>
+            <div style="width:830px;">
+                <div class="col-lg-6 general" data-title="Da click para visualizar pagos pendientes">
+                    <a href="/payments/store/<?=$store->id?>/pending">
+                        <div class="general-title"><?= $this->lang->line('v3_payments_pending_status') ?></div>
+                        <div class="col-lg-4 col-sm-4 col-md-4">
+                            <h1 class="solicitudes-general-pending">0</h1>
+                            <span><?= $this->lang->line('v3_request') ?></span>
+                        </div>
+                        <div class="col-lg-4 col-sm-4 col-md-4">
+                            <h1 class="articulos-general-pending">0</h1>
+                            <span><?= $this->lang->line('v3_payment_js_items') ?></span>
+                        </div>
+                        <div class="col-lg-4 col-sm-4 col-md-4">
+                            <h1 class="total-general-pending">0</h1>
+                            <span>$</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-6 general" data-title="Da click para visualizar pagos cerrados">
+                    <a href="/payments/store/<?=$store->id?>/closed">
+                        <div class="general-title"><?= $this->lang->line('v3_payments_closed_status') ?></div>
+                        <div class="col-lg-4 col-sm-4 col-md-4">
+                            <h1 class="solicitudes-general-closed">0</h1>
+                            <span><?= $this->lang->line('v3_request') ?></span>
+                        </div>
+                        <div class="col-lg-4 col-sm-4 col-md-4">
+                            <h1 class="articulos-general-closed">0</h1>
+                            <span><?= $this->lang->line('v3_payment_js_items') ?></span>
+                        </div>
+                        <div class="col-lg-4 col-sm-4 col-md-4">
+                            <h1 class="total-general-closed">0</h1>
+                            <span>$</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="title">
+                <h3><a href="/payments/store/<?=$store->id?>/pending"><?= $this->lang->line('v3_payments_pending_status') ?></a></h3>
+                <span><?= $this->lang->line('v3_payments_pending_text') ?></span>
+                <div class="pull-right total" align='center'>
+                    <h4 class='total-pending'></h4>
+                    <small>Total</small>
+                </div>
+            </div> 
+            <div class="dataTables_wrapper">                
+                <div id="pending-payments"></div>
+                <div id="pagination-pending"></div>
+            </div>
+        </section>
+        <section>
+            <div class="title">
+                <h3><?= $this->lang->line('v3_payments_available_status') ?></h3>
+                <span><?= $this->lang->line('v3_payments_available_text') ?></span>
+                <div class="pull-right total" align='center'>
+                    <h4 class='total-available'></h4>
+                    <small>Total</small>
+                </div>
+            </div>
+            <div class="dataTables_wrapper">
+                <div id="available-orders"></div>
+                <div id="pagination-available"></div>
+            </div>
+        </section> 
+        <section>
+            <div class="title">
+                <h3><a href="/payments/store/<?=$store->id?>/closed"><?= $this->lang->line('v3_payments_closed_status') ?></a></h3> 
+                <span><?= $this->lang->line('v3_payments_closed_text') ?></span>
+                <div class="pull-right total" align='center'>
+                    <h4 class='total-closed'></h4>
+                    <small>Total</small>
+                </div>
+            </div>
+            <div class="dataTables_wrapper">
+                <div id="closed-payments"></div>
+                <div id="pagination-closed"></div>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<?
+$this->load->view('v2/layout/footer');
+?>

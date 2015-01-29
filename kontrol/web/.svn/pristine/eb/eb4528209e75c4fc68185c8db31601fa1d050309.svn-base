@@ -1,0 +1,26 @@
+<?=$this->load->view('layout/header_noAuth.php')?>
+
+   
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+           <h1><?=$this->lang->line('login_page_title_text');?> <small><?=$this->lang->line('login_page_subtitle_text');?></small></h1>
+        </div>
+        <div class="row">
+          <div class="span16">
+
+
+			<h1><?=$this->lang->line('beta_signup_thanks_text');?></h1>
+			<br /><br />
+            <p><?=$this->lang->line('beta_signup_contact_text');?></p>
+			
+          </div>
+          
+        </div>
+      </div>
+
+
+ 
+<?=$this->load->view('layout/footer.php', array('sreen_code'=> 'S_2.1.1_0.2' ))?>

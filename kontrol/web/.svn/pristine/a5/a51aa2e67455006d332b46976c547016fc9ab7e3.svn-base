@@ -1,0 +1,31 @@
+$(document).ready(function() {
+        $("#my-account").validationK();
+        delay(function() {
+            if ($(".signin-card .content .alert").is(":visible"))
+                $(".signin-card .content .alert").fadeOut(1000);
+        }, 4000);
+        $("#my-account").submit(function() {
+
+            if ($(this).data().validationK.methods.validate()) {
+                call_api('/api/users/update_user_data', 'post', {password: $(this).find("input[name=password]").val()}, function(data) {
+                    $(".alert").remove();
+                    $(".signin-card .content").prepend('<div class="alert alert-success alert-dismissable" style="display:none">' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                            '<b>Message:</b> La contrase&ntilde;a se ha actualizado correctamente' +
+                            '</div>');
+                    $(".signin-card .content .alert").fadeIn("slow");
+                    delay(function() {
+                        if ($(".signin-card .content .alert").is(":visible"))
+                            $(".signin-card .content .alert").fadeOut(1000);
+                    }, 4000);
+                    $("input[type=password]").val("");
+
+                });
+
+            }
+            return false;
+        });
+
+
+
+    });

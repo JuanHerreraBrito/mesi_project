@@ -1,0 +1,18 @@
+<div id="sidebar-right">
+    <a href="#" class="close close-help" aria-hidden="true">&times;</a>
+    <div class="col-lg-12">
+        <h3><?= $this->lang->line('header_menu_help_text'); ?></h3>
+        <ul>
+            <li><a href="https://kichink.desk.com/">Chat</a></li>
+            <li><a href="tel:5541607999">(55) 4160-7999</a></li>
+            <li><a href="mailto:contacto@kichink.com">contacto@kichink.com</a></li>
+            <li><a class="social" href="http://www.twitter.com/kichink" target="_blank"><i class="fa fa-twitter fa-2"></i>Twitter</a></li>
+            <li><a class="social" href="http://www.facebook.com/kichink" target="_blank"><i class="fa fa-facebook fa-2"></i>Facebook</a></li>
+            <li><a class="social" href=" https://plus.google.com/+Kichink/videos" target="_blank"><i class="fa fa-google-plus"></i>Google+</a></li>
+        </ul>
+    </div>
+</div>
+<div id="preloader" data-rotate="0"></div>
+<footer>&copy; <?=@date("Y")?> Kichink!</footer>
+</body>
+</html>

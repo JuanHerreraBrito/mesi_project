@@ -1,0 +1,14 @@
+<?php
+
+if(empty($type) OR empty($content) OR empty($name) OR empty($extension)){
+    echo '<meta charset="utf-8"><script>alert("Ha ocurrido un problema, favor de notificarlo..."); self.close ();</script>';exit;
+}
+else
+{
+    header('Content-Encoding: UTF-8');
+    header('Content-type: '.$type.'; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="'.$name.'.'.$extension.'"');
+    header('Content-Transfer-Encoding: binary');
+    echo $content;
+}
+?>

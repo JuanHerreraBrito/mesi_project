@@ -1,0 +1,1840 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Sell_model extends CI_Model {
+
+	var $sitio = 'SELL';
+	
+    function __construct()
+    {
+        parent::__construct();
+		
+    }
+    
+
+    /////// EXCHANGE RATES
+    function get_xRates(){
+
+    	$q = $this->db->get('tipo_cambio');
+
+    	if($r = $q->result()){
+    		return $r[0];
+    	}
+
+    }
+    /////// STORES
+
+    function update_itemsPriceColors($back, $text, $store_id){
+
+
+    	$this->db->update('stores', array('itemsPrice_back' => $back, 'itemsPrice_text' => $text ), 'id = '. $store_id);
+
+
+    }
+
+    function insert_category($store_id, $category){
+
+    	$this->db->insert('categories', array('store_id' => $store_id, 
+	    									  'name' => $category,
+											  'active' => 1,
+											  ));
+		return $this->db->insert_id();
+
+    }
+
+    function delete_category($cat_id){
+
+    	$this->db->update('categories', array('active' => 0), 'id = '. $cat_id);
+
+    }
+
+    function update_category($cat_id, $name){
+
+    	$this->db->update('categories', array('name' => $name), 'id = '. $cat_id);
+
+    }
+
+    function get_category($cat_id){
+
+    	$q = $this->db->get_where('categories', array('id' => $cat_id));
+
+    	if($r = $q->result()){
+    		return $r[0];
+    	}else{
+    		return false;
+    	}
+
+    }
+
+    function get_store_categories($store_id){
+
+    	$this->db->select('categories.*');
+    	$this->db->from('categories');
+    	$this->db->where(array('categories.store_id' => $store_id, 'active' => 1));
+    	$this->db->order_by('order_id ASC, timestamp DESC');
+
+    	$q = $this->db->get();
+
+    	if($r = $q->result()){
+    		return $r;
+    	}else{
+    		return false;
+    	}
+
+    }
+
+    function update_categories_order($newOrderCats){
+
+    	foreach ($newOrderCats as $order => $id) {
+    		$this->db->update('categories', array('order_id' => $order), 'id = '. $id);
+    	}
+
+    }
+
+    function get_banks(){
+
+    	$q = $this->db->get('banks');
+
+    	if($r = $q->result()){
+    		return $r;
+    	}
+
+    }
+    
+    function get_all_user_stores($showOrders=true){
+    	
+    	// Sacar de la base de datos todas las tiendas en las que el usuario es administrador
+    	// siempre que no esten marcadas como DELETED
+    	$this->db->select('user_perm.*, stores.*');
+		$this->db->from('stores');
+		$this->db->join('user_perm', 'user_perm.store_id = stores.id');
+		
+		$this->db->where('user_perm.user_id ='.$this->session->userdata('user_id'));
+		$this->db->where('(owner=1 OR admin=1 OR editor=1 OR colaborator=1 OR subscriber=1)');
+		//$where = "user_perm.user_id =". $this->session->userdata('user_id')." AND owner=1 OR admin=1 OR editor=1 OR colaborator=1 OR subscriber=1" ;
+		//$this->db->where($where);
+		
+		$storesQry = $this->db->get_where();
+		
+		if($resultStores=$storesQry->result()){
+			$data['stores'] = $resultStores;
+			// Si $showOrders === true hacer join para mostrar ordenes pendientes y nuevas
+			if($showOrders === true){
+				
+				/// Lili: cambie esta parte a la funcion de abajo get_store_orders
+				/// Estoy iterando para sacar todas las ordenes de cada tienda
+				for($i = 0; $i< count($data['stores']); $i++){
+					// Para facilitar un poco las cosas estoy guardando las ordenes de cada tienda dentro del array de la tienda misma
+					//$data['stores'][$i]['orders'] = $this->get_all_store_orders($data['stores'][$i]->id);
+					$data['stores'][$i]->total_items = $this->total_items($data['stores'][$i]->id);
+					$data['stores'][$i]->orders['new'] = $this->get_lastest_store_orders($data['stores'][$i]->id, 'new', $limit = 3);
+					$data['stores'][$i]->orders['pending'] = $this->get_lastest_store_orders($data['stores'][$i]->id, 'pending', $limit = 3);
+					$data['stores'][$i]->thumbnail = $this->get_store_thumbnail($data['stores'][$i]->id);
+				}
+			}
+		}else{
+			$data['stores'] = false;
+		}
+    	
+    	// Regresar resultados
+		return $data;
+    
+    }
+    
+    
+    function get_store($storeId){
+    	
+    	// Sacar todos los datos de la tienda
+    	$q = $this->db->get_where('stores', array('id'	=> $storeId));
+    	
+    	// Verificar que hay resultados
+    	if($r = $q->result()){
+    		
+    		// Sacar ordenes y almacenarlas dentro del objeto de la tienda
+    		$r[0]->orders['active'] = $this->get_lastest_store_orders($storeId, 'active', $limit=5);
+			$r[0]->orders['closed'] = $this->get_lastest_store_orders($storeId, 'closed', $limit=5);
+			$r[0]->orders['all'] = $this->get_lastest_store_orders($storeId, 'all', $limit=5);
+			
+			$r[0]->images = $this->get_store_images($storeId);
+			$r[0]->categories = $this->get_store_categories($storeId);
+    		// regresar el objeto de la tienda
+    		return $r[0];
+    	}
+
+    	
+
+    }
+	
+	function get_info_store($storeId){
+		$q = $this->db->get_where('stores', array('id'	=> $storeId));
+       	if($r = $q->result()){
+    		return $r[0];
+    	}
+		
+	}
+    
+    
+    function insert_store($store){
+    	// Insertar una nueva tienda a la base de datos
+		$getUsrPref = getUsrPref($this->session->userdata('user_id'));
+    	$this->db->insert('stores', array('name' => $store, 
+    									  'currency' => 'USD',
+										  'description' => $this->session->userdata('name').$this->lang->line('stores_add_newStore_description'),
+										  'shipment_category' => $getUsrPref->usr_country=='MX' ? 'default_mexico' : 'default_usa'
+										  ));
+		$storeId = $this->db->insert_id();
+    	// Agregar al usuario como administrador
+		$this->db->insert('user_perm', array('user_id' =>  $this->session->userdata('user_id'),
+											 'store_id' => $storeId,
+											 'owner' => 1, 
+											 'admin' => 1
+											 ));
+    	
+    	// Regresar ID de nueva tienda  
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario agreg&oacute; nueva tienda', $details = '');
+		return $storeId;
+		  	
+    }
+    
+    function delete_store($storeId){
+    	// Actualizar el campo de DELETED como TRUE en BD
+    		
+    }
+
+    function update_storePayment_info($store){
+
+    	if($this->input->post('bank_accounts')>0 AND $this->input->post('bank_account')){
+
+    		if((strlen($this->input->post('bank_account'))!=16 AND strlen($this->input->post('bank_account'))!=18) OR !ctype_digit($this->input->post('bank_account'))){
+
+    			return array('flashMessage' => $this->lang->line('stores_settings_paymentsTab_messageNotNumber'));
+   
+    		}else{
+
+    			$this->db->update('stores', array(	'bank_account' => $this->input->post('bank_account'),
+												    'bank_id' => $this->input->post('bank_accounts')), 'id = '. $store);
+												
+				kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario actualiz&oacute; la informacion de pago de la tienda No. '.$store, $details = '');									
+				return array('flashMessage' => $this->lang->line('stores_settings_paymentsTab_message'));
+
+    		}
+    		
+    	}else{
+
+    		return array('flashMessage' => $this->lang->line('stores_settings_detailsTab_message_requiredFieldsPayment'));
+
+    	}
+    }
+    
+    function update_store_info($store){
+    	// Actualizar todos los campos de la base de datos para la tienda con el ID correspondiente
+		$name = $this->input->post('name');
+		$description = $this->input->post('description');
+		if ($name AND $description){
+			$this->db->update('stores', array(	'name' 				=> $name,
+												'description' 		=> $description,
+												'description_eng' 	=> $this->input->post('description_eng'),
+											 	'about' 			=> $this->input->post('about_us'),
+											 	'about_eng' 		=> $this->input->post('about_us_eng'), 
+												'physical' 			=> $this->input->post('deliverables'), 
+												'inventories' 		=> $this->input->post('inventories')), 'id = '. $store);
+												
+			kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario actualiz&oacute; la tienda No. '.$store, $details = '');									
+			return array('flashMessage' => $this->lang->line('stores_settings_detailsTab_message_infoUpdated'));
+		}else{
+			return array('flashMessage' => $this->lang->line('stores_settings_detailsTab_message_requiredFields'));
+		}
+    	
+    }
+    
+	function goLive($store_id){
+		
+		$this->db->update('stores', array('live_store' => 1), 'id ='.$store_id);
+		
+	}
+	
+	function goOffline($store_id){
+		
+		$this->db->update('stores', array('live_store' => 0), 'id ='.$store_id);
+		
+	}
+	//////// Deliveries
+
+	function get_delivery_default_group(){
+
+		$q = $this->db->get_where('delivery_groups', array('group_name' => 'default')); 
+
+		if($r = $q->result()){
+			return $r;
+		}
+
+	}
+
+	function get_delivery_times(){
+
+		$q = $this->db->get('delivery_times'); 
+
+		if($r = $q->result()){
+
+			foreach ($r as $value) {
+
+				if($value->delivery_time_min == $value->delivery_time_max){
+					$value->delivery_time_text = $value->delivery_time_max.' '.$this->lang->line('stores_itempage_deliveryTimes_text_'.$value->unit);
+				}else{
+					$value->delivery_time_text = $value->delivery_time_min.'-'.$value->delivery_time_max.' '.$this->lang->line('stores_itempage_deliveryTimes_text_'.$value->unit);
+				}
+		
+			}
+			return $r;
+		}
+
+	}
+
+	function get_delivery_groups($store_id){
+
+		$special_groups = $this->get_special_delivery_groups($store_id);
+
+		$this->db->select('delivery_groups.*');
+		$this->db->from('delivery_groups');
+		$this->db->order_by('id', 'DESC');
+
+		$q = $this->db->get();
+
+		if($r = $q->result()){
+
+			if($special_groups){
+
+				foreach($special_groups as $item){
+					$group_typeArray[] = $item->group_type; 
+					$idArray[] = $item->group_id; 
+				}
+
+				foreach($r as $value){
+					if($value->group_name == 'default'){
+						if(!in_array($value->group_type, $group_typeArray)){
+							$data[] =  $value;
+						}
+					}else{
+						if(in_array($value->id, $idArray)){
+							$data[] =  $value;
+						}
+					}
+				}
+
+			}else{
+
+				foreach($r as $value){
+					if($value->group_name == 'default'){
+						$data[] = $value;
+					}
+				}
+		
+			}
+
+			//print_r($data);
+			return $data;
+
+		}
+		
+	}
+
+	function get_delivery_group($group_id){
+
+		$q = $this->db->get_where('delivery_groups', array( 'id' => $group_id));
+
+		if($r = $q->result()){
+			return $r[0];
+		}else{
+			return false;
+		}
+
+	}
+
+	function get_special_delivery_groups($store_id){
+
+		$this->db->select('delivery_options.*');
+		$this->db->from('delivery_options');
+		$this->db->where(array('store_id' => $store_id, 'deleted !=' => 1));
+
+		$q = $this->db->get();
+
+		if($r = $q->result()){
+			return $r;
+		}else{
+			return false;
+		}
+
+	}
+	
+	function get_delivery($type){
+		
+		$q = $this->db->get_where('delivery_times', array('type' => $type));
+       	if($r = $q->result()){
+
+    		return $r[0];
+    	}
+		
+	}
+	    
+    
+    
+    /////// Items
+
+    function update_items_order($newOrder){
+
+    	foreach ($newOrder as $order => $id) {
+    		$this->db->update('items', array('order_id' => $order), 'id = '. $id);
+    	}
+
+    }
+	
+	function total_items($store_id)
+	{
+		$this->db->where(array('store_id' => $store_id, 'deleted !=' => 1));
+		$this->db->from('items');
+		return $this->db->count_all_results();	
+	}
+    
+    function get_all_store_items($storeId){
+    	// Sacar todos los items que pertenecen a la tienda con $storeId, excepto los marcados como DELETED
+    	$this->db->select('items.*');
+		$this->db->from('items');
+		$this->db->where(array('store_id' => $storeId, 'deleted !=' => 1));
+		$this->db->order_by('order_id ASC, created DESC');
+
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			$data['items'] = $r;
+				for($i = 0; $i< count($data['items']); $i++){
+					$data['items'][$i]->image = $this->get_media_default_items($data['items'][$i]->id);
+					$data['items'][$i]->name = $this->get_item_name_by_userLang($data['items'][$i]->id);
+					$data['items'][$i]->description = $this->get_item_description_by_userLang($data['items'][$i]->id);
+				}
+			return $data['items'];
+		}else{
+			return false;
+		}
+		
+	}
+
+	function get_item_name_by_userLang($id_item){
+
+		$usrPref = getUsrPref($this->session->userdata('user_id'));
+		$q = $this->db->get_where('items', array('id' => $id_item));
+
+		if($r = $q->result()){
+
+			if($usrPref->usr_language == 'es'){
+				if($r[0]->name){
+					$name = $r[0]->name;
+				}else{
+					$name = $r[0]->name_eng;
+				}
+			}else{
+				if($r[0]->name_eng){
+					$name = $r[0]->name_eng;
+				}else{
+					$name = $r[0]->name;
+				}
+			}
+
+			return $name;
+
+		}
+		
+	}
+
+
+	function get_item_description_by_userLang($id_item){
+
+		$usrPref = getUsrPref($this->session->userdata('user_id'));
+		$q = $this->db->get_where('items', array('id' => $id_item));
+
+		if($r = $q->result()){
+
+			if($usrPref->usr_language == 'es'){
+				if($r[0]->description){
+					$description = $r[0]->description;
+				}else{
+					$description = $r[0]->description_eng;
+				}
+			}else{
+				if($r[0]->description_eng){
+					$description = $r[0]->description_eng;
+				}else{
+					$description = $r[0]->description;
+				}
+			}
+
+			return $description;
+
+		}
+
+	}
+
+    function get_item_for_Edit($itemId){
+    	// Sacar todos los datos de un item
+    	$this->db->select('items.*, stores.id as store_id, stores.name as store_name, stores.description as store_description, stores.shipment_category');
+		$this->db->from('stores');
+		$this->db->join('items', 'items.store_id = stores.id');
+		$this->db->where(array('items.id' => $itemId));
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			//return $r;get_item_for_Edit
+			$data['item'] = $r;
+			$data['item'][0]->image = $this->get_media_all_items($data['item'][0]->id);
+			$data['item'][0]->store_categories = $this->get_store_categories($data['item'][0]->store_id);
+			$data['item'][0]->displayOptions = $this->get_item_display_options($data['item'][0]);
+			$data['item'][0]->purchaseOptions = $this->get_item_purchase_options($data['item'][0]);
+			$data['item'][0]->discounts = $this->get_item_discounts($data['item'][0]->id);
+			
+			return $data['item'];
+		}else{
+			return false;
+		}
+		    	
+    }
+    
+    function get_item_discounts($item){
+    	
+    	$q = $this->db->get_where('discounts', array('by_item_id' => $item) );
+    	if( $r = $q->result() ){
+	    	return $r;
+    	} else {
+	    	return false;
+    	}
+    }
+    
+    function get_item_display_options($item){
+	    $this->db->select('DISTINCT(option_key), option_name');
+	    $q_ava = $this->db->get_where('item_display_options', array('store_id'=> $item->store_id));
+	    $result = array();
+	    //echo $this->db->last_query();
+	    if($r_ava = $q_ava->result()){
+	    	
+	    	$result['availible'] = $r_ava;
+	    	
+	    	$q_exist = $this->db->get_where('item_display_options', array('item_id'=> $item->id));
+	    	if($r_exist = $q_exist->result()){
+		    	$result['exist'] = $r_exist;
+	    	}
+	    	
+	    }
+	   
+	    return $result;
+	    
+    }
+
+
+    function get_item_purchase_options($item){
+	    $this->db->select('DISTINCT(group_name), options, id');
+	    $q_ava = $this->db->get_where('item_purchase_options', array('store_id'=> $item->store_id));
+	    $result = array();
+	    //echo $this->db->last_query();
+	    if($r_ava = $q_ava->result()){
+	    	
+	    	$result['availible'] = $r_ava;
+	    	
+	    	$q_exist = $this->db->get_where('item_purchase_options', array('item_id'=> $item->id));
+	    	if($r_exist = $q_exist->result()){
+		    	$result['exist'] = $r_exist;
+	    	}
+	    	
+	    }
+	   
+	    return $result;
+	    
+    }
+    
+    function get_item($itemId){
+    	// Sacar todos los datos de un item
+    	$this->db->select('items.*, stores.id as store_id, stores.name as store_name, stores.description as store_description, stores.shipment_category');
+		$this->db->from('stores');
+		$this->db->join('items', 'items.store_id = stores.id');
+		$this->db->where(array('items.id' => $itemId));
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			//return $r;
+			$data['item'] = $r;
+			$data['item'][0]->image = $this->get_media_all_items($data['item'][0]->id);
+			$data['item'][0]->store_categories = $this->get_store_categories($data['item'][0]->store_id);
+			$data['item'][0]->name = $this->get_item_name_by_userLang($data['item'][0]->id);
+			$data['item'][0]->description = $this->get_item_description_by_userLang($data['item'][0]->id);
+
+			return $data['item'];
+		}else{
+			return false;
+		}
+		    	
+    }
+    
+    function insert_item($store_id,  $item){
+    	// Insertar nuevo item
+		
+		$shipment_store_types = $this->get_info_store($store_id);
+		$delivery_types = $this->get_delivery_default_group();
+		
+		$arrayTypes[] = $delivery_types[0]->id;
+		
+		$usrPref = getUsrPref($this->session->userdata('user_id'));
+
+		if($usrPref->usr_language == 'es'){
+			$nameField = 'name';
+			$descriptionField = 'description';
+		}else{
+			$nameField = 'name_eng';
+			$descriptionField = 'description_eng';
+		}
+
+		$timestamp = date('Y-m-d H:i:s');
+		$this->db->insert('items', array('store_id' => $store_id, 
+										 $nameField => $item, 
+										 $descriptionField => $this->lang->line('stores_itempage_add_newItem'), 
+										 'price' => 200, 
+										 'units_availible' => 1, 
+										 'shipment' => json_encode($arrayTypes), 
+										 'deleted' => 0, 
+										 'updated' => $timestamp,
+										 'created' => $timestamp 
+										 ));
+		// Regresar ID del nuevo item
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Art&iacute;culo agregado en la tienda No. '.$store_id, $details = '');
+    	return $this->db->insert_id();
+    }
+    
+    function delete_item($itemId){
+    	// Marcar item como DELETED
+		$this->db->update('items', array('deleted' => 1), 'id = '. $itemId);
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario ha eliminado el art&iacute;culo No. '.$itemId, $details = '');
+		
+    }
+    
+    function update_item($item, $store_id=false){
+		
+		$name = $this->input->post('name');
+		$name_eng = $this->input->post('name_eng');
+		$description = $this->input->post('description') == '<br>' ? '' : $this->input->post('description');
+		$description_eng = $this->input->post('description_eng') == '<br>' ? '' : $this->input->post('description_eng');
+		$price = $this->input->post('price');
+		$sku = $this->input->post('sku');
+		
+		$shipment_options = json_encode($this->input->post('shipment_options'));
+		$category_options = ($this->input->post('category_options')=='' ? NULL : json_encode($this->input->post('category_options')));
+
+		if($this->input->post('sizes_options')==''){
+			$sizes_options = NULL;
+		}else{
+			$sizes = array();
+			$i = 0;
+			foreach ($this->input->post('sizes_options') as $value) {
+				$sizes[$i]->type = $value;
+				$sizes[$i]->units = $this->input->post('inventories_'.$value);
+				$i++;
+			}
+			$sizes_options = json_encode($sizes);
+		}
+		
+		
+		/// Display options
+		$i_opts = 0;
+		$display_options_keys = $this->input->post('display_option_key');
+		$display_options_names = $this->input->post('display_option_name');
+		$display_options_values = $this->input->post('display_option_value'); 
+		foreach($display_options_keys as $key){
+			if($display_options_values[$i_opts] != ''){
+				$q_display_opts = $this->db->get_where('item_display_options', array('item_id' => $item, 'option_key' => $key));
+				if($r_display_opts = $q_display_opts->result()){
+					$this->db->update('item_display_options', array('option_values' => $display_options_values[$i_opts]), 'item_display_options_id ='.$r_display_opts[0]->item_display_options_id);
+				} else {
+					$this->db->insert('item_display_options', array('item_id' => $item, 
+																	'store_id' => $this->input->post('store_id'),
+																	'option_name' => $display_options_names[$i_opts],
+																	'option_values' => $display_options_values[$i_opts],
+																	'option_key' => $key));
+				}
+			}
+			$i_opts++;
+		}
+		
+		
+		/// Purchase options
+		$insertPurchaseOptions = false;
+		
+		if($purchase_options_id = $this->input->post('purchase_options_id') AND $this->input->post('purchase_options_process') == 'do'){
+			
+			$q = $this->db->get_where('item_purchase_options', array('item_id'=>$item));
+			
+			if(!$r = $q->result()){
+				
+				
+				$insertPurchaseOptions = true;
+				$q = $this->db->get_where('item_purchase_options', array('id' => $purchase_options_id));
+				$r = $q->result();
+			}
+			
+			
+			$purchase_options = json_decode($r[0]->options);
+			$k = 0;
+			foreach($purchase_options as $option){
+				$units = $this->input->post($option->label.':purchace_options_inventarios');
+				//echo $option->label.':purchace_options_inventarios'.'='.$units."<br />";
+				if($units AND $units > 0){
+					$purchase_options[$k]->units = $units;
+				} else {
+					$purchase_options[$k]->units = 0;
+				}
+				$k++;
+			}
+			
+			if(!$insertPurchaseOptions){
+				$this->db->where('id',$r[0]->id);
+				$this->db->update('item_purchase_options', array('options'=>json_encode($purchase_options)));
+			} else {
+				$this->db->insert('item_purchase_options', array('item_id'	=> $item,
+																 'store_id' => $this->input->post('store_id'),
+																 'group_name'	=> $r[0]->group_name,
+																 'group_type_display'	=> $r[0]->group_type_display,
+																 'options'=>json_encode($purchase_options),
+																 ));
+			}
+			
+		}
+		
+		// Discounts
+		if( $this->input->post('discount_amount') ){
+			$discount = array('by_item_id'	=>	$item,
+							  'order_perc'	=>	$this->input->post('discount_amount'),
+							  'start_date'	=>  date('Y-m-d H:i:s', strtotime($this->input->post('discount_start') ) )
+							  );
+			
+			if( $this->input->post('discount_existencias') ){
+				$discount['max_discounts'] = $this->input->post('discount_existencias');
+			}
+			
+			if( $this->input->post('discount_expiration') ){
+				$discount['end_date'] = date('Y-m-d H:i:s', strtotime($this->input->post('discount_expiration') ) );
+			}
+			
+			$this->db->insert('discounts', $discount);
+		}
+		
+		// Actualizar item
+		$this->db->update('items', array('name' => $name, 
+										 'description' => $description,
+										 'name_eng' => $name_eng, 
+										 'description_eng' => $description_eng, 
+										 'price' => $price, 
+										 'shipment' => $shipment_options,
+										 'categories' => $category_options, 
+										 'sizes' => $sizes_options,
+										 'sku' => $sku,
+										 'live' => $this->input->post('live_item') ? 1 : 0,
+										 'inventories' => $this->input->post('inventories'),
+										 'physical' => $this->input->post('physical'),
+										 'units_availible' => $this->input->post('units_availible'),
+										 'updated' => date('Y-m-d H:i:s')
+										 ), 'id = '. $item);
+										 
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario actualiz&oacute; el art&iacute;culo No. '.$item, $details = '');	
+    }
+    
+    
+    
+    
+    
+    ///////// ORDERS
+	
+    
+	function getStripeCustomerId($user_id){
+		
+		$q = $this->db->get_where('payment_method', array('user_id' => $user_id));
+		
+		if($r = $q->result()){
+			return $r[0]->customer_id;
+		}
+		
+	}
+	
+	
+    function get_all_store_orders($storeId){
+    	
+    	$this->db->select('orders.*, order_items.*');
+		$this->db->from('order_items');
+		$this->db->join('orders', 'orders.id = order_items.order_id');
+		$this->db->where( array('order_items.store_id' => $storeId,
+								'orders.status !='=> 'closed',
+								'orders.status !='=> 'canceled'
+								)
+						);
+							
+		$ordersQry = $this->db->get();
+		
+		if($resultOrders=$ordersQry->result()){
+			return $resultOrders;
+		}else{
+			return false;
+		}
+    	// Sacar de la base de datos todas las ordenes de la tienda especificada
+    	
+    	// Regresar resultados
+    
+    }
+	
+	function get_lastest_store_orders($storeId, $status, $limit){
+		    	
+    	$this->db->select('orders.*, orders.id as orderID, orders.units as units_total, order_items.*, SUM(sale_price-discount_sale_price) as total_sale_price, SUM(sale_price_USD-discount_sale_price_USD) as total_sale_price_USD');
+		//$this->db->select_sum('sale_price', 'total_sale_price');
+		$this->db->from('order_items');
+		$this->db->join('orders', 'orders.id = order_items.order_id');
+		
+		if($status == 'active'){
+			$this->db->where(array('order_items.store_id' => $storeId, 'orders.status !=' => 'closed'));
+		}elseif($status == 'all'){
+			$this->db->where(array('order_items.store_id' => $storeId));
+		}else{
+			$this->db->where(array('order_items.store_id' => $storeId, 'orders.status' => $status));
+		}
+
+		$this->db->limit($limit);
+		$this->db->group_by('order_items.order_id');
+		$this->db->order_by('orders.created', 'DESC');
+		
+		$ordersQry = $this->db->get();
+		
+		if($resultOrders=$ordersQry->result()){
+			foreach($resultOrders as $item){
+				if($item->currency == 'USD'){
+					$item->total_sale_price = $item->total_sale_price_USD;
+				}
+				switch ($item->status) {
+					case 'new':
+						$labelName = $this->lang->line('stores_orders_neworder_status_text');
+						break;	
+					case 'waiting_for_payment':
+						$labelName = $this->lang->line('stores_orders_waitingForPaymentorder_status_text');
+						break;
+					case 'confirmed':
+						$labelName = $this->lang->line('stores_orders_confirmedorder_status_text');
+						break;
+					case 'sin_fondos':
+						$labelName = $this->lang->line('stores_orders_sinFondosorder_status_text');
+						break;	
+					case 'delivered':
+						$labelName = $this->lang->line('stores_orders_deliveredorder_status_text');
+						break;
+					case 'pending':
+						$labelName = $this->lang->line('stores_orders_pendingorder_status_text');
+						break;
+					case 'closed':
+						$labelName = $this->lang->line('stores_orders_closedorder_status_text');
+						break;
+					case 'incomplete':
+						$labelName = $this->lang->line('stores_orders_incompleteorder_status_text');
+						break;						
+					default:
+						$labelName = $item->status;
+						break;
+				}
+				$item->labelName = $labelName;
+			}
+			return $resultOrders;
+		}else{
+			return false;
+		}
+    	// Sacar de la base de datos todas las ordenes de la tienda especificada
+    	
+    	// Regresar resultados
+    
+    }
+	
+	function get_all_user_orders($user_id, $status)
+	{
+		$query = "SELECT stores.name, orders.*, orders.units AS units_total, orders.created as order_created, order_items.*, user_perm.user_id, SUM((sale_price-discount_sale_price)*order_items.units) as total_sale_price, SUM((sale_price_USD-discount_sale_price_USD)*order_items.units) as total_sale_price_USD, delivery_times.hours
+				  FROM order_items 
+				  INNER JOIN orders ON orders.id=order_items.order_id 
+				  INNER JOIN user_perm ON user_perm.store_id=order_items.store_id 
+				  INNER JOIN stores ON stores.id=order_items.store_id 
+				  INNER JOIN delivery_times ON delivery_times.type=orders.shipment_type
+				  WHERE user_perm.user_id=".$user_id." AND orders.status='$status' GROUP BY order_items.order_id";
+		
+		$q = $this->db->query($query);
+			
+		if($r=$q->result()){
+			foreach ($r as $value) {
+				if($value->currency == 'USD'){
+					$value->total_sale_price = $value->total_sale_price_USD;
+					$value->shipment_price = $value->shipment_price_USD;
+				}
+				if($value->status == 'waiting_for_payment'){
+					$value->time_left = '[ ]';
+				}elseif(isset($value->pago_efectivo_timestamp)){
+					$value->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$value->hours.' hours',strtotime($value->pago_efectivo_timestamp)))).' '.$this->lang->line('stores_orders_remaining');
+				}else{
+					$value->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$value->hours.' hours',strtotime($value->order_created)))).' '.$this->lang->line('stores_orders_remaining');;
+				}
+			}
+			return $r;					
+		}else{
+			return false;
+		}
+		
+	}
+    
+	function get_store_orders($user_id, $store_id, $status)
+	{
+		$query = "SELECT orders.*, order_items.*, orders.units AS units_total, orders.created as order_created, user_perm.user_id, SUM((sale_price-discount_sale_price)*order_items.units) as total_sale_price, SUM((sale_price_USD-discount_sale_price_USD)*order_items.units) as total_sale_price_USD, delivery_times.hours
+				  FROM order_items 
+				  INNER JOIN orders ON orders.id=order_items.order_id 
+				  INNER JOIN user_perm ON user_perm.store_id=order_items.store_id 
+				  INNER JOIN delivery_times ON delivery_times.type=orders.shipment_type
+				  WHERE user_perm.user_id=".$user_id." AND order_items.store_id=".$store_id." AND orders.status='$status' GROUP BY order_items.order_id";
+		
+		$q = $this->db->query($query);
+			
+		if($r=$q->result()){
+
+			foreach ($r as $value){
+
+				if($value->currency == 'USD'){
+					$value->total_sale_price = $value->total_sale_price_USD;
+					$value->shipment_price = $value->shipment_price_USD;
+				}
+				if($value->status == 'waiting_for_payment'){
+					$value->time_left = '[ ]';
+				}elseif($value->status == 'delivered'){
+					if($this->check_payment_process($value->order_id)){
+						$value->payment_process = 1;	
+					}				
+					$value->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$value->hours.' hours',strtotime($value->order_created)))).' '.$this->lang->line('stores_orders_remaining');
+				}elseif(isset($value->pago_efectivo_timestamp)){
+					$value->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$value->hours.' hours',strtotime($value->pago_efectivo_timestamp)))).' '.$this->lang->line('stores_orders_remaining');
+				}else{
+					$value->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$value->hours.' hours',strtotime($value->order_created)))).' '.$this->lang->line('stores_orders_remaining');;
+				}
+			}
+			
+			return $r;
+
+		}else{
+			return false;
+		}
+		
+	}
+    
+    function get_order($orderId){
+		
+    	// Sacar todos los datos de la orden
+		$this->db->select('orders.*');
+		$this->db->from('orders');
+		$this->db->where(array('orders.id' => $orderId));
+							
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			// Join para sacar toda la info del item relacionado
+			$r[0]->shipment = $this->get_delivery($r[0]->shipment_type);
+			if($r[0]->currency == 'USD'){
+				$r[0]->total_price = $r[0]->total_price_USD;
+				$r[0]->shipment_price = $r[0]->shipment_price_USD;
+			}
+			if($r[0]->status == 'waiting_for_payment'){
+				$r[0]->time_left = '[ ]';
+				$r[0]->delivery_date = '[ ]';
+			}elseif(isset($r[0]->pago_efectivo_timestamp)){
+				$r[0]->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->pago_efectivo_timestamp))));
+				$r[0]->delivery_date = date('Y-m-d', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->created)));
+			}else{
+				$r[0]->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->created))));
+				$r[0]->delivery_date = date('Y-m-d', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->created)));
+			}
+
+			$order['info'] = $r;
+			$order['partidas'] = $this->get_partidas_order($order['info'][0]->id, $order['info'][0]->currency);
+			return $order;
+		}else{
+			return false;
+		}
+    	
+    }
+ 
+    
+	function get_partidas_order($orderId, $currency){
+		
+		$this->db->select('order_items.id as order_no_id, order_items.*, items.*');
+		$this->db->from('items');
+		$this->db->join('order_items', 'order_items.item_id = items.id');
+		$this->db->where(array('order_items.order_id' => $orderId));
+							
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			for($i=0; $i<count($r);$i++){
+				if($currency == 'USD'){
+					$r[$i]->sale_price = $r[$i]->sale_price_USD;
+					$r[$i]->discount_sale_price = $r[$i]->discount_sale_price_USD;
+				}
+				$r[$i]->name = $this->get_item_name_by_userLang($r[$i]->id);
+				$r[$i]->description = $this->get_item_description_by_userLang($r[$i]->id);
+			}
+			return $r;
+		}else{
+			return false;
+		}
+		
+	}
+    
+    function cancel_order($orderId){
+    	// Actualizar el campo de Status como Canceled en BD
+    		
+    }
+    
+    function update_order($order){
+    	// Actualizar todos los campos de la base de datos para la orden con el ID correspondiente
+    	
+    }
+	
+	function update_order_status($order_id, $status, $dateFrom, $dateTo){
+		
+		$this->db->update('orders', array('status' => $status, 'program_delivery_from' => $dateFrom, 'program_delivery_to' => $dateTo), 'id = '. $order_id);
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Tienda ha programado la entrega de la orden No. '.$order_id, $details = '');
+		
+	}
+	function update_order_status_sin_fondos($order_id){
+		
+		$this->db->update('orders', array('status' => 'sin_fondos', 'enviado_email_sin_fondos_timestamp' => date('Y-m-d H:i:s')), 'id = '. $order_id);
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'La orden No. '.$order_id. ' genero un error en su tarjeta y no pudo ser confirmada', $details = '');
+		
+	}
+	function add_message($order_id, $store_id, $message, $group){
+		
+		$this->db->insert('messages', array('store_id' => $store_id, 
+											'order_id' => $order_id,
+											'from_user_id' => $this->session->userdata('user_id'),
+											'message' => $message,
+											'group' => $group
+											));
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario ha agregado un nuevo mensaje a la orden No. '.$order_id, $details = '');
+	}
+	
+    function get_messages($order_id){
+		
+		$this->db->select('messages.*, users.name');
+		$this->db->from('users');
+		$this->db->join('messages', 'messages.from_user_id = users.id');
+		$this->db->where(array('order_id'=>$order_id));
+		$this->db->limit(10);
+		
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			return $r;
+		}else{
+			return false;
+		}
+	}
+    
+    function confirming_deposit($orders, $store_currency){
+		
+		$i = 0;
+
+		if($store_currency == 'USD'){
+			$sale_price = 'sale_price_USD';
+			$discount_sale_price = 'discount_sale_price_USD';
+		}else{
+			$sale_price = 'sale_price';
+			$discount_sale_price = 'discount_sale_price';
+		}
+
+		foreach($orders as $item){
+			
+			$query  =	"SELECT orders.*, orders.id as orderID, order_items.*, orders.units AS units_total, orders.created as order_created, SUM(".$sale_price."-".$discount_sale_price.") as total_sale_price
+				   		FROM order_items 
+				   		INNER JOIN orders ON orders.id=order_items.order_id 
+				   		WHERE orders.id=".$item." GROUP BY order_items.order_id";
+    		
+    		$q = $this->db->query($query);
+
+			if($r = $q->result()){
+				$r[0]->shipment = $this->get_delivery($r[0]->shipment_type);
+				if($r[0]->status == 'waiting_for_payment'){
+					$r[0]->time_left = '[ ]';
+					$r[0]->delivery_date = '[ ]';
+				}elseif(isset($r[0]->pago_efectivo_timestamp)){
+					$r[0]->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->pago_efectivo_timestamp))));
+					$r[0]->delivery_date = date('Y-m-d', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->order_created)));
+				}else{
+					$r[0]->time_left = timeleft(date('Y-m-d H:i:s', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->order_created))));
+					$r[0]->delivery_date = date('Y-m-d', strtotime('+'.$r[0]->shipment->hours.' hours',strtotime($r[0]->order_created)));
+				}
+				$order[$i] = $r[0];
+			}
+			$i++;
+		}
+		return $order;
+		
+	}
+	
+	function generate_payment_order($orders, $store, $amount, $currency)
+	{
+		$q = $this->db->get_where('stores', array('id'	=> $store));
+		
+		if($r = $q->result()){
+			$this->db->insert('payments', array('store_id' => $store,
+												'store_name' => $r[0]->name,
+												'currency' => $currency,
+												'amount' => $amount,
+												'status' => 'pending'
+							));
+			$payment_id = $this->db->insert_id();
+			
+			foreach($orders as $item){
+			$this->db->insert('payment_orders', array('order_id' => $item,
+													  'payment_id' => $payment_id
+							 ));
+			}
+			
+			kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Tienda ha solicitado la orden de pago No. '.$payment_id, $details = '');
+			$response = array('error' => 0, 'payment_id' => $payment_id );
+			
+		}else{
+			$response = array('error' => 1);
+		}
+		
+		return $response;
+	}
+	
+	function check_payment_process($order_id){
+		
+		$this->db->select('payment_orders.*');
+		$this->db->from('payment_orders');
+		$this->db->where(array('order_id' => $order_id));
+		
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			return true;
+		}else{
+			return false;	
+		}
+		
+	}
+    
+    
+    ///////// USERS
+	
+	function get_profile_user($user_id){
+		
+		$this->db->select('users.email, users.name');
+		$this->db->from('users');
+		$this->db->where(array('id' => $user_id));
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			
+			return $r[0];
+			
+		}
+		
+		
+	}
+	
+	function updateProfile($id_user){
+		
+		$q = $this->db->get_where('users', array('id' => $id_user));
+		
+		if($r = $q->result()){
+			
+			$this->load->library('encrypt');
+			
+			if($this->input->post('current_password') == $this->encrypt->decode($r[0]->password)){
+			
+				if($this->input->post('password') == $this->input->post('password2')){
+					
+					$this->db->update('users', array('password' => $this->encrypt->encode($this->input->post('password'))), 'id = '.$id_user);
+					return $this->lang->line('userProfile_flashMessage_success');
+					
+				}else{
+					
+					return $this->lang->line('userProfile_flashMessage_donotMatch');
+				}
+				
+			}else{
+			
+				return $this->lang->line('userProfile_flashMessage_incorrectPassword');
+				
+			}
+			
+		}
+		
+	}
+	
+	function passRecoveryRequest(){
+		
+		$email = $this->input->post('email');
+		
+		if(!$this->userExists($email, $registerType = 'none')){
+			
+			return $this->lang->line('password_recovery_request_error_email');	
+			
+		}else{
+			
+			$timestamp = date('Y-m-d H:i:s');
+			$token = md5($email.$timestamp.'Pick3389012nc');
+
+			$this->db->update('users', array('token' => $token, 'token_timestamp' => $timestamp), "email = '$email'");
+			
+			$user_info = $this->get_user_info($email, $id=false);
+			$vars_array = array('name' => $user_info->name,
+							 	'url' => 'http://sell.kichink.com/login/recover/'.urlencode($email).'/'.$token);
+								
+			send_email($email, $email_template_key = 'recuperar_contrasena_tienda', $user_info->usr_language, $vars_array, $type = 'S');
+			kLog($user_id = $user_info->id, $this->sitio, $action = 'El usuario '. $email.' ha solicitado la recuperaci&oacute;n de su contrase&ntilde;a', $details = '');
+			
+			return $this->lang->line('password_recovery_request_success_email');	
+			
+		}
+		
+	}
+	
+	function checkDataRecovery($email, $token){
+				
+		$q = $this->db->get_where('users', array('email' => $email, 'token' => $token));
+		
+		if($r = $q->result()){
+			
+			$diff = time() - strtotime($r[0]->token_timestamp);
+			$hrsDiff = floor($diff/60/60);
+
+			if($hrsDiff < 24){
+				
+				return true;
+				
+			}else{
+				
+				return false;
+				
+			}
+			
+		}else{
+			
+			return false;
+			
+		}
+		
+	}
+	
+	function recoverPassword($email, $password){
+		
+		$this->load->library('encrypt');
+		$this->db->update('users', array('password' => $this->encrypt->encode($password), 'token' => '', 'token_timestamp' => ''), "email = '$email'");
+		kLog($user_id = 0, $this->sitio, $action = 'El usuario . '.$email.' ha cambiado su contrasena', $details = '');
+
+	}
+	
+	function get_user_info($email, $id){
+		
+		$this->db->select('users.id, users.name, users.email, users.usr_language, users.usr_country, users.token, users.token_timestamp');
+		$this->db->from('users');
+		
+		if($id == FALSE){
+			$this->db->where(array('email' => $email));
+		}else{
+			$this->db->where(array('id' => $id));
+		}
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			return $r[0];
+		}
+		
+		
+	}
+	
+	function update_usrPref($lang, $pais){
+		
+		$this->db->update('users', array('usr_language' => $lang, 'usr_country' => $pais), 'id = '.$this->session->userdata('user_id'));
+		
+	}
+	
+	function get_beta($key, $id){
+		
+		$q = $this->db->get_where('beta_testers', array('id' => $id, 'user_key' => $key));
+		
+		if($r = $q->result()){
+			return array('name' => $r[0]->name, 'email' => $r[0]->email );
+		}else{
+			return false;	
+		}
+		
+	}
+	
+	//checa que los datos post del formulario sean los que existen en beta_testers
+	function get_beta_mail($key, $id, $email){ 
+		
+		$q = $this->db->get_where('beta_testers', array('id' => $id, 'user_key' => $key, 'email' => $email));
+		if($r = $q->result()){
+			return true;
+		}else{
+			return false;	
+		}
+
+	}
+	
+	function create_user($key, $id){
+		
+		$this->load->library('encrypt');
+		
+		$name = $this->input->post('name');
+		$email = $this->input->post('email');
+		$password = $this->input->post('password');
+		$password2 = $this->input->post('password2');
+		
+		if($name AND $email AND $password AND $password2){
+			  
+			  if($this->userExists($email, $registerType = 'manual')){
+				  return array('flashMessage'   => $this->lang->line('signup_message_userExists'), 'name' => $name, 'email' => $email);
+			  }elseif($password!=$password2){
+				  return array('flashMessage'   => $this->lang->line('signup_message_passwords'), 'name' => $name, 'email' => $email);
+			  }elseif(!$this->get_beta_mail($key, $id, $email)){
+				  return array('flashMessage'   => $this->lang->line('signup_message_dataIncorrect3'));
+			  }else{
+				  
+				  $lang = getLang();
+				  $country = (getLang() == 'es' ? 'MX' : 'US');
+
+				  //Inserto el usuario
+				  $this->db->insert('users', array('name' => $name, 'email' => $email, 'password' => $this->encrypt->encode($password), 'usr_language' => $lang, 'usr_country' => $country));
+				  $inserted_id = $this->db->insert_id();
+				  
+				  //inserto la tienda que registro en beta
+				  $q = $this->db->get_where('beta_testers', array('id' => $id));
+		
+				  if($r = $q->result()){
+					  
+					  $this->db->insert('stores', array('name' => $r[0]->store_name, 
+					  									'currency' => 'USD',
+														'description' => $name.$this->lang->line('stores_add_newStore_description'),
+														'shipment_category' => $country=='MX' ? 'default_mexico' : 'default_usa'
+														));
+										
+					  $storeId = $this->db->insert_id();
+					  // Agregar al usuario como administrador
+					  $this->db->insert('user_perm', array('user_id' =>  $inserted_id,
+														   'store_id' => $storeId,
+														   'owner' => 1, 
+														   'admin' => 1
+														   ));
+					  
+				  }
+					
+				  kLog($user_id = $inserted_id, $this->sitio, $action = 'El usuario No. '.$inserted_id.' ha sido creado con su tienda No. '.$storeId, $details = '');
+				  send_email($email, $email_template_key = 'bienvenida_tienda', $lang = $lang, $vars_array = array('name' => $name), $type = 'S');
+
+				  //Redirect a la cuenta del nuevo usuario
+				  $newdata = array(
+				                   'username'  => $email,
+				                   'name'  => $name,
+				                   'domain'  => $_SERVER['HTTP_HOST'],
+				                   'user_id'  => $inserted_id,
+								   'settings_tab' => 'details',
+				                   'logged_in' => TRUE
+				                  );
+								  
+				  $this->session->set_userdata($newdata);
+				  
+				  redirect('http://'.$_SERVER['HTTP_HOST'].'/stores');
+			  }
+		}else{
+			if($name AND $email){
+				return array('flashMessage'   => $this->lang->line('signup_message_allFields'), 'name' => $name, 'email' => $email);
+			}else{
+			 	return array('flashMessage'   => $this->lang->line('signup_message_allFields'));
+			}
+		}
+		
+	}
+	
+	function get_admins($storeId){
+		
+		$this->db->select('users.id as userId, users.email, users.name , user_perm.*');
+		$this->db->from('user_perm');
+		$this->db->join('users', 'users.id = user_perm.user_id');
+		$this->db->where(array('user_perm.store_id' => $storeId, 'admin' => 1));
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			return $r;
+		}else{
+			return false;
+		}
+		
+	}
+    
+    function insert_beta_signup(){
+		
+    	// Sacar de $this->input->post() los datos de la forma de registro
+		$name = $this->input->post('name');
+		$email = $this->input->post('email');
+		$current = $this->input->post('current');  
+		$store = $this->input->post('store');  
+		$details = $this->input->post('details');
+		  	
+    	// Limpiar y verificar datos
+		
+		if($name AND $email AND $current AND $store AND $details){
+    		
+			if($this->validEmail($email)){
+				// Si ya existe en la tabla de tempAdmin insertar a la tabla de usuarios y regresar true
+				if($this->userExists($email, $registerType = 'beta')){
+					return array('flashMessage'   => $this->lang->line('beta_signup_message_userExist'));
+				}else{
+				// Si no existe insertar en la taba de beta_testers y regresar false
+					$this->db->insert('beta_testers', array( 'email' => $email,
+													  'name' => $name,
+													  'current' => $current,
+													  'store_name' => $store,
+													  'details' => $details,
+													  'user_key' => uniqid(), 
+													  'lang' => getLang()
+													));
+													
+					kLog($user_id = 0, $this->sitio, $action = 'Un visitante se ha registrado para el beta', $details = '');
+					send_email($email='jmarquard@nube9.mx', $email_template_key='alerta_signup_beta', $lang='es', $vars_array = array('name' => $name, 'store_name' => $store, 'details' => $details, 'email' => $email), $type='S');
+					return false;
+				}
+			}else{
+				return array('flashMessage'   => $this->lang->line('beta_signup_message_invalidEmail'));
+			}
+			
+		}else{
+			 
+			 return array('flashMessage'   => $this->lang->line('beta_signup_message_allFields'));
+			
+		}
+		
+    }
+	
+	function insert_user_manually(){
+		
+		$this->load->library('encrypt');
+		
+		$name = $this->input->post('name');
+		$email = $this->input->post('email');
+		$password = $this->input->post('password');
+		$key = $this->input->post('key');
+		
+		if($name AND $email AND $password AND $key){
+			
+			if(!$this->validEmail($email)){
+				return array('flashMessage'   => 'Invalid email address' , 'alert-message' => 'warning');
+			}elseif($this->userExists($email, $registerType = 'manual')){
+				return array('flashMessage'   => 'User already exists', 'alert-message' => 'warning');
+			}elseif($key != 'nWEhK8' AND $this->validKey_tempAdmins($email, $key)==false){
+				return array('flashMessage'   => 'Invalid key', 'alert-message' => 'warning');
+			}elseif($key != 'nWEhK8' AND $this->exists_tempAdmins($email) == false){
+				return array('flashMessage'   => 'Invalid key', 'alert-message' => 'warning');
+			}else{
+				//Inserto el usuario
+				$this->db->insert('users', array( 'name' => $name,'email' => $email,'password' => $this->encrypt->encode($password), 'usr_language' => getLang(), 'usr_country' => getLang()=='es'? 'MX' : 'US' ));
+				$inserted_id = $this->db->insert_id();
+				//Si existe en beta, atualizo campo 'approved'
+				$this->db->select('id, email');
+				$this->db->from('beta_testers');
+				$this->db->where(array('email' => $email));
+				
+				$q = $this->db->get();
+				
+				if($r = $q->result()){
+					$this->db->update('beta_testers', array('approved' => 1), 'id = '. $r[0]->id);
+				}
+				//Si existe en tempAdmins, cambio su estado a registered y agrego usuario a user_perm
+				if($this->validKey_tempAdmins($email, $key) != false){
+					$rTemp = $this->validKey_tempAdmins($email, $key);
+					$this->db->update('tempAdmins', array('registered' => 1), 'id = '. $rTemp[0]->id);
+					$this->db->insert('user_perm', array('user_id' => $inserted_id, 'store_id' => $rTemp[0]->store_id, 'admin' => 1));
+				}
+				//Retorno mensaje
+				kLog($user_id = 0, $this->sitio, $action = 'El usuario No. '.$inserted_id.' ha sido creado manualmente', $details = '');
+				
+				return array('flashMessage'   => 'User registered', 'alert-message' => 'success');
+			}
+			
+		}else{
+			 return array('flashMessage'   => 'All fields are required', 'alert-message' => 'warning');
+		}
+		
+	}
+	
+	function exists_tempAdmins($email){
+		$this->db->select('tempAdmins.*');
+		$this->db->from('tempAdmins');
+		$this->db->where(array('email' => $email));
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	function validKey_tempAdmins($email, $key){
+		$this->db->select('tempAdmins.*');
+		$this->db->from('tempAdmins');
+		$this->db->where(array('email' => $email, 'key' => $key));
+		
+		$q = $this->db->get();
+		
+		if($rTemp = $q->result()){
+			return $rTemp;
+		}else{
+			return false;
+		}
+	}
+	
+	function userExists($email, $registerType){
+				
+		$this->db->select('email');
+		$this->db->from('users');
+		$this->db->where(array('email' => $email));
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			return true;
+		}else{
+			if($registerType=='beta'){
+				$this->db->select('email');
+				$this->db->from('beta_testers');
+				$this->db->where(array('email' => $email));
+		
+				$qBeta = $this->db->get();
+				
+				if($rBeta = $qBeta->result()){
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
+		}
+	}
+    
+    
+    function add_store_admin($email, $storeId){
+		
+		$store_info = $this->get_info_store($storeId); //to send emails
+		
+		if($this->validEmail($email)){
+			// Buscar al usuario por su mail
+			$this->db->select('users.*');
+			$this->db->from('users');
+			$this->db->where(array('email' => $email));
+			
+			$userQry = $this->db->get();
+			// Si existe -> agregar a la tabla de administradores la relacion del id de usuario y el storeId
+			if($userResult=$userQry->result()){
+				
+				$lang = getUsrPref($userResult[0]->id); 
+				// Busco en user_perm si ya existe el usuario bajo esa store
+				$this->db->select('user_perm.*');
+				$this->db->from('user_perm');
+				$this->db->where(array('user_id'=>$userResult[0]->id, 'store_id' => $storeId, 'admin' => 1));
+				
+				$user_permQry = $this->db->get();
+				if($user_permResult=$user_permQry->result()){
+					// Si existe ... 
+					return array('flashMessage'=>$this->lang->line('stores_settings_administratorsTab_message_admin_exists'));
+
+				}else{	// Si no existe agrego a la tabla user_perm con esa store, su user_id y admin -> 1 
+				
+					$this->db->insert('user_perm', array('user_id' => $userResult[0]->id, 'store_id' => $storeId, 'admin' => 1));
+				    send_email($email, $email_template_key='aviso_admin_tienda', $lang->usr_language, $vars_array = array('name' => $userResult[0]->name, 'store_name' => $store_info->name), $type='S');
+					kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'El usuario No. '.$userResult[0]->id.' ha sido nombrado como administrador en la tienda No. '.$storeId, $details = '');
+
+					return array('flashMessage'=>$this->lang->line('stores_settings_administratorsTab_message_permissionAssigned').' <b>'.$email.'</b> .');
+					
+				}
+				
+			}else{ 	// Si no existe -> enviar invitacion via Email y guardar en tabla de tempAdmins el email
+			
+				$key = uniqid();
+				if(send_email($email, $email_template_key = 'aviso_admin_tienda_key', $lang = getLang(), $vars_array = array('store_name' => $store_info->name, 'email' => urlencode($email), 'key' => $key), $type= 'S')){
+					$this->db->insert('tempAdmins', array('store_id' => $store_info->id, 'email' => $email, 'key' => $key, 'registered' => 0));
+					kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Se ha enviado una invitaci&oacute;n a '.$email.' para unirse a la tienda No. '.$store_info->id.' como administrador', $details = '');
+					return array('flashMessage' => $this->lang->line('stores_settings_administratorsTab_message_success'));
+					
+				}else{
+					return array('flashMessage' => $this->lang->line('stores_settings_administratorsTab_message_error'));
+				}
+				
+			}
+		}else{
+			return array('flashMessage' => $this->lang->line('stores_settings_administratorsTab_message_invalidEmail'));
+		}
+    }
+	
+	
+	// MEDIA
+	
+	public function delete_image($image_id)
+	{
+		// Marcar media como DELETED
+		$this->db->update('media', array('deleted' => 1), 'id = '. $image_id);
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario ha eliminado media No. '.$image_id, $details = '');
+	}
+	
+	public function insert_media($table, $filename)
+	{
+		$this->db->insert('media', array('table' => $table, 
+										 'object_name' => $filename,
+										 'object_caption' => '', 
+										 'object_order' => 1
+										 ));
+										 
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario ha agregado el media No. '.$this->db->insert_id(), $details = '');								 
+	 	return $this->db->insert_id();
+		
+	}
+	
+	public function insert_media_file($media_id, $bucketName, $type, $extension, $w, $h, $role)
+	{
+		$this->db->insert('files', array('media_id' => $media_id, 
+										 'url' => 'https://s3.amazonaws.com/'.$bucketName.'/',
+										 'type' => $type, 
+										 'extension' => $extension,
+										 'width' => $w,
+										 'height' => $h,  
+										 'role' => $role
+										 ));
+		kLog($user_id = $this->session->userdata('user_id'), $this->sitio, $action = 'Usuario ha agregado una '.$type.' al media No. '.$media_id, $details = '');								 
+	}
+	
+	public function get_extensionFile($media_id)
+	{
+		$this->db->select('files.*');
+		$this->db->from('files');
+		$this->db->where(array('media_id' => $media_id));
+		
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			return $r[0]->extension;
+		}else{
+			return false;
+		}
+	}
+	
+	public function getMedia($media_id , $type)
+	{
+			$this->db->select('media.id as MediaID, media.*, files.*');
+			$this->db->from('media');
+			$this->db->join('files', 'files.media_id = media.id');
+		if($type == '!img_thumb'){
+			$this->db->where(array('media.id' => $media_id, 'type !=' => 'img_thumb', 'deleted' => 0));
+		}else{
+			$this->db->where(array('media.id' => $media_id, 'type' => $type, 'deleted' => 0));
+		}
+			$this->db->order_by('created', 'DESC');
+			$this->db->limit(1);
+			
+			$q = $this->db->get();
+			
+			if($r=$q->result()){
+				return $r;
+			}else{
+				return false;	
+			}
+	}
+	
+	
+	public function get_store_images($store_id)
+	{
+		$data['header']['original'] = $this->getImagebyRole($store_id, $role='header', $type = 'img_original');
+		$data['header']['default'] = $this->getImagebyRole($store_id, $role='header', $type = 'img_bordered');
+		$data['logo']['original'] = $this->getImagebyRole($store_id, $role='logo', $type = 'img_original');
+		$data['logo']['default'] = $this->getImagebyRole($store_id, $role='logo', $type = 'img_bordered');
+		//$data['background']= $this->getImagebyRole($store_id, $role='background');
+		
+		return $data;
+	}
+	
+	public function get_store_thumbnail($store_id)
+	{
+		$this->db->select('media.id as MediaID, media.*, files.*');
+		$this->db->from('media');
+		$this->db->join('files', 'files.media_id = media.id');
+		$this->db->like('object_name', 'stores_'.$store_id.'_', 'after'); 
+		$this->db->where(array('object_order' => 1, 'type' => 'img_thumb', 'role' => 'logo', 'deleted' => 0));
+		$this->db->order_by('created', 'DESC');
+		$this->db->limit(1);
+		
+		$q = $this->db->get();
+		
+		if($r=$q->result()){
+			return $r;
+		}else{
+			return false;	
+		}
+	}
+	
+	public function getImagebyRole($store_id, $role, $type)
+	{
+		$this->db->select('media.*, files.*');
+		$this->db->from('media');
+		$this->db->join('files', 'files.media_id = media.id');
+		$this->db->like('object_name', 'stores_'.$store_id.'_', 'after'); 
+		$this->db->where(array('object_order' => 1, 'role' => $role, 'type' => $type, 'deleted' => 0));
+		$this->db->order_by('created', 'DESC');
+		$this->db->limit(1);
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			return $r;
+		}else{
+			return false;
+		}	
+	}
+	
+	
+	public function get_media_default_items($item_id)
+	{
+		$this->db->select('media.*, files.*');
+		$this->db->from('media');
+		$this->db->join('files', 'files.media_id = media.id');
+		$this->db->like('object_name', 'items_'.$item_id.'_', 'after'); 
+		//$this->db->where(array('object_order' => 1, 'type' => 'img_thumb', 'deleted' => 0));
+		//$this->db->order_by('created', 'ASC');
+		$this->db->where(array('type' => 'img_thumb', 'deleted' => 0));
+		$this->db->order_by('object_order ASC, created ASC');
+
+		$this->db->limit(1);
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			return $r;
+		}else{
+			return false;
+		}
+		
+	}
+	
+	public function get_media_all_items($item_id)
+	{
+		$this->db->select('media.id');
+		$this->db->from('media');
+		$this->db->like('object_name', 'items_'.$item_id.'_', 'after'); 
+		$this->db->where('deleted', 0);
+		$this->db->order_by('object_order', 'ASC');
+		$this->db->order_by('object_created', 'ASC');
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			//return $r;
+			$data['items_media'] = $r;
+				for($i = 0; $i< count($data['items_media']); $i++){
+					$data['items_media'][$i]->imageData['default'] = $this->getMedia($data['items_media'][$i]->id, $type = 'img_bordered');
+					$data['items_media'][$i]->imageData['original'] = $this->getMedia($data['items_media'][$i]->id, $type = 'img_original');
+				}
+			return $data['items_media'];
+		}else{
+			return false;
+		}
+	}
+
+	//ENVIO MAIL A LOGISTICA
+
+	function get_destinatario($order_id){
+
+		$this->db->select('orders.*, shipping_addresses.*');
+		$this->db->from('orders');
+		$this->db->join('shipping_addresses', 'shipping_addresses.id = orders.shipping_address_id');
+		$this->db->where(array('orders.id' => $order_id));
+		
+		$q = $this->db->get();
+		
+		if($r = $q->result()){
+			return $r[0];
+		}
+
+	}
+	
+	// GENERALS
+	
+    
+    function validEmail($email){
+		 $isValid = true;
+		 $atIndex = strrpos($email, "@");
+		 if (is_bool($atIndex) && !$atIndex)
+		 {
+			$isValid = false;
+		 }
+		 else
+		 {
+			$domain = substr($email, $atIndex+1);
+			$local = substr($email, 0, $atIndex);
+			$localLen = strlen($local);
+			$domainLen = strlen($domain);
+			if ($localLen < 1 || $localLen > 64)
+			{
+			   // local part length exceeded
+			   $isValid = false;
+			}
+			else if ($domainLen < 1 || $domainLen > 255)
+			{
+			   // domain part length exceeded
+			   $isValid = false;
+			}
+			else if ($local[0] == '.' || $local[$localLen-1] == '.')
+			{
+			   // local part starts or ends with '.'
+			   $isValid = false;
+			}
+			else if (preg_match('/\\.\\./', $local))
+			{
+			   // local part has two consecutive dots
+			   $isValid = false;
+			}
+			else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
+			{
+			   // character not valid in domain part
+			   $isValid = false;
+			}
+			else if (preg_match('/\\.\\./', $domain))
+			{
+			   // domain part has two consecutive dots
+			   $isValid = false;
+			}
+			else if(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',str_replace("\\\\","",$local)))
+			{
+			   // character not valid in local part unless 
+			   // local part is quoted
+			   if (!preg_match('/^"(\\\\"|[^"])+"$/',
+				   str_replace("\\\\","",$local)))
+			   {
+				  $isValid = false;
+			   }
+			}
+			if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A")))
+			{
+			   // domain not found in DNS
+			   $isValid = false;
+			}
+		 }
+		 return $isValid;
+	}
+
+    
+    
+}
