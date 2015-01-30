@@ -21,7 +21,7 @@ class Items_model extends CI_Model {
 			$resultSelect = $this->db->get();
 			if ($resultSelect->num_rows() == 0) {
 				$dataInsert = array(
-					'description'	=> $description
+					'material'	=> $description
 				);
 				$this->db->insert('Materials', $dataInsert);
 				$resultInsert = $this->db->affected_rows();
@@ -61,6 +61,17 @@ class Items_model extends CI_Model {
 		}// end if
 	}// end createItemType()
 
+	public function createItemS($params)
+	{
+	
+		$this->db->select_max('IdItem');
+		$max= $this->db->get('Items')->row()->IdItem; 
+		echo "id:".$max;
+		
+		
+		
+	}
+	
 	public function createItem($params) {
 		extract($params);
 
@@ -79,15 +90,27 @@ class Items_model extends CI_Model {
 					'country'		=> $country, //pais de procedencia
 					'iType'			=> 1
 				);
+									;				
 				$this->db->insert('Items', $dataInsert);
-
+				
+				  $this->db->select_max('IdItem');
+				  $max= $this->db->get('Items')->row()->IdItem; 
+				  $materialInsert = array(
+				  'idItem' 		=> $max,//tenemos que agregar siempre el id del items
+				  'idMaterial' 		=> $idMaterial
+				
+				);
+				
+				
+				$this->db->insert('ItemsMaterials',$materialInsert);
 				$resultInsert = $this->db->affected_rows();
 				if ($resultInsert > 0) {
 					return true;
 				}
 				return false;
 			}else{// Item no inv
-				$dataInsert = array('idItemType'		=> $idItemType,//nombre del producto
+				$dataInsert = array(
+					'idItemType'		=> $idItemType,//nombre del producto
 					'idCodeBar'		=>$idCodeBar,//id Codigo de barras
 					'amount'		=> $amount, /*Cantidad de items existentes*/
 					'minLevel'		=> $minLevel, //nivel minimo de items que deben existir
@@ -95,9 +118,21 @@ class Items_model extends CI_Model {
 					'retailPrice'		=> $retailPrice, //venta al por menor
 					'baseMaterial'		=> $baseMaterial,//material primo					
 					'country'		=> $country, //pais de procedencia
+					'iType'			=> 1
 				);
+									;				
 				$this->db->insert('Items', $dataInsert);
-
+				
+				  $this->db->select_max('IdItem');
+				  $max= $this->db->get('Items')->row()->IdItem; 
+				  $materialInsert = array(
+				  'idItem' 		=> $max,//tenemos que agregar siempre el id del items
+				  'idMaterial' 		=> $idMaterial
+				
+				);
+				
+				
+				$this->db->insert('ItemsMaterials',$materialInsert);
 				$resultInsert = $this->db->affected_rows();
 				if ($resultInsert > 0) {
 					return true;
@@ -109,56 +144,101 @@ class Items_model extends CI_Model {
 
 	
 
-	public function getItems($params) {
-		extract($params);
-
-		$result = array();
-
-		$this->db->select('*');
-		$this->db->from('Items AS I');
-
-		if (isset($material) AND strlen($material) > 0) {
-			$this->db->join('ItemsMaterials AS IM', 'I.idItemType = IM.idItemType', 'inner');
-			$this->db->join('Materials AS M', 'IM.idItemType = M.idItemType', 'inner');
-			$this->db->like('description', $material);
+	public function getItems($params) 
+	{	extract($params);			
+		/*BUsqueda general de Inventarios*/
+		if( $params['advance']=='name' && strlen($params['name'])==0)
+		{
+		  $this->db->select('*');
+		  $this->db->from('Items');
+		  //al quitar where se muestran resultados generaes
+		  //$id=array(1,2);
+ 		  //$this->db->where_in('Items.idItemType',1);//,$id);//poner el valor del paramatro de busqueda
+		  $this->db->join('ItemsTypes','ItemsTypes.idItemType = Items.idItemType','INNER');//Hacemos el join con los valores iguales
+		  $this->db->join('ItemsMaterials', 'ItemsMaterials.idItem= Items.idItem', 'INNER' );
+		  $this->db->join('Materials','Materials.idMaterial = ItemsMaterials.idMaterial' ,'INNER');
+		  $this->db->join('CodeBars','CodeBars.idCodeBar = Items.idCodeBar' ,'INNER');
+		  $query=$this->db->get();
+		  return $query;		  
+		}	
+		/*FIN DE BUSQUEDA GENERAL*/		
+/*#######################################################*/
+		/*Busqueda por Nombres*/		
+		if( $params['advance']=='name' && strlen($params['name'])>0)
+		{		  
+		  $this->db->select('*');
+		  $this->db->from('ItemsTypes');
+		  //al quitar where se muestran resultados generaes
+		  $id = $params['name'];//se almacena cadena de buscada
+ 		  $this->db->where_in('ItemsTypes.description',$id);//condicionamos la busqueda
+		  $this->db->join('Items','Items.idItemType = ItemsTypes.idItemType','INNER');//Hacemos el join con los valores iguales
+		  $this->db->join('CodeBars','CodeBars.idCodeBar = Items.idCodeBar' ,'INNER');
+		  $this->db->join('ItemsMaterials','ItemsMaterials.idItem = Items.idItem','INNER');
+		  $this->db->join('Materials','Materials.idMaterial=ItemsMaterials.idMaterial','INNER');
+		  $query=$this->db->get();
+		  return $query;		  
+		}	
+				
+		/*Switch busqueda avanzada*/
+		if($params['advance']!='name')
+		{	
+		  $case=$params['advance'];//por codigo de barras
+		  switch($case)
+		  {
+			case "cod":
+			  $this->db->select('*');
+			  $this->db->from('CodeBars');
+			  //al quitar where se muestran resultados generaes
+			  $id = $params['parametro'];//se almacena cadena de buscada
+			  $this->db->where_in('CodeBars.codeBar',$id);//condicionamos la busqueda
+			  $this->db->join('Items','Items.idCodeBar = CodeBars.idCodeBar ','INNER');
+			  $this->db->join('ItemsTypes','ItemsTypes.idItemType = Items.idItemType','INNER');//Hacemos el join con los valores iguales
+			  $this->db->join('ItemsMaterials', 'ItemsMaterials.idItem= Items.idItem', 'INNER' );
+			  $this->db->join('Materials','Materials.idMaterial = ItemsMaterials.idMaterial' ,'INNER');
+			  
+			  
+			  $query=$this->db->get();
+			  return $query;
+			break;
+		  
+		      case "":
+		      break;
+				
+		      case "":
+		      break;
+		  
+		      case "":
+		      break;
+		  
+		      default:
+		      echo "No seleccionaste un valor";
+		      break;
+		    }
+		
 		}
-		if (isset($codeBar) AND $codeBar > 0) {
-			$this->db->join('codeBars AS CB', 'I.idCodeBar = CB.idCodeBar', 'inner');
-			$this->db->where('CB.codeBar', $codeBar);
-		}
-		if (isset($avalible) AND $avalible > 0 AND $avalible < 2) {
-			$this->db->where('I.avalible', $avalible);
-		}
-		/*if (isset($minSale) AND $minSale > 0 AND (isset($maxSale) AND $maxSale > 0 AND $minSale < $maxSale)) {
-			$this->db->where('wholeSale >' $minSale);
-			$this->db->where('wholeSale < ' $maxSale);
-		}*/
-		/*if (isset($Type) AND strlen($Type) > 0) {
-			$this->db->join('ItemsTypes AS IT', 'IT.idItemType = I.idItemType' 'inner');
-			$this->db->where('IT.description' $Type);
-		}*/
-		/*if (isset($pais) AN strlen($pais) > 0) {
-			$this->db->like('pais', $pais); 
-		}*/
-
-		$resultSelect = $this->db->get();
-
-		if ($resultSelect->num_rows() > 0) {
-			$result = $resultSelect->result();
-		}
-		return $result;
+		
+		
+		
+		/*fin de busqueda por nombres*/
+		
+		
+		
+		
+		
 	}
 	
 	
 	
 	public function itemsTypes_list()
+	{	$result = $this->db->query('SELECT description FROM ItemsTypes');		
+		return $result;		
+	}
+	
+	
+ 	public function materials_list()
 	{
-		      
-		      
-		      $result = $this->db->query('SELECT description FROM ItemsTypes');		
-		      return $result;
-			
-			
+		$list = $this->db->query('SELECT description FROM Materials');		
+		return $list;		
 	
 	}
 	

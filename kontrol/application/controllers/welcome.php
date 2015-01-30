@@ -504,7 +504,8 @@ public function edit_item()
 
 		  switch($function)
 		  {  
-			case "gral":
+			case "gral":			
+			
 			 $sitio['idItemType']   = $_GET['idItemType']; /*crear lista desplegable */
 	   		 $sitio['amount'] 	= $_GET['amount'];//cantidad
 	   		 $sitio['wholeSale']    = $_GET['wholeSale'];//precio
@@ -513,12 +514,14 @@ public function edit_item()
 	   		 $sitio['country']     	= $_GET['country'];//pais de procedencia
 	   		 $sitio['baseMaterial'] = $_GET['baseMaterial'];//material base
 	   		 
+	   		 $sitio['idMaterial'] 	= $_GET['idMaterial'];//id material
+	   		 
 	   		 $sitio['idCodeBar']    = $_GET['idCodeBar'];//codigo de barras
 	   		 $sitio['minLevel']     = $_GET['minLevel'];//minimo de producto en el almacebn
 	   		 $sitio['iType']     	= $_GET['iType'];//itype
 			 $answer = $this->api->execute_call($sitio);
 			 echo "estatus del api" . $answer;
-			if($answer===true){  echo "Material almacenado exitosamente";  }
+			if($answer===true){  echo "Item almacenado exitosamente"; $this->new_type_end(); }
 			if($answer===-1){ echo "No se pudo almacenar el material";}
 		      
 			 
@@ -535,7 +538,9 @@ public function edit_item()
 		     $sitio['description']  = $_GET['description'];		     
 		     $answer = $this->api->execute_call($sitio);
 		     echo "status del api: ". $answer;
-		     if($answer===true){  echo "Material almacenado exitosamente";  }
+		     if($answer===true){  echo "Material almacenado exitosamente"; 
+		     $this->new_type_end();
+		     }
 		     if($answer===-1){ echo "No se pudo almacenar el material";}
 		     
 		     
@@ -596,7 +601,7 @@ public function edit_item()
 	 	  	$this->load->view('m1/herra_view');
 			$this->load->view('m1/inventariado/new_type_end');
 			$this->load->view('m1/footer');
-			echo "<meta http-equiv='Refresh' content='1;url=http://localhost/~lionband/kontrol/index.php/welcome/inv#selet'";
+			echo "<meta http-equiv='Refresh' content='1;url=item_gral'";
 			
 			
 		    }
@@ -612,9 +617,27 @@ public function edit_item()
 		   if( $logged_in== TRUE )
 		    {	
 		    echo "resultado:" . "<br>";
-			$this->load->library('api');
-			$sitio='piel';
-			$this->api->getItems($sitio);
+		    /*Recibimos datos del formulario*/
+			$sitio['name']		= $_GET['name'];
+// 			$sitio['shortCode']	= $_GET['shortCode'];
+			$sitio['parametro']	= $_GET['parametro'];
+			$sitio['advance']	= $_GET['advance'];
+			
+			$this->load->library('api');			
+			$result = $this->api->getItems($sitio);
+			$result_array['result'] =$result;			
+			/*Mostramos resultados  de busqueda*/
+			$session_id = $this->session->userdata('username');
+			$data['nombre_usuario']=$session_id;
+			$this->load->view('m1/header2');
+			$this->load->view('m1/loged_view',$data);
+	 	  	$this->load->view('m1/herra_view');
+			$this->load->view('m1/result_views/busi_view',$result_array);			
+			$this->load->view('m1/footer');
+			  
+			
+			
+			
 			
 			
 		    }
