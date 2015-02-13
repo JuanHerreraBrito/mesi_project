@@ -1,4 +1,4 @@
-
+<br><br>
 <h3>Por tipo:</h3>
 <p>
 -Ingresa aquí el tipo de producto o nombre, marca,etc.

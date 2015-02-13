@@ -9,7 +9,7 @@
   <label>Dirección : </label><input type="text" style="width:238px;"><hr>
   <label>Teléfono : </label><input type="text" style="width:242px;"><hr>
   <label>Manager: </label><input type="text" style="width:248px;"><hr>
-
+<br>
    
   <input type="submit" value="Registrar" class="btn" >
   </form>

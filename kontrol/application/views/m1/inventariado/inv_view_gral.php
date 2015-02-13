@@ -33,7 +33,7 @@
       $cont=1;    
     foreach ($materials_list->result() as $row)
 	  {	
-	    echo '<option value="'. $cont  .'">'.$row->description. $cont .  '</option>';
+	    echo '<option value="'. $cont  .'">'.$row->material. $cont .  '</option>';
 	    $cont++;
 	    echo "<hr>";      
 	  } ?>

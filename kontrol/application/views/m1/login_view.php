@@ -14,7 +14,7 @@
       
 <!-- ##############################################-->      
 		   <!-- logotipo -->
-		  <img src="../../../kontrol/conten/imgs/lg.jpg"  class="imgh-responsive"  width="680" >
+		  <img src="http://mena.site88.net/mesi/kontrol/conten/imgs/lg.jpg"  class="imgh-responsive"  width="680" >
 		  <!-- logotipo -->
     
 

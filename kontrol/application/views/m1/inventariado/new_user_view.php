@@ -17,14 +17,14 @@
 	<input type ="password" name="password2" id="password2"><hr>
 
 	<label>Inserta el teléfono del usuario.</label><br>
-	<input type ="text"><hr>
+	<input type ="text" name="phoneNumber" id="phoneNumber"><hr>
 
       <label>Capture FingerPrint.</label><br>
-	<input type ="text"><hr>
+	<input type ="text" name="fingerPrint" id="fingerPrint" ><hr>
 
 	
 	<label>Selecciona el Tipo de Usuario</label><br>
-	<select>
+	<select name="" >
 	<option>Bodega</option>
 	<option>Cajas</option>
 	<option>Gerente</option>
