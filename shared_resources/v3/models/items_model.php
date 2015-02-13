@@ -147,7 +147,7 @@ class Items_model extends CI_Model {
 	public function getItems($params) 
 	{	extract($params);			
 		/*BUsqueda general de Inventarios*/
-		if( $params['advance']=='name' && strlen($params['name'])==0)
+		if( $params['advance']=='name'  && strlen($params['name'])==0)
 		{
 		  $this->db->select('*');
 		  $this->db->from('Items');
@@ -170,7 +170,7 @@ class Items_model extends CI_Model {
 		  $this->db->from('ItemsTypes');
 		  //al quitar where se muestran resultados generaes
 		  $id = $params['name'];//se almacena cadena de buscada
- 		  $this->db->where_in('ItemsTypes.description',$id);//condicionamos la busqueda
+ 		  $this->db->like('ItemsTypes.description',$id);//condicionamos la busqueda
 		  $this->db->join('Items','Items.idItemType = ItemsTypes.idItemType','INNER');//Hacemos el join con los valores iguales
 		  $this->db->join('CodeBars','CodeBars.idCodeBar = Items.idCodeBar' ,'INNER');
 		  $this->db->join('ItemsMaterials','ItemsMaterials.idItem = Items.idItem','INNER');
@@ -182,12 +182,13 @@ class Items_model extends CI_Model {
 		/*Switch busqueda avanzada*/
 		if($params['advance']!='name')
 		{	
-		  $case=$params['advance'];//por codigo de barras
+		  $case=$params['advance'];
+		  //por codigo de barras
 		  switch($case)
 		  {
 			case "cod":
 			  $this->db->select('*');
-			  $this->db->from('CodeBars');
+			  $this->db->from('CodeBars');//table
 			  //al quitar where se muestran resultados generaes
 			  $id = $params['parametro'];//se almacena cadena de buscada
 			  $this->db->where_in('CodeBars.codeBar',$id);//condicionamos la busqueda
@@ -195,16 +196,35 @@ class Items_model extends CI_Model {
 			  $this->db->join('ItemsTypes','ItemsTypes.idItemType = Items.idItemType','INNER');//Hacemos el join con los valores iguales
 			  $this->db->join('ItemsMaterials', 'ItemsMaterials.idItem= Items.idItem', 'INNER' );
 			  $this->db->join('Materials','Materials.idMaterial = ItemsMaterials.idMaterial' ,'INNER');
-			  
-			  
 			  $query=$this->db->get();
 			  return $query;
 			break;
-		  
-		      case "":
+		  //por materiales
+		      case "material":
+			  $this->db->select('*');
+			  $this->db->from('Materials');//table
+			  $id = $params['parametro'];//se almacena cadena de buscada
+			  $this->db->like('Materials.material',$id);//condicionamos la busqueda
+			  $this->db->join('ItemsMaterials','ItemsMaterials.idMaterial=Materials.idMaterial','INNER');
+			  $this->db->join('Items', 'Items.idItem= ItemsMaterials.idItem', 'INNER' );
+			  $this->db->join('ItemsTypes','ItemsTypes.idItemType = Items.idItemType','INNER');//}Hacemos el join con los valores iguales
+			  $this->db->join('CodeBars','CodeBars.idCodeBar = Items.idCodeBar ','INNER');
+			  $query=$this->db->get();
+			  return $query;
 		      break;
 				
-		      case "":
+		      case "precio":
+		      $this->db->select('*');
+		      $this->db->from('Items');
+		      //al quitar where se muestran resultados generaes
+		      $id = $params['parametro'];//se almacena cadena de buscada
+		      $this->db->where_in('Items.wholeSale',$id);//,$id);//poner el valor del paramatro de busqueda
+		      $this->db->join('ItemsTypes','ItemsTypes.idItemType = Items.idItemType','INNER');//Hacemos el join con los valores iguales
+		      $this->db->join('ItemsMaterials', 'ItemsMaterials.idItem= Items.idItem', 'INNER' );
+		      $this->db->join('Materials','Materials.idMaterial = ItemsMaterials.idMaterial' ,'INNER');
+		      $this->db->join('CodeBars','CodeBars.idCodeBar = Items.idCodeBar' ,'INNER');
+		      $query=$this->db->get();
+		      return $query;	
 		      break;
 		  
 		      case "":
@@ -237,7 +257,7 @@ class Items_model extends CI_Model {
 	
  	public function materials_list()
 	{
-		$list = $this->db->query('SELECT description FROM Materials');		
+		$list = $this->db->query('SELECT material FROM Materials');		
 		return $list;		
 	
 	}
